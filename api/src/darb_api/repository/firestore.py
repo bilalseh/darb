@@ -112,6 +112,9 @@ class FirestoreUserRepository(FirestoreAccountStore):
     async def save_assessment(self, uid: str, skill_id: str, assessment: StoredAssessment) -> None:
         await self._assessment_key(uid, skill_id).set(assessment.model_dump(mode="json"))
 
+    async def delete_assessment(self, uid: str, skill_id: str) -> None:
+        await self._assessment_key(uid, skill_id).delete()
+
     async def save_placement(self, uid: str, skill_id: str, result: PlacementResult) -> None:
         batch = self._db.batch()
         batch.update(

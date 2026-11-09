@@ -111,6 +111,9 @@ class InMemoryUserRepository:
     async def save_assessment(self, uid: str, skill_id: str, assessment: StoredAssessment) -> None:
         self.assessments[(uid, skill_id)] = assessment
 
+    async def delete_assessment(self, uid: str, skill_id: str) -> None:
+        self.assessments.pop((uid, skill_id), None)
+
     async def save_placement(self, uid: str, skill_id: str, result: PlacementResult) -> None:
         self.skills[uid] = [
             s.model_copy(update={"placement": result, "status": SkillStatus.ASSESSED})

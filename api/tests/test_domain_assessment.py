@@ -110,3 +110,24 @@ def test_level_comes_from_the_average_score(average: int, level: PlacementLevel)
 
 def test_no_scores_means_beginner() -> None:
     assert placement_level({}) == PlacementLevel.BEGINNER
+
+
+def test_not_knowing_any_kind_of_question_counts_as_a_miss() -> None:
+    answers = [
+        Answer(1, choice=0),  # correct
+        Answer(2, confidence=3),
+        Answer(4, choice=2),  # wrong
+        Answer(0, choice=0),  # correct
+        Answer(3, dont_know=True),  # short answer, not known yet
+        Answer(5, dont_know=True),  # multiple choice, not known yet
+    ]
+
+    assert answer_problem(QUESTIONS[3], Answer(3, dont_know=True)) is None
+    assert should_stop(QUESTIONS, answers)
+
+
+def test_not_knowing_earns_no_credit() -> None:
+    known = subskill_scores(QUIZ.subskills, QUESTIONS, [Answer(2, confidence=5)], {})
+    unknown = subskill_scores(QUIZ.subskills, QUESTIONS, [Answer(2, dont_know=True)], {})
+
+    assert known["Listening"] > unknown["Listening"] == 0

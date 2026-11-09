@@ -1,7 +1,7 @@
 """Placement assessment: one AI call writes the quiz, the server presents it one question at a
 time (answers never leave the server), and one AI call reviews it at the end."""
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 
 from darb_api.auth import CurrentUser
 from darb_api.dependencies import AiDep, ClockDep, RepositoryDep, SettingsDep
@@ -47,6 +47,7 @@ def _progress(stored: StoredAssessment) -> AssessmentProgress:
         max_questions=len(questions),
         question=question,
         finished=index is None,
+        language=stored.language,
     )
 
 
@@ -82,9 +83,23 @@ async def start_assessment(
             started_at=clock(),
             provider=result.provider,
             prompt_version=prompt.version,
+            language=language,
         )
         await repository.save_assessment(user.uid, skill_id, stored)
     return _progress(stored)
+
+
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
+async def restart_assessment(
+    skill_id: str, user: CurrentUser, repository: RepositoryDep
+) -> Response:
+    """Discard the test in progress, so the next start writes a new one (for example in the
+    language the learner has switched to)."""
+    skill = await require_skill(repository, user.uid, skill_id)
+    if skill.placement is not None:
+        raise conflict("This skill already has a placement result")
+    await repository.delete_assessment(user.uid, skill_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/answers")
@@ -102,6 +117,7 @@ async def answer_question(
         choice=submission.choice,
         text=submission.text.strip() if submission.text else None,
         confidence=submission.confidence,
+        dont_know=submission.dont_know,
     )
     problem = rules.answer_problem(stored.quiz.questions[expected], answer.to_domain())
     if problem:
@@ -120,7 +136,12 @@ def _review_prompt_sections(stored: StoredAssessment) -> tuple[str, str]:
     for answer in stored.domain_answers():
         question = questions[answer.question_index]
         qid = rules.question_id(answer.question_index)
-        if question.kind is QuestionKind.MULTIPLE_CHOICE:
+        if answer.dont_know:
+            results.append(
+                f"- {question.subskill}, difficulty {question.difficulty}: "
+                "the learner said they do not know this yet"
+            )
+        elif question.kind is QuestionKind.MULTIPLE_CHOICE:
             outcome = "correct" if rules.is_correct(question, answer) else "incorrect"
             results.append(f"- {question.subskill}, difficulty {question.difficulty}: {outcome}")
         elif question.kind is QuestionKind.CONFIDENCE:

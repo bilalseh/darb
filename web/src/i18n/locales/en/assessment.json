@@ -36,5 +36,15 @@
     "elementary": "Elementary",
     "intermediate": "Intermediate",
     "advanced": "Advanced"
+  },
+  "dontKnow": "I don't know yet",
+  "languageNotice": "This test was written in {{language}}. Switching the app's language changes its labels, not a test that has already been written.",
+  "restartIn": "Start over in {{language}}",
+  "restartHint": "Your answers so far are discarded, and writing the new test uses one AI request.",
+  "restarting": "Writing a new test…",
+  "restartFailed": "The test could not be restarted. Please try again.",
+  "languages": {
+    "en": "English",
+    "ar": "Arabic"
   }
 }

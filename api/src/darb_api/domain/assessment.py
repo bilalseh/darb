@@ -21,6 +21,7 @@ class Answer:
     choice: int | None = None
     text: str | None = None
     confidence: int | None = None
+    dont_know: bool = False
 
 
 def question_id(index: int) -> str:
@@ -39,14 +40,15 @@ def is_correct(question: QuizQuestionSpec, answer: Answer) -> bool:
 
 
 def should_stop(questions: Sequence[QuizQuestionSpec], answers: Sequence[Answer]) -> bool:
-    """Stop early once the learner has missed several multiple choice questions in a row: the
-    remaining questions are harder still, so they would only be discouraging."""
+    """Stop early once the learner has missed several questions in a row (wrong multiple choice
+    answers, or any question they do not know yet): the remaining questions are harder still,
+    so they would only be discouraging."""
     if len(answers) < MIN_QUESTIONS:
         return False
     misses = 0
     for answer in reversed(answers):
         question = questions[answer.question_index]
-        if question.kind is not QuestionKind.MULTIPLE_CHOICE:
+        if question.kind is not QuestionKind.MULTIPLE_CHOICE and not answer.dont_know:
             continue
         if is_correct(question, answer):
             return False
@@ -65,6 +67,8 @@ def next_question(questions: Sequence[QuizQuestionSpec], answers: Sequence[Answe
 
 def answer_problem(question: QuizQuestionSpec, answer: Answer) -> str | None:
     """Why an answer does not fit its question, or None when it does."""
+    if answer.dont_know:
+        return None
     match question.kind:
         case QuestionKind.MULTIPLE_CHOICE:
             if answer.choice is None or not 0 <= answer.choice < len(question.options):
@@ -85,7 +89,8 @@ def subskill_scores(
     short_answer_scores: Mapping[str, float],
 ) -> dict[str, int]:
     """Score each sub-skill from 0 to 100, weighting questions by difficulty. Questions skipped by
-    an early stop count as not yet mastered; unanswered confidence statements do not count."""
+    an early stop or answered "don't know yet" count as not yet mastered; unanswered confidence
+    statements do not count."""
     by_index = {answer.question_index: answer for answer in answers}
     earned = dict.fromkeys(subskills, 0.0)
     possible = dict.fromkeys(subskills, 0.0)
@@ -94,7 +99,10 @@ def subskill_scores(
     for index, question in enumerate(questions):
         name = names[question.subskill.casefold()]
         answer = by_index.get(index)
-        if question.kind is QuestionKind.CONFIDENCE:
+        if answer is not None and answer.dont_know:
+            weight = 1.0 if question.kind is QuestionKind.CONFIDENCE else float(question.difficulty)
+            credit = 0.0
+        elif question.kind is QuestionKind.CONFIDENCE:
             if answer is None or answer.confidence is None:
                 continue
             weight, credit = 1.0, (answer.confidence - 1) / 4

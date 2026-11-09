@@ -18,8 +18,6 @@ AI_UNAVAILABLE = HTTPException(
     detail={"code": "ai_unavailable", "message": "The AI is resting. Please try again soon."},
 )
 
-LANGUAGE_NAMES = {Language.EN: "English", Language.AR: "Modern Standard Arabic"}
-
 
 def conflict(message: str) -> HTTPException:
     return HTTPException(status.HTTP_409_CONFLICT, detail={"code": "conflict", "message": message})
@@ -43,7 +41,7 @@ def daily_ai_limit(tier: Tier, settings: Settings) -> int:
 @asynccontextmanager
 async def metered_ai(
     repository: UserRepository, user: AuthenticatedUser, clock: Clock, settings: Settings
-) -> AsyncIterator[str]:
+) -> AsyncIterator[Language]:
     """Count one AI request against the daily limits (429 when reached) and yield the language
     the AI should write in. If the AI call inside fails, the request is given back and the
     client gets a 503."""
@@ -64,7 +62,7 @@ async def metered_ai(
         ) from error
     preferences = profile.preferences if profile else Preferences()
     try:
-        yield LANGUAGE_NAMES[preferences.language]
+        yield preferences.language
     except AiUnavailableError as error:
         await repository.refund_ai_request(user.uid, day)
         raise AI_UNAVAILABLE from error

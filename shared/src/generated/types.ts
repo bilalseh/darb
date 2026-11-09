@@ -1,13 +1,15 @@
 /* Generated from the Pydantic models in api/. Do not edit; run `pnpm gen:schemas`. */
 
 /**
- * The learner's answer to one question; set the field that matches the question kind.
+ * The learner's answer to one question: set the field that matches the question kind, or
+ * `dontKnow` alone to say they do not know yet (scored as a miss, never a guess).
  */
 export interface AnswerSubmission {
   questionId: string;
   choice?: number | null;
   text?: string | null;
   confidence?: number | null;
+  dontKnow?: boolean;
 }
 
 /**
@@ -18,6 +20,7 @@ export interface AssessmentProgress {
   maxQuestions: number;
   question: AssessmentQuestion | null;
   finished: boolean;
+  language: Language;
 }
 
 /**

@@ -2,7 +2,7 @@
   "$defs": {
     "AnswerSubmission": {
       "additionalProperties": false,
-      "description": "The learner's answer to one question; set the field that matches the question kind.",
+      "description": "The learner's answer to one question: set the field that matches the question kind, or\n`dontKnow` alone to say they do not know yet (scored as a miss, never a guess).",
       "properties": {
         "questionId": {
           "maxLength": 10,
@@ -46,6 +46,10 @@
             }
           ],
           "default": null
+        },
+        "dontKnow": {
+          "default": false,
+          "type": "boolean"
         }
       },
       "required": [
@@ -76,13 +80,17 @@
         },
         "finished": {
           "type": "boolean"
+        },
+        "language": {
+          "$ref": "#/$defs/Language"
         }
       },
       "required": [
         "answered",
         "maxQuestions",
         "question",
-        "finished"
+        "finished",
+        "language"
       ],
       "title": "AssessmentProgress",
       "type": "object"

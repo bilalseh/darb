@@ -5,6 +5,7 @@ from typing import Self
 from pydantic import Field, model_validator
 
 from darb_api.schemas.base import ApiModel
+from darb_api.schemas.profile import Language
 
 
 class QuestionKind(StrEnum):
@@ -97,12 +98,21 @@ class AssessmentQuestion(ApiModel):
 
 
 class AnswerSubmission(ApiModel):
-    """The learner's answer to one question; set the field that matches the question kind."""
+    """The learner's answer to one question: set the field that matches the question kind, or
+    `dontKnow` alone to say they do not know yet (scored as a miss, never a guess)."""
 
     question_id: str = Field(min_length=1, max_length=10)
     choice: int | None = Field(default=None, ge=0, le=4)
     text: str | None = Field(default=None, max_length=1000)
     confidence: int | None = Field(default=None, ge=1, le=5)
+    dont_know: bool = False
+
+    @model_validator(mode="after")
+    def _dont_know_alone(self) -> Self:
+        answered = self.choice is not None or bool(self.text) or self.confidence is not None
+        if self.dont_know and answered:
+            raise ValueError("send either an answer or dontKnow, not both")
+        return self
 
 
 class AssessmentProgress(ApiModel):
@@ -112,6 +122,7 @@ class AssessmentProgress(ApiModel):
     max_questions: int
     question: AssessmentQuestion | None
     finished: bool
+    language: Language
 
 
 class SubskillScore(ApiModel):

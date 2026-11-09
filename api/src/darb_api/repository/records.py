@@ -8,6 +8,7 @@ from darb_api.schemas import OnboardingAnswers, PlacementResult, SkillStatus
 from darb_api.schemas.assessment import PlacementQuiz
 from darb_api.schemas.base import ApiModel
 from darb_api.schemas.plan import Plan
+from darb_api.schemas.profile import Language
 from darb_api.schemas.quiz import QuizQuestionDraft, QuizResult, ReviewItem
 
 
@@ -27,9 +28,10 @@ class RecordedAnswer(ApiModel):
     choice: int | None = None
     text: str | None = None
     confidence: int | None = None
+    dont_know: bool = False
 
     def to_domain(self) -> Answer:
-        return Answer(self.question_index, self.choice, self.text, self.confidence)
+        return Answer(self.question_index, self.choice, self.text, self.confidence, self.dont_know)
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,6 +51,7 @@ class StoredAssessment(ApiModel):
     started_at: datetime
     provider: str
     prompt_version: str
+    language: Language = Language.EN
 
     def domain_answers(self) -> list[Answer]:
         return [answer.to_domain() for answer in self.answers]

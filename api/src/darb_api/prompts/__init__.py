@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from importlib.resources import files
 from string import Template
 
+from darb_api.schemas.profile import Language
+
 # Bump a version by adding a new file; the version used is stored with what it produced.
 CURRENT_VERSIONS = {
     "placement_quiz": "v1",
@@ -33,7 +35,10 @@ LANGUAGE_RULE = (
 )
 
 
-def render(task: str, language: str = "English", **values: str) -> RenderedPrompt:
+LANGUAGE_NAMES = {Language.EN: "English", Language.AR: "Modern Standard Arabic"}
+
+
+def render(task: str, language: Language = Language.EN, **values: str) -> RenderedPrompt:
     version = CURRENT_VERSIONS[task]
     text = files(__package__).joinpath(f"{task}.{version}.txt").read_text(encoding="utf-8")
     system, separator, user = text.removeprefix("[system]\n").partition("\n[user]\n")
@@ -43,7 +48,7 @@ def render(task: str, language: str = "English", **values: str) -> RenderedPromp
         task=task,
         version=version,
         system=Template(system.strip() + "\n\n" + LANGUAGE_RULE).substitute(
-            values, language=language
+            values, language=LANGUAGE_NAMES[language]
         ),
         user=Template(user.strip()).substitute(values),
     )

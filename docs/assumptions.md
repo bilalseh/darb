@@ -139,3 +139,12 @@ anything that changes architecture also has an ADR.
 
 - The README GIF and screenshots are captured from the local app with the deterministic fake AI
   (`pnpm screenshots`), so they can be regenerated at any time without an AI key.
+
+## After the first live test
+
+- **"I don't know yet"** is offered on every placement question. It counts as a miss (no credit,
+  and two misses in a row can end the test early), so the level reflects what the learner knows
+  rather than lucky guesses. The test stays a test: no hints or explanations until it is finished.
+- **A placement test keeps the language it was written in.** Switching the app's language mid-test
+  changes the labels; the page says the test was written in the other language and offers to start
+  over in the new one (answers so far are discarded; the new test costs one AI request).

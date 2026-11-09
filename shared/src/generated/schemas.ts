@@ -23,6 +23,7 @@ export const AnswerSubmissionSchema = z
     choice: z.union([z.number().int().gte(0).lte(4), z.null()]).default(null),
     text: z.union([z.string().max(1000), z.null()]).default(null),
     confidence: z.union([z.number().int().gte(1).lte(5), z.null()]).default(null),
+    dontKnow: z.boolean().default(false),
   })
   .strict();
 

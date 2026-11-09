@@ -22,6 +22,7 @@ vi.mock('../skills/skillsQuery', () => ({
 const QUESTION: AssessmentProgress = {
   answered: 0,
   maxQuestions: 7,
+  language: 'en',
   finished: false,
   question: {
     id: 'q1',
@@ -34,6 +35,7 @@ const QUESTION: AssessmentProgress = {
 const FINISHED: AssessmentProgress = {
   answered: 1,
   maxQuestions: 7,
+  language: 'en',
   finished: true,
   question: null,
 };
@@ -84,6 +86,33 @@ describe('placement assessment', () => {
     );
     const sent = answerCall?.[1]?.body;
     expect(typeof sent === 'string' && JSON.parse(sent)).toEqual({ questionId: 'q1', choice: 0 });
+  });
+
+  it('lets the learner say they do not know yet instead of guessing', async () => {
+    const fetchMock = renderAssessment({
+      '/api/skills/skill-1/assessment': () => QUESTION,
+      '/api/skills/skill-1/assessment/answers': () => FINISHED,
+      '/api/skills/skill-1/assessment/complete': () => RESULT,
+    });
+
+    await userEvent.click(await screen.findByRole('button', { name: "I don't know yet" }));
+
+    await screen.findByRole('heading', { level: 2, name: 'Elementary' });
+    const answerCall = fetchMock.mock.calls.find(
+      ([url]) => typeof url === 'string' && url.endsWith('/answers'),
+    );
+    const sent = answerCall?.[1]?.body;
+    expect(typeof sent === 'string' && JSON.parse(sent)).toEqual({
+      questionId: 'q1',
+      dontKnow: true,
+    });
+  });
+
+  it('offers to start over when the test is in another language', async () => {
+    renderAssessment({ '/api/skills/skill-1/assessment': () => ({ ...QUESTION, language: 'ar' }) });
+
+    expect(await screen.findByRole('note')).toHaveTextContent('This test was written in Arabic.');
+    expect(screen.getByRole('button', { name: 'Start over in English' })).toBeInTheDocument();
   });
 
   it('asks for an answer before continuing', async () => {

@@ -153,3 +153,28 @@ def test_enforces_the_daily_ai_limit(
         "scope": "user",
         "resetsAt": "2026-11-10T00:00:00+00:00",
     }
+
+
+def test_a_learner_can_say_they_do_not_know_yet(client: TestClient) -> None:
+    progress = client.post(BASE, headers=AS_ADA).json()
+    question_id = progress["question"]["id"]
+
+    both = {"questionId": question_id, "choice": 0, "dontKnow": True}
+    rejected = client.post(f"{BASE}/answers", json=both, headers=AS_ADA)
+    accepted = client.post(
+        f"{BASE}/answers", json={"questionId": question_id, "dontKnow": True}, headers=AS_ADA
+    )
+
+    assert progress["language"] == "en"
+    assert rejected.status_code == 422
+    assert accepted.json()["answered"] == 1
+
+
+def test_restarting_discards_the_test_in_progress(
+    client: TestClient, skill_repository: InMemoryUserRepository
+) -> None:
+    client.post(BASE, headers=AS_ADA)
+
+    assert client.delete(BASE, headers=AS_ADA).status_code == 204
+    assert ("user-ada", "skill-1") not in skill_repository.assessments
+    assert client.post(BASE, headers=AS_ADA).json()["answered"] == 0
