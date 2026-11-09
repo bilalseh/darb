@@ -18,7 +18,7 @@ test('the demo shows its seeded placement result', async ({ page }) => {
 
   await expect(page.getByRole('heading', { level: 2, name: 'Elementary' })).toBeVisible();
   await expect(scoreRow(page, 'Speaking')).toBeVisible();
-  await expect(page.getByText('36 / 100')).toBeVisible();
+  await expect(page.getByRole('definition').filter({ hasText: '36 / 100' })).toBeVisible();
 });
 
 test('a learner takes the placement test for a new skill', async ({ page }) => {

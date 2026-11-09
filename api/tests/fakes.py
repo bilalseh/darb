@@ -3,8 +3,9 @@ from collections.abc import Sequence
 from darb_api.ai.types import AiRequest, FailureKind, ProviderError
 from darb_api.auth import AuthenticatedUser, InvalidTokenError
 from darb_api.domain.usage import check_allowance
-from darb_api.repository import NewSkill, StoredAssessment
+from darb_api.repository import DayActivity, NewSkill, StoredAssessment
 from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
+from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
 
 
@@ -28,15 +29,22 @@ class InMemoryUserRepository:
         self.assessments: dict[tuple[str, str], StoredAssessment] = {}
         self.usage: dict[tuple[str, str], int] = {}
         self.plans: dict[tuple[str, str], Plan] = {}
+        self.lessons: dict[tuple[str, str, str], LessonContent] = {}
+        self.activity: dict[tuple[str, str], DayActivity] = {}
 
     async def ensure_profile(
-        self, profile: Profile, seed_skills: Sequence[NewSkill] = ()
+        self,
+        profile: Profile,
+        seed_skills: Sequence[NewSkill] = (),
+        seed_activity: Sequence[DayActivity] = (),
     ) -> Profile:
         if profile.uid in self.profiles:
             return self.profiles[profile.uid]
         self.profiles[profile.uid] = profile
         for skill in seed_skills:
             await self.add_skill(profile.uid, skill)
+        for activity in seed_activity:
+            self.activity[(profile.uid, activity.day)] = activity
         return profile
 
     async def add_skill(self, uid: str, skill: NewSkill) -> Skill:
@@ -82,6 +90,21 @@ class InMemoryUserRepository:
 
     async def save_plan(self, uid: str, plan: Plan) -> None:
         self.plans[(uid, plan.skill_id)] = plan
+
+    async def get_lesson_content(
+        self, uid: str, skill_id: str, lesson_id: str
+    ) -> LessonContent | None:
+        return self.lessons.get((uid, skill_id, lesson_id))
+
+    async def save_lesson_content(self, uid: str, content: LessonContent) -> None:
+        self.lessons[(uid, content.skill_id, content.lesson_id)] = content
+
+    async def record_activity(self, uid: str, day: str, minutes: int) -> None:
+        old = self.activity.get((uid, day), DayActivity(day, 0, 0))
+        self.activity[(uid, day)] = DayActivity(day, old.lessons + 1, old.minutes + minutes)
+
+    async def list_activity(self, uid: str) -> list[DayActivity]:
+        return [activity for (owner, _), activity in self.activity.items() if owner == uid]
 
 
 class ScriptedProvider:

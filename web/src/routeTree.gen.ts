@@ -17,6 +17,7 @@ import { Route as AppPlanRouteImport } from './routes/_app/plan'
 import { Route as AppProgressRouteImport } from './routes/_app/progress'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
 import { Route as AppSkillsSkillIdAssessmentRouteImport } from './routes/_app/skills.$skillId.assessment'
+import { Route as AppSkillsSkillIdLessonsLessonIdRouteImport } from './routes/_app/skills.$skillId.lessons.$lessonId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,12 @@ const AppSkillsSkillIdAssessmentRoute =
     path: '/skills/$skillId/assessment',
     getParentRoute: () => AppRoute,
   } as any)
+const AppSkillsSkillIdLessonsLessonIdRoute =
+  AppSkillsSkillIdLessonsLessonIdRouteImport.update({
+    id: '/skills/$skillId/lessons/$lessonId',
+    path: '/skills/$skillId/lessons/$lessonId',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/progress': typeof AppProgressRoute
   '/today': typeof AppTodayRoute
   '/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
+  '/skills/$skillId/lessons/$lessonId': typeof AppSkillsSkillIdLessonsLessonIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,6 +84,7 @@ export interface FileRoutesByTo {
   '/progress': typeof AppProgressRoute
   '/today': typeof AppTodayRoute
   '/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
+  '/skills/$skillId/lessons/$lessonId': typeof AppSkillsSkillIdLessonsLessonIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,6 +96,7 @@ export interface FileRoutesById {
   '/_app/progress': typeof AppProgressRoute
   '/_app/today': typeof AppTodayRoute
   '/_app/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
+  '/_app/skills/$skillId/lessons/$lessonId': typeof AppSkillsSkillIdLessonsLessonIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/today'
     | '/skills/$skillId/assessment'
+    | '/skills/$skillId/lessons/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/today'
     | '/skills/$skillId/assessment'
+    | '/skills/$skillId/lessons/$lessonId'
   id:
     | '__root__'
     | '/'
@@ -117,6 +129,7 @@ export interface FileRouteTypes {
     | '/_app/progress'
     | '/_app/today'
     | '/_app/skills/$skillId/assessment'
+    | '/_app/skills/$skillId/lessons/$lessonId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -183,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSkillsSkillIdAssessmentRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/skills/$skillId/lessons/$lessonId': {
+      id: '/_app/skills/$skillId/lessons/$lessonId'
+      path: '/skills/$skillId/lessons/$lessonId'
+      fullPath: '/skills/$skillId/lessons/$lessonId'
+      preLoaderRoute: typeof AppSkillsSkillIdLessonsLessonIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -192,6 +212,7 @@ interface AppRouteChildren {
   AppProgressRoute: typeof AppProgressRoute
   AppTodayRoute: typeof AppTodayRoute
   AppSkillsSkillIdAssessmentRoute: typeof AppSkillsSkillIdAssessmentRoute
+  AppSkillsSkillIdLessonsLessonIdRoute: typeof AppSkillsSkillIdLessonsLessonIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -200,6 +221,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProgressRoute: AppProgressRoute,
   AppTodayRoute: AppTodayRoute,
   AppSkillsSkillIdAssessmentRoute: AppSkillsSkillIdAssessmentRoute,
+  AppSkillsSkillIdLessonsLessonIdRoute: AppSkillsSkillIdLessonsLessonIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

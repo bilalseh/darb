@@ -49,7 +49,17 @@
     "hoursPerWeek_other": "{{count}} hours a week",
     "goalDate": "Goal date: {{date}}",
     "takePlacement": "Take the placement test for {{skill}}",
-    "seePlacement": "See your {{skill}} placement result"
+    "seePlacement": "See your {{skill}} placement result",
+    "dueTitle": "Today's lessons",
+    "estimate_one": "About {{count}} minute",
+    "estimate_other": "About {{count}} minutes",
+    "nothingDue": "Nothing scheduled for today. A good day to review, or to start a new skill.",
+    "catchUpTitle": "Catch up",
+    "catchUpBody": "These lessons were planned for earlier days.",
+    "streak_one": "{{count}}-day streak",
+    "streak_other": "{{count}}-day streak",
+    "activeToday": "You studied today. Nice work.",
+    "keepStreak": "Finish a lesson today to keep it going."
   },
   "comingSoon": {
     "body": "This part of Darb is being built."

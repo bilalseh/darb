@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 
 from darb_api.domain.plan import build_week, monday_of
+from darb_api.repository import DayActivity
 from darb_api.schemas.onboarding import Weekday
 from darb_api.schemas.plan import (
     LessonDraft,
@@ -177,3 +178,17 @@ def demo_plan(now: datetime) -> Plan:
         difficulty=0,
         generated_at=now - timedelta(weeks=3),
     )
+
+
+def demo_activity(now: datetime, plan: Plan) -> list[DayActivity]:
+    """One study session per finished lesson. The last three were done on the three days before
+    the demo starts, so the demo shows a live three-day streak."""
+    done = [lesson for week in plan.weeks for lesson in week.lessons if lesson.status == "done"]
+    recent = [(now - timedelta(days=offset)).date() for offset in (3, 2, 1)]
+    days = [lesson.scheduled_date for lesson in done[: len(done) - len(recent)]] + recent
+    totals: dict[str, DayActivity] = {}
+    for lesson, day in zip(done, days, strict=True):
+        key = day.isoformat()
+        old = totals.get(key, DayActivity(key, 0, 0))
+        totals[key] = DayActivity(key, old.lessons + 1, old.minutes + lesson.minutes)
+    return list(totals.values())

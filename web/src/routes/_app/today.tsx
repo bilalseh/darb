@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 
 import { SkillCard } from '../../features/skills/SkillCard';
 import { skillsQueryOptions } from '../../features/skills/skillsQuery';
+import { StreakTile } from '../../features/today/StreakTile';
+import { TodayLessons } from '../../features/today/TodayLessons';
 
 export const Route = createFileRoute('/_app/today')({
   component: TodayPage,
@@ -29,6 +31,11 @@ function TodayPage() {
         </h1>
         <p className="mt-2 text-stone-600">{greeting}</p>
       </div>
+
+      <StreakTile uid={user.uid} />
+      {skills.isSuccess && skills.data.length > 0 && (
+        <TodayLessons uid={user.uid} skills={skills.data} />
+      )}
 
       {skills.isPending && (
         <p role="status" className="text-stone-600">

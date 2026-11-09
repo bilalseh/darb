@@ -120,6 +120,21 @@
       "title": "AssessmentQuestion",
       "type": "object"
     },
+    "CompleteLessonRequest": {
+      "additionalProperties": false,
+      "description": "Mark a lesson done; `completedOn` is the learner's own calendar date.",
+      "properties": {
+        "completedOn": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "completedOn"
+      ],
+      "title": "CompleteLessonRequest",
+      "type": "object"
+    },
     "HealthResponse": {
       "additionalProperties": false,
       "description": "Liveness payload returned by GET /api/health.",
@@ -148,6 +163,51 @@
       ],
       "title": "LearningStyle",
       "type": "string"
+    },
+    "LessonContent": {
+      "additionalProperties": false,
+      "description": "A lesson's written content plus its tutor conversation, at users/{uid}/lessons/{id}.",
+      "properties": {
+        "skillId": {
+          "type": "string"
+        },
+        "lessonId": {
+          "type": "string"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "exercise": {
+          "type": "string"
+        },
+        "resources": {
+          "items": {
+            "$ref": "#/$defs/ResourceLink"
+          },
+          "type": "array"
+        },
+        "tutor": {
+          "items": {
+            "$ref": "#/$defs/TutorMessage"
+          },
+          "type": "array"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "skillId",
+        "lessonId",
+        "explanation",
+        "exercise",
+        "resources",
+        "tutor",
+        "generatedAt"
+      ],
+      "title": "LessonContent",
+      "type": "object"
     },
     "LessonKind": {
       "enum": [
@@ -470,6 +530,41 @@
       "title": "RegenerateWeekRequest",
       "type": "object"
     },
+    "ResourceKind": {
+      "enum": [
+        "article",
+        "video",
+        "exercise",
+        "reference"
+      ],
+      "title": "ResourceKind",
+      "type": "string"
+    },
+    "ResourceLink": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "maxLength": 100,
+          "minLength": 3,
+          "type": "string"
+        },
+        "url": {
+          "maxLength": 300,
+          "minLength": 10,
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ResourceKind"
+        }
+      },
+      "required": [
+        "title",
+        "url",
+        "kind"
+      ],
+      "title": "ResourceLink",
+      "type": "object"
+    },
     "SelfRatedLevel": {
       "enum": [
         "none",
@@ -539,6 +634,36 @@
       "title": "SkillStatus",
       "type": "string"
     },
+    "Stats": {
+      "additionalProperties": false,
+      "description": "Progress figures computed from the learner's activity.",
+      "properties": {
+        "streak": {
+          "type": "integer"
+        },
+        "longestStreak": {
+          "type": "integer"
+        },
+        "activeToday": {
+          "type": "boolean"
+        },
+        "lessonsDone": {
+          "type": "integer"
+        },
+        "minutesStudied": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "streak",
+        "longestStreak",
+        "activeToday",
+        "lessonsDone",
+        "minutesStudied"
+      ],
+      "title": "Stats",
+      "type": "object"
+    },
     "SubskillScore": {
       "additionalProperties": false,
       "properties": {
@@ -557,6 +682,51 @@
       ],
       "title": "SubskillScore",
       "type": "object"
+    },
+    "TutorMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "$ref": "#/$defs/TutorRole"
+        },
+        "text": {
+          "type": "string"
+        },
+        "at": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "text",
+        "at"
+      ],
+      "title": "TutorMessage",
+      "type": "object"
+    },
+    "TutorRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "maxLength": 800,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "title": "TutorRequest",
+      "type": "object"
+    },
+    "TutorRole": {
+      "enum": [
+        "learner",
+        "tutor"
+      ],
+      "title": "TutorRole",
+      "type": "string"
     },
     "WeekAdjustment": {
       "enum": [
@@ -586,6 +756,8 @@
     "OnboardingAnswers",
     "AnswerSubmission",
     "RegenerateWeekRequest",
-    "MoveLessonRequest"
+    "MoveLessonRequest",
+    "CompleteLessonRequest",
+    "TutorRequest"
   ]
 }

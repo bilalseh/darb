@@ -31,3 +31,7 @@ export const RegenerateWeekRequestSchema = z
   .strict();
 
 export const MoveLessonRequestSchema = z.object({ scheduledDate: z.string().date() }).strict();
+
+export const CompleteLessonRequestSchema = z.object({ completedOn: z.string().date() }).strict();
+
+export const TutorRequestSchema = z.object({ message: z.string().min(1).max(800) }).strict();

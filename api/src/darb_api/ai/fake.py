@@ -112,6 +112,35 @@ class FakeProvider:
         if request.task == "plan_outline":
             weeks = _number(_WEEKS, request.prompt, 4)
             return json.dumps(_plan(weeks, _number(_MINUTES, request.prompt, 180)))
+        if request.task == "lesson_content":
+            return json.dumps(
+                {
+                    "explanation": (
+                        "Start with the core idea of this lesson and say it in your own words."
+                        "\n\n"
+                        "Then try it on a small example, check the result, and notice what "
+                        "changed. Small, regular steps beat long, rare sessions."
+                    ),
+                    "exercise": "Spend ten minutes applying today's idea, then note one thing "
+                    "that worked and one thing to try next time.",
+                    "resources": [
+                        {
+                            "title": "Wikipedia overview",
+                            "url": "https://en.wikipedia.org/wiki/Learning",
+                            "kind": "reference",
+                        },
+                        {
+                            "title": "Made-up link that must be dropped",
+                            "url": "https://not-a-real-learning-site.example/lesson",
+                            "kind": "article",
+                        },
+                    ],
+                }
+            )
+        if request.task == "tutor":
+            return json.dumps(
+                {"reply": "Good question! Try breaking it into one small step and practise that."}
+            )
         if request.task == "plan_week":
             return json.dumps(_week(0, _number(_REMAINING, request.prompt, 180)))
         raise ProviderError(self.name, FailureKind.REJECTED, f"unknown task {request.task}")

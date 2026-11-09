@@ -15,6 +15,7 @@ from darb_api.schemas.assessment import (
     SubskillScore,
 )
 from darb_api.schemas.health import HealthResponse
+from darb_api.schemas.lesson import CompleteLessonRequest, LessonContent, Stats, TutorRequest
 from darb_api.schemas.onboarding import (
     LearningStyle,
     OnboardingAnswers,
@@ -31,6 +32,8 @@ REQUEST_MODELS: tuple[type[BaseModel], ...] = (
     AnswerSubmission,
     RegenerateWeekRequest,
     MoveLessonRequest,
+    CompleteLessonRequest,
+    TutorRequest,
 )
 RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     HealthResponse,
@@ -39,6 +42,8 @@ RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     AssessmentProgress,
     PlacementResult,
     Plan,
+    LessonContent,
+    Stats,
 )
 
 __all__ = [

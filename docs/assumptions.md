@@ -47,3 +47,21 @@ anything that changes architecture also has an ADR.
   regenerate the week at the new difficulty.
 - **The demo plan** is hand-written (no AI), starts three weeks ago, and has the first two weeks
   done and the third in progress.
+
+## Phase 5: daily use
+
+- **Lesson content is written on first open** (explanation, one exercise, 1 to 3 resources) and
+  stored, so each lesson costs one AI request once.
+- **Resource links are checked before anyone sees them.** AI models invent URLs, so a link is kept
+  only if it is `https` on a short list of well-known free learning sites (Wikipedia, Khan Academy,
+  MDN, freeCodeCamp, YouTube, BBC, and a few others). If no link survives, the lesson gets a
+  Wikipedia search and a YouTube search for its topic instead. No third-party content is copied.
+- **Explanations are shown as plain paragraphs**, never as HTML, so AI output cannot inject markup.
+- **The streak** counts consecutive days with at least one finished lesson or review, up to today;
+  if today has nothing yet, the streak still counts through yesterday. "Today" is the learner's
+  own calendar date, sent by the browser (within a day of the server's UTC date).
+- **The tutor** answers in the context of the lesson, the learner's level and their last
+  conversation turns; each message is one AI request. It keeps the last 20 messages per lesson and
+  declines unrelated requests.
+- **Missed lessons** (scheduled before today, not done) show on Today as "Catch up" until phase 6
+  reschedules them automatically.

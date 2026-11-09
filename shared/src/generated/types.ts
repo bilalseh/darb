@@ -32,6 +32,13 @@ export interface AssessmentQuestion {
 }
 
 /**
+ * Mark a lesson done; `completedOn` is the learner's own calendar date.
+ */
+export interface CompleteLessonRequest {
+  completedOn: string;
+}
+
+/**
  * Liveness payload returned by GET /api/health.
  */
 export interface HealthResponse {
@@ -40,6 +47,19 @@ export interface HealthResponse {
 }
 
 export type LearningStyle = 'reading' | 'video' | 'practice' | 'mixed';
+
+/**
+ * A lesson's written content plus its tutor conversation, at users/{uid}/lessons/{id}.
+ */
+export interface LessonContent {
+  skillId: string;
+  lessonId: string;
+  explanation: string;
+  exercise: string;
+  resources: ResourceLink[];
+  tutor: TutorMessage[];
+  generatedAt: string;
+}
 
 export type LessonKind = 'learn' | 'practice' | 'review' | 'project';
 
@@ -138,6 +158,14 @@ export interface RegenerateWeekRequest {
   adjust?: WeekAdjustment;
 }
 
+export type ResourceKind = 'article' | 'video' | 'exercise' | 'reference';
+
+export interface ResourceLink {
+  title: string;
+  url: string;
+  kind: ResourceKind;
+}
+
 export type SelfRatedLevel = 'none' | 'beginner' | 'elementary' | 'intermediate' | 'advanced';
 
 /**
@@ -155,10 +183,33 @@ export type SkillReason = 'career' | 'hobby' | 'travel' | 'exam' | 'school' | 'p
 
 export type SkillStatus = 'onboarded' | 'assessed';
 
+/**
+ * Progress figures computed from the learner's activity.
+ */
+export interface Stats {
+  streak: number;
+  longestStreak: number;
+  activeToday: boolean;
+  lessonsDone: number;
+  minutesStudied: number;
+}
+
 export interface SubskillScore {
   name: string;
   score: number;
 }
+
+export interface TutorMessage {
+  role: TutorRole;
+  text: string;
+  at: string;
+}
+
+export interface TutorRequest {
+  message: string;
+}
+
+export type TutorRole = 'learner' | 'tutor';
 
 export type WeekAdjustment = 'same' | 'easier' | 'harder';
 

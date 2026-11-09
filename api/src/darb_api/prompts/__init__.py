@@ -11,6 +11,8 @@ CURRENT_VERSIONS = {
     "assessment_review": "v1",
     "plan_outline": "v1",
     "plan_week": "v1",
+    "lesson_content": "v1",
+    "tutor": "v1",
 }
 
 

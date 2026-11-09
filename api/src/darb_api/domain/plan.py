@@ -198,3 +198,24 @@ def assemble_plan(
 def replace_week(plan: Plan, week: PlanWeek, difficulty: int) -> Plan:
     weeks = [week if existing.index == week.index else existing for existing in plan.weeks]
     return plan.model_copy(update={"weeks": weeks, "difficulty": difficulty})
+
+
+def find_week_of(plan: Plan, lesson_id: str) -> PlanWeek | None:
+    return next((w for w in plan.weeks if any(les.id == lesson_id for les in w.lessons)), None)
+
+
+def with_lesson_done(plan: Plan, lesson_id: str) -> Plan:
+    weeks = [
+        week.model_copy(
+            update={
+                "lessons": [
+                    lesson.model_copy(update={"status": LessonStatus.DONE})
+                    if lesson.id == lesson_id
+                    else lesson
+                    for lesson in week.lessons
+                ]
+            }
+        )
+        for week in plan.weeks
+    ]
+    return plan.model_copy(update={"weeks": weeks})

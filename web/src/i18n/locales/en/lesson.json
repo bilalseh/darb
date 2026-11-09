@@ -1,0 +1,24 @@
+{
+  "notFound": "We could not find this lesson.",
+  "writing": "Writing your lesson. This can take a few seconds…",
+  "explanation": "Explanation",
+  "exercise": "Your exercise",
+  "resources": "Free resources",
+  "resourceKinds": {
+    "article": "article",
+    "video": "video",
+    "exercise": "exercise",
+    "reference": "reference"
+  },
+  "markDone": "Mark as done",
+  "done": "Done ✓",
+  "completeFailed": "We could not save that. Please try again.",
+  "tutorTitle": "Ask the tutor",
+  "tutorHint": "The tutor knows this lesson and your level.",
+  "tutorThinking": "The tutor is thinking…",
+  "you": "You",
+  "tutor": "Tutor",
+  "askLabel": "Your question for the tutor",
+  "askPlaceholder": "For example: can you give me another example?",
+  "ask": "Ask"
+}

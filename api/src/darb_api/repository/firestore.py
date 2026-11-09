@@ -1,89 +1,20 @@
-"""Storage boundary for user data. Routes depend on the protocol; Firestore implements it."""
+"""Firestore implementation of the storage boundary."""
 
 from collections.abc import Sequence
-from dataclasses import dataclass
-from datetime import datetime
-from typing import Any, Protocol
+from typing import Any
 
 from google.api_core.exceptions import Aborted, AlreadyExists
 from google.cloud.firestore import AsyncClient, AsyncDocumentReference, Increment
 
-from darb_api.domain.assessment import Answer
 from darb_api.domain.usage import check_allowance
-from darb_api.schemas import OnboardingAnswers, PlacementResult, Profile, Skill, SkillStatus
-from darb_api.schemas.assessment import PlacementQuiz
-from darb_api.schemas.base import ApiModel
+from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment
+from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
+from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
 
 # A failed create means another request won the race (or Firestore aborted on contention);
 # either way nothing was written, so re-reading and trying again is safe.
 _ENSURE_PROFILE_ATTEMPTS = 3
-
-
-@dataclass(frozen=True, slots=True)
-class NewSkill:
-    answers: OnboardingAnswers
-    status: SkillStatus
-    created_at: datetime
-    placement: PlacementResult | None = None
-    plan: Plan | None = None  # its skill_id is filled in when the skill is written
-
-
-class RecordedAnswer(ApiModel):
-    question_index: int
-    choice: int | None = None
-    text: str | None = None
-    confidence: int | None = None
-
-    def to_domain(self) -> Answer:
-        return Answer(self.question_index, self.choice, self.text, self.confidence)
-
-
-class StoredAssessment(ApiModel):
-    """A placement quiz in progress, answer key included. Kept outside users/{uid} so that the
-    security rules never let the browser read it."""
-
-    quiz: PlacementQuiz
-    answers: list[RecordedAnswer]
-    started_at: datetime
-    provider: str
-    prompt_version: str
-
-    def domain_answers(self) -> list[Answer]:
-        return [answer.to_domain() for answer in self.answers]
-
-
-class UserRepository(Protocol):
-    async def ensure_profile(
-        self, profile: Profile, seed_skills: Sequence[NewSkill] = ()
-    ) -> Profile:
-        """Create the profile and its seed skills atomically if the profile does not exist yet.
-        Returns the stored profile, which may be an older one."""
-        ...
-
-    async def add_skill(self, uid: str, skill: NewSkill) -> Skill: ...
-
-    async def get_skill(self, uid: str, skill_id: str) -> Skill | None: ...
-
-    async def get_assessment(self, uid: str, skill_id: str) -> StoredAssessment | None: ...
-
-    async def save_assessment(
-        self, uid: str, skill_id: str, assessment: StoredAssessment
-    ) -> None: ...
-
-    async def save_placement(self, uid: str, skill_id: str, result: PlacementResult) -> None:
-        """Store the result on the skill and discard the answer key, in one write."""
-        ...
-
-    async def count_ai_request(
-        self, uid: str, day: str, user_limit: int, global_limit: int
-    ) -> None:
-        """Count one AI request, or raise UsageLimitError if a daily limit is already reached."""
-        ...
-
-    async def get_plan(self, uid: str, skill_id: str) -> Plan | None: ...
-
-    async def save_plan(self, uid: str, plan: Plan) -> None: ...
 
 
 def _skill_document(skill: NewSkill) -> dict[str, Any]:
@@ -112,7 +43,10 @@ class FirestoreUserRepository:
         return self._db.collection("assessmentKeys").document(f"{uid}__{skill_id}")
 
     async def ensure_profile(
-        self, profile: Profile, seed_skills: Sequence[NewSkill] = ()
+        self,
+        profile: Profile,
+        seed_skills: Sequence[NewSkill] = (),
+        seed_activity: Sequence[DayActivity] = (),
     ) -> Profile:
         user_ref = self._user(profile.uid)
         for attempt in range(1, _ENSURE_PROFILE_ATTEMPTS + 1):
@@ -129,6 +63,11 @@ class FirestoreUserRepository:
                     batch.create(
                         self._plan(profile.uid, skill_ref.id), plan.model_dump(mode="json")
                     )
+            for activity in seed_activity:
+                batch.create(
+                    user_ref.collection("activity").document(activity.day),
+                    {"lessons": activity.lessons, "minutes": activity.minutes},
+                )
             try:
                 await batch.commit()
             except (AlreadyExists, Aborted):
@@ -200,3 +139,38 @@ class FirestoreUserRepository:
 
     async def save_plan(self, uid: str, plan: Plan) -> None:
         await self._plan(uid, plan.skill_id).set(plan.model_dump(mode="json"))
+
+    def _lesson(self, uid: str, skill_id: str, lesson_id: str) -> AsyncDocumentReference:
+        reference: AsyncDocumentReference = (
+            self._user(uid).collection("lessons").document(f"{skill_id}__{lesson_id}")
+        )
+        return reference
+
+    async def get_lesson_content(
+        self, uid: str, skill_id: str, lesson_id: str
+    ) -> LessonContent | None:
+        snapshot = await self._lesson(uid, skill_id, lesson_id).get()
+        if not snapshot.exists:
+            return None
+        return LessonContent.model_validate(snapshot.to_dict() or {})
+
+    async def save_lesson_content(self, uid: str, content: LessonContent) -> None:
+        reference = self._lesson(uid, content.skill_id, content.lesson_id)
+        await reference.set(content.model_dump(mode="json"))
+
+    async def record_activity(self, uid: str, day: str, minutes: int) -> None:
+        await (
+            self._user(uid)
+            .collection("activity")
+            .document(day)
+            .set({"lessons": Increment(1), "minutes": Increment(minutes)}, merge=True)
+        )
+
+    async def list_activity(self, uid: str) -> list[DayActivity]:
+        days = []
+        async for snapshot in self._user(uid).collection("activity").stream():
+            data = snapshot.to_dict() or {}
+            days.append(
+                DayActivity(snapshot.id, int(data.get("lessons", 0)), int(data.get("minutes", 0)))
+            )
+        return days
