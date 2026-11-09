@@ -3,6 +3,7 @@
 import os
 from typing import Literal
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 Environment = Literal["local", "test", "production"]
@@ -23,6 +24,21 @@ class Settings(BaseSettings):
     log_level: LogLevel = "INFO"
     firestore_emulator_host: str | None = None
     firebase_auth_emulator_host: str | None = None
+
+    # AI providers, tried in this order. "fake" is deterministic and needs no key.
+    ai_providers: str = "gemini,groq"
+    gemini_api_key: SecretStr | None = None
+    gemini_model: str = "gemini-flash-latest"
+    groq_api_key: SecretStr | None = None
+    groq_model: str = "openai/gpt-oss-120b"
+    # Per provider. Firebase Hosting gives up after 60s, so a fallback must still fit.
+    ai_timeout_seconds: float = 25
+    ai_daily_limit_per_user: int = 20
+    ai_daily_limit_global: int = 500
+
+    @property
+    def ai_provider_names(self) -> list[str]:
+        return [name.strip() for name in self.ai_providers.split(",") if name.strip()]
 
 
 def load_settings() -> Settings:

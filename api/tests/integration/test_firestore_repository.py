@@ -70,4 +70,5 @@ async def test_skills_are_stored_in_camel_case(client: AsyncClient) -> None:
     assert stored["answers"]["hoursPerWeek"] == 4
     assert stored["answers"]["targetDate"] == new_skill.answers.target_date.isoformat()
     assert stored["createdAt"] == new_skill.created_at
-    assert stored["status"] == "onboarded"
+    assert stored["status"] == "assessed"
+    assert stored["placement"]["level"] == "elementary"

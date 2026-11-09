@@ -6,6 +6,8 @@ from typing import Annotated
 
 from fastapi import Depends, Request
 
+from darb_api.ai.client import AiClient
+from darb_api.config import Settings
 from darb_api.repository import UserRepository
 
 Clock = Callable[[], datetime]
@@ -25,5 +27,17 @@ def get_clock(request: Request) -> Clock:
     return clock
 
 
+def get_ai(request: Request) -> AiClient:
+    ai: AiClient = request.app.state.ai
+    return ai
+
+
+def get_settings(request: Request) -> Settings:
+    settings: Settings = request.app.state.settings
+    return settings
+
+
 RepositoryDep = Annotated[UserRepository, Depends(get_repository)]
 ClockDep = Annotated[Clock, Depends(get_clock)]
+AiDep = Annotated[AiClient, Depends(get_ai)]
+SettingsDep = Annotated[Settings, Depends(get_settings)]

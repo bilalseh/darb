@@ -1,7 +1,12 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import en from './locales/en.json';
+import enAssessment from './locales/en/assessment.json';
+import enCommon from './locales/en/common.json';
+import enOnboarding from './locales/en/onboarding.json';
+
+// One file per feature keeps each small; they merge into a single namespace.
+const en = { ...enCommon, onboarding: enOnboarding, assessment: enAssessment };
 
 export const defaultNS = 'translation';
 export const resources = { en: { translation: en } } as const;

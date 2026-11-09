@@ -9,22 +9,15 @@ from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel
-from pydantic.json_schema import GenerateJsonSchema, models_json_schema
+from pydantic.json_schema import models_json_schema
 
 from darb_api.schemas import REQUEST_MODELS, RESPONSE_MODELS
+from darb_api.schemas.json_schema import WithoutFieldTitles
 
 SCHEMA_DIR = Path(__file__).resolve().parents[2] / "shared" / "schemas"
 SCHEMA_FILE = SCHEMA_DIR / "api.json"
 
 Mode = Literal["validation", "serialization"]
-
-
-class WithoutFieldTitles(GenerateJsonSchema):
-    """Field titles would become standalone TS aliases (`Status`, `Version`) that collide
-    across models, so only model titles are kept."""
-
-    def field_title_should_be_set(self, schema: object) -> bool:
-        return False
 
 
 def main() -> None:

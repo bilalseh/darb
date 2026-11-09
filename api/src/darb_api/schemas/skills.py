@@ -1,12 +1,14 @@
 from datetime import datetime
 from enum import StrEnum
 
+from darb_api.schemas.assessment import PlacementResult
 from darb_api.schemas.base import ApiModel
 from darb_api.schemas.onboarding import OnboardingAnswers
 
 
 class SkillStatus(StrEnum):
     ONBOARDED = "onboarded"
+    ASSESSED = "assessed"
 
 
 class Skill(ApiModel):
@@ -16,3 +18,4 @@ class Skill(ApiModel):
     answers: OnboardingAnswers
     status: SkillStatus
     created_at: datetime
+    placement: PlacementResult | None = None

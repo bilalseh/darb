@@ -2,7 +2,7 @@
 
 Learn any skill with a personal AI plan that adapts week by week.
 
-> Status: phase 2 of 10 (sign-in, demo, onboarding). Live: https://darb-learn.web.app
+> Status: phase 3 of 10 (AI placement assessment). Live: https://darb-learn.web.app
 
 ## Repository layout
 
@@ -52,6 +52,18 @@ Pushes to `main` deploy after CI passes: the API to Cloud Run, then the frontend
 and indexes to Firebase. Pull requests get a Hosting preview URL. One-time cloud setup is in
 [`infra/gcp-setup.sh`](infra/gcp-setup.sh).
 
+AI keys (Gemini, with Groq as fallback) live in Secret Manager: run
+[`infra/set-ai-keys.sh`](infra/set-ai-keys.sh) and set the `AI_SECRETS` repository variable it
+prints. Without keys the app still runs; AI features say the AI is resting. Locally and in tests,
+`AI_PROVIDERS=fake` gives deterministic AI output with no key.
+
+## How AI output is validated
+
+Every AI reply is parsed into a Pydantic model and checked against its rules (for example: every
+quiz question uses a listed sub-skill, multiple choice answers point at a real option). An invalid
+reply gets one repair attempt that quotes the exact validation errors; if that fails, the next
+provider is tried. Output that never validates is not shown. Answer keys stay on the server.
+
 ## Decisions
 
-See [`docs/adr/`](docs/adr/).
+See [`docs/adr/`](docs/adr/) and [`docs/assumptions.md`](docs/assumptions.md).

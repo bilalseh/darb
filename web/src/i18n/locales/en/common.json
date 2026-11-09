@@ -1,0 +1,72 @@
+{
+  "layout": {
+    "skipToContent": "Skip to main content",
+    "footer": "© {{year}} Darb. A portfolio project."
+  },
+  "nav": {
+    "label": "Main",
+    "today": "Today",
+    "plan": "Plan",
+    "progress": "Progress"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "google": "Continue with Google",
+    "demo": "Try the demo",
+    "demoHint": "No sign-up needed: look around as a learner three weeks into a plan.",
+    "pending": "Signing in…",
+    "demoName": "Demo learner",
+    "demoBadge": "Demo",
+    "signInTitle": "Sign in to Darb",
+    "signInBody": "Pick up where you left off, or look around with the demo account.",
+    "errors": {
+      "cancelled": "Sign-in was cancelled.",
+      "generic": "Sign-in did not work. Please try again."
+    }
+  },
+  "home": {
+    "eyebrow": "Learn any skill",
+    "title": "A study plan that adapts to you, week after week.",
+    "subtitle": "Darb builds a personal plan for any skill, schedules your week, checks what you know, and adjusts when life gets in the way.",
+    "goToToday": "Go to Today",
+    "previewNotice": "Early preview: the placement test and personal plans are being built."
+  },
+  "today": {
+    "greeting": "Welcome back, {{name}}.",
+    "greetingDemo": "Welcome to the demo. Everything here is yours to explore.",
+    "learner": "learner",
+    "loading": "Loading your skills…",
+    "loadError": "We could not load your skills.",
+    "retry": "Try again",
+    "yourSkills": "Your skills",
+    "addSkill": "Add a skill",
+    "emptyTitle": "Start with your first skill",
+    "emptyBody": "Answer a few questions and Darb will shape a plan around your goal and your week.",
+    "emptyCta": "Start learning a skill",
+    "planPending": "Your daily tasks will appear here once your plan is ready.",
+    "hoursPerWeek_one": "{{count}} hour a week",
+    "hoursPerWeek_other": "{{count}} hours a week",
+    "goalDate": "Goal date: {{date}}",
+    "takePlacement": "Take the placement test for {{skill}}",
+    "seePlacement": "See your {{skill}} placement result"
+  },
+  "comingSoon": {
+    "body": "This part of Darb is being built."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist.",
+    "home": "Back to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "An unexpected error occurred. Try again, or come back later.",
+    "retry": "Try again"
+  },
+  "apiStatus": {
+    "checking": "Checking API…",
+    "online": "API online ({{version}})",
+    "offline": "API unreachable"
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "title": "Start a new skill",
+  "progress": "Step {{current}} of {{total}}",
+  "back": "Back",
+  "next": "Next",
+  "submit": "Create my plan",
+  "submitting": "Saving…",
+  "submitError": "We could not save your answers. Please try again.",
+  "steps": {
+    "skill": {
+      "title": "What do you want to learn?",
+      "hint": "Anything goes: a language, an instrument, a tool, a craft.",
+      "placeholder": "For example: Spanish",
+      "popular": "Popular choices"
+    },
+    "reason": {
+      "title": "Why do you want to learn it?"
+    },
+    "level": {
+      "title": "Where are you starting from?"
+    },
+    "schedule": {
+      "title": "How much time can you give it?",
+      "hoursLabel": "Hours per week",
+      "hoursHint": "Most people start with 3 to 5 hours.",
+      "daysLabel": "Which days suit you?",
+      "perDay": "That is about {{minutes}} minutes per study day."
+    },
+    "style": {
+      "title": "How do you like to learn?"
+    },
+    "deadline": {
+      "title": "Do you have a goal date?",
+      "label": "Goal date (optional)",
+      "hint": "An exam, a trip, a deadline. Leave it empty if there is none."
+    },
+    "review": {
+      "title": "Check your answers",
+      "edit": "Edit",
+      "editField": "Edit {{field}}",
+      "noDate": "No goal date"
+    }
+  },
+  "fields": {
+    "skill": "Skill",
+    "reason": "Reason",
+    "level": "Starting level",
+    "hoursPerWeek": "Hours per week",
+    "preferredDays": "Study days",
+    "learningStyle": "Learning style",
+    "targetDate": "Goal date"
+  },
+  "errors": {
+    "skill": "Enter a skill between 2 and 80 characters.",
+    "reason": "Pick the reason closest to yours.",
+    "level": "Pick your starting level.",
+    "hoursPerWeek": "Enter a whole number of hours from 1 to 40.",
+    "preferredDays": "Pick at least one day.",
+    "learningStyle": "Pick how you like to learn.",
+    "targetDate": "Pick a date between today and 5 years from now, or leave it empty."
+  },
+  "reasons": {
+    "career": {
+      "label": "Career",
+      "hint": "A new job, a promotion, a side project"
+    },
+    "hobby": {
+      "label": "Hobby",
+      "hint": "Just for the joy of it"
+    },
+    "travel": {
+      "label": "Travel",
+      "hint": "Getting by on a trip or a move"
+    },
+    "exam": {
+      "label": "Exam",
+      "hint": "A test or certification to pass"
+    },
+    "school": {
+      "label": "School",
+      "hint": "Keeping up with a course"
+    },
+    "personal": {
+      "label": "Personal growth",
+      "hint": "Becoming a little better every week"
+    }
+  },
+  "levels": {
+    "none": {
+      "label": "Complete beginner",
+      "hint": "I have never tried it"
+    },
+    "beginner": {
+      "label": "Beginner",
+      "hint": "I know a few basics"
+    },
+    "elementary": {
+      "label": "Elementary",
+      "hint": "I can do simple things on my own"
+    },
+    "intermediate": {
+      "label": "Intermediate",
+      "hint": "I am comfortable with most everyday tasks"
+    },
+    "advanced": {
+      "label": "Advanced",
+      "hint": "I want to polish and go deeper"
+    }
+  },
+  "styles": {
+    "reading": {
+      "label": "Reading",
+      "hint": "Articles, books and written guides"
+    },
+    "video": {
+      "label": "Video",
+      "hint": "Watching lessons and demonstrations"
+    },
+    "practice": {
+      "label": "Hands-on practice",
+      "hint": "Exercises and small projects"
+    },
+    "mixed": {
+      "label": "A mix",
+      "hint": "A bit of everything"
+    }
+  },
+  "days": {
+    "mon": "Monday",
+    "tue": "Tuesday",
+    "wed": "Wednesday",
+    "thu": "Thursday",
+    "fri": "Friday",
+    "sat": "Saturday",
+    "sun": "Sunday"
+  },
+  "daysShort": {
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "sun": "Sun"
+  },
+  "suggestions": {
+    "spanish": "Spanish",
+    "python": "Python",
+    "guitar": "Guitar",
+    "publicSpeaking": "Public speaking",
+    "excel": "Excel",
+    "photography": "Photography",
+    "cooking": "Cooking",
+    "piano": "Piano"
+  }
+}

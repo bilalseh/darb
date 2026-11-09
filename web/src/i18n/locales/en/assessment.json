@@ -1,0 +1,40 @@
+{
+  "title": "Placement test: {{skill}}",
+  "backToToday": "Back to Today",
+  "notFound": "We could not find this skill.",
+  "preparing": "Preparing your questions. This can take a few seconds…",
+  "grading": "Checking your answers and working out your level…",
+  "progress": "{{answered}} of up to {{total}} questions answered",
+  "questionNumber": "Question {{number}}",
+  "yourAnswer": "Your answer",
+  "confidenceLegend": "How confident are you?",
+  "confidence": {
+    "1": "Not at all",
+    "2": "A little",
+    "3": "Somewhat",
+    "4": "Mostly",
+    "5": "Completely"
+  },
+  "answerRequired": {
+    "multiple_choice": "Pick one of the options.",
+    "short_answer": "Write a short answer.",
+    "confidence": "Pick how confident you are."
+  },
+  "submitAnswer": "Continue",
+  "saving": "Saving…",
+  "answerFailed": "We could not save that answer. Please try again.",
+  "problems": {
+    "unavailable": "The AI is resting right now. Please try again in a few minutes.",
+    "limit": "You have used today's AI requests. They reset at midnight UTC.",
+    "other": "Something went wrong. Please try again."
+  },
+  "resultEyebrow": "Your starting level",
+  "radarTitle": "Your sub-skills",
+  "scoreValue": "{{score}} / 100",
+  "levels": {
+    "beginner": "Beginner",
+    "elementary": "Elementary",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  }
+}

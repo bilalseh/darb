@@ -1,6 +1,37 @@
 /* Generated from the Pydantic models in api/. Do not edit; run `pnpm gen:schemas`. */
 
 /**
+ * The learner's answer to one question; set the field that matches the question kind.
+ */
+export interface AnswerSubmission {
+  questionId: string;
+  choice?: number | null;
+  text?: string | null;
+  confidence?: number | null;
+}
+
+/**
+ * Where the learner is in the placement assessment.
+ */
+export interface AssessmentProgress {
+  answered: number;
+  maxQuestions: number;
+  question: AssessmentQuestion | null;
+  finished: boolean;
+}
+
+/**
+ * A question as the learner sees it: never includes the answer.
+ */
+export interface AssessmentQuestion {
+  id: string;
+  kind: QuestionKind;
+  prompt: string;
+  subskill: string;
+  options: string[];
+}
+
+/**
  * Liveness payload returned by GET /api/health.
  */
 export interface HealthResponse {
@@ -30,6 +61,18 @@ export interface OnboardingAnswers {
   targetDate?: string | null;
 }
 
+export type PlacementLevel = 'beginner' | 'elementary' | 'intermediate' | 'advanced';
+
+/**
+ * The outcome of the placement assessment, stored on the skill.
+ */
+export interface PlacementResult {
+  level: PlacementLevel;
+  summary: string;
+  subskills: SubskillScore[];
+  completedAt: string;
+}
+
 /**
  * The signed-in user's profile, stored at users/{uid}.
  */
@@ -41,6 +84,8 @@ export interface Profile {
   createdAt: string;
 }
 
+export type QuestionKind = 'multiple_choice' | 'short_answer' | 'confidence';
+
 export type SelfRatedLevel = 'none' | 'beginner' | 'elementary' | 'intermediate' | 'advanced';
 
 /**
@@ -51,10 +96,16 @@ export interface Skill {
   answers: OnboardingAnswers;
   status: SkillStatus;
   createdAt: string;
+  placement?: PlacementResult | null;
 }
 
 export type SkillReason = 'career' | 'hobby' | 'travel' | 'exam' | 'school' | 'personal';
 
-export type SkillStatus = 'onboarded';
+export type SkillStatus = 'onboarded' | 'assessed';
+
+export interface SubskillScore {
+  name: string;
+  score: number;
+}
 
 export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';

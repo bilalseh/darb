@@ -5,6 +5,15 @@ Request models also get generated Zod schemas, so frontend forms validate with t
 
 from pydantic import BaseModel
 
+from darb_api.schemas.assessment import (
+    AnswerSubmission,
+    AssessmentProgress,
+    AssessmentQuestion,
+    PlacementLevel,
+    PlacementResult,
+    QuestionKind,
+    SubskillScore,
+)
 from darb_api.schemas.health import HealthResponse
 from darb_api.schemas.onboarding import (
     LearningStyle,
@@ -16,19 +25,32 @@ from darb_api.schemas.onboarding import (
 from darb_api.schemas.profile import Profile
 from darb_api.schemas.skills import Skill, SkillStatus
 
-REQUEST_MODELS: tuple[type[BaseModel], ...] = (OnboardingAnswers,)
-RESPONSE_MODELS: tuple[type[BaseModel], ...] = (HealthResponse, Profile, Skill)
+REQUEST_MODELS: tuple[type[BaseModel], ...] = (OnboardingAnswers, AnswerSubmission)
+RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
+    HealthResponse,
+    Profile,
+    Skill,
+    AssessmentProgress,
+    PlacementResult,
+)
 
 __all__ = [
     "REQUEST_MODELS",
     "RESPONSE_MODELS",
+    "AnswerSubmission",
+    "AssessmentProgress",
+    "AssessmentQuestion",
     "HealthResponse",
     "LearningStyle",
     "OnboardingAnswers",
+    "PlacementLevel",
+    "PlacementResult",
     "Profile",
+    "QuestionKind",
     "SelfRatedLevel",
     "Skill",
     "SkillReason",
     "SkillStatus",
+    "SubskillScore",
     "Weekday",
 ]

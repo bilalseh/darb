@@ -49,8 +49,13 @@ jobs:
           docker push "$image"
       - name: Deploy service
         # Spending guardrails live here: at most 2 instances, CPU billed only during requests.
+        # AI keys come from Secret Manager once infra/set-ai-keys.sh has stored them.
+        env:
+          AI_SECRETS: ${{ vars.AI_SECRETS }}
         run: |
-          gcloud run deploy "$SERVICE" \
+          secret_flags=()
+          if [ -n "$AI_SECRETS" ]; then secret_flags=(--set-secrets "$AI_SECRETS"); fi
+          gcloud run deploy "$SERVICE" "${secret_flags[@]}" \
             --project "$PROJECT_ID" \
             --region "$REGION" \
             --image "$REGION-docker.pkg.dev/$PROJECT_ID/darb/api:$SHA" \

@@ -1,5 +1,125 @@
 {
   "$defs": {
+    "AnswerSubmission": {
+      "additionalProperties": false,
+      "description": "The learner's answer to one question; set the field that matches the question kind.",
+      "properties": {
+        "questionId": {
+          "maxLength": 10,
+          "minLength": 1,
+          "type": "string"
+        },
+        "choice": {
+          "anyOf": [
+            {
+              "maximum": 4,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "text": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 5,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "questionId"
+      ],
+      "title": "AnswerSubmission",
+      "type": "object"
+    },
+    "AssessmentProgress": {
+      "additionalProperties": false,
+      "description": "Where the learner is in the placement assessment.",
+      "properties": {
+        "answered": {
+          "type": "integer"
+        },
+        "maxQuestions": {
+          "type": "integer"
+        },
+        "question": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AssessmentQuestion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "finished": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "answered",
+        "maxQuestions",
+        "question",
+        "finished"
+      ],
+      "title": "AssessmentProgress",
+      "type": "object"
+    },
+    "AssessmentQuestion": {
+      "additionalProperties": false,
+      "description": "A question as the learner sees it: never includes the answer.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/QuestionKind"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "subskill": {
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "prompt",
+        "subskill",
+        "options"
+      ],
+      "title": "AssessmentQuestion",
+      "type": "object"
+    },
     "HealthResponse": {
       "additionalProperties": false,
       "description": "Liveness payload returned by GET /api/health.",
@@ -84,6 +204,46 @@
       "title": "OnboardingAnswers",
       "type": "object"
     },
+    "PlacementLevel": {
+      "enum": [
+        "beginner",
+        "elementary",
+        "intermediate",
+        "advanced"
+      ],
+      "title": "PlacementLevel",
+      "type": "string"
+    },
+    "PlacementResult": {
+      "additionalProperties": false,
+      "description": "The outcome of the placement assessment, stored on the skill.",
+      "properties": {
+        "level": {
+          "$ref": "#/$defs/PlacementLevel"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "subskills": {
+          "items": {
+            "$ref": "#/$defs/SubskillScore"
+          },
+          "type": "array"
+        },
+        "completedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "level",
+        "summary",
+        "subskills",
+        "completedAt"
+      ],
+      "title": "PlacementResult",
+      "type": "object"
+    },
     "Profile": {
       "additionalProperties": false,
       "description": "The signed-in user's profile, stored at users/{uid}.",
@@ -129,6 +289,15 @@
       "title": "Profile",
       "type": "object"
     },
+    "QuestionKind": {
+      "enum": [
+        "multiple_choice",
+        "short_answer",
+        "confidence"
+      ],
+      "title": "QuestionKind",
+      "type": "string"
+    },
     "SelfRatedLevel": {
       "enum": [
         "none",
@@ -156,6 +325,17 @@
         "createdAt": {
           "format": "date-time",
           "type": "string"
+        },
+        "placement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlacementResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
@@ -181,10 +361,30 @@
     },
     "SkillStatus": {
       "enum": [
-        "onboarded"
+        "onboarded",
+        "assessed"
       ],
       "title": "SkillStatus",
       "type": "string"
+    },
+    "SubskillScore": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "score": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "score"
+      ],
+      "title": "SubskillScore",
+      "type": "object"
     },
     "Weekday": {
       "enum": [
@@ -202,6 +402,7 @@
   },
   "title": "DarbApi",
   "x-request-models": [
-    "OnboardingAnswers"
+    "OnboardingAnswers",
+    "AnswerSubmission"
   ]
 }

@@ -76,4 +76,25 @@ describe('everything outside users/{uid}', () => {
     await assertFails(getDoc(doc(asAlice(), 'config/public')));
     await assertFails(setDoc(doc(asAlice(), 'config/public'), { featured: false }));
   });
+
+  it('keeps placement answer keys away from the quiz taker', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'assessmentKeys/alice__guitar'), { quiz: {} });
+    });
+
+    await assertFails(getDoc(doc(asAlice(), 'assessmentKeys/alice__guitar')));
+  });
+
+  it('keeps the global AI usage counter private', async () => {
+    await assertFails(getDoc(doc(asAlice(), 'aiUsage/2026-11-09')));
+  });
+
+  it('lets users read their own AI usage', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'users/alice/usage/2026-11-09'), { aiRequests: 3 });
+    });
+
+    await assertSucceeds(getDoc(doc(asAlice(), 'users/alice/usage/2026-11-09')));
+    await assertFails(setDoc(doc(asAlice(), 'users/alice/usage/2026-11-09'), { aiRequests: 0 }));
+  });
 });
