@@ -1,3 +1,8 @@
+/** Intl locale for an app language: Arabic keeps Western digits, matching the translations. */
+export function intlLocale(language: string): string {
+  return language === 'ar' ? 'ar-u-nu-latn' : language;
+}
+
 /** Today's date in the user's own time zone, as YYYY-MM-DD. */
 export function todayLocalIso(now: Date = new Date()): string {
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -15,7 +20,7 @@ export function addYearsIso(isoDate: string, years: number): string {
 export function formatLocalDate(isoDate: string, locale: string): string {
   const [year, month, day] = isoDate.split('-').map(Number);
   const date = new Date(year ?? 1970, (month ?? 1) - 1, day ?? 1);
-  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
+  return new Intl.DateTimeFormat(intlLocale(locale), { dateStyle: 'medium' }).format(date);
 }
 
 /** Adds days to a YYYY-MM-DD date (calendar arithmetic, no time zone involved). */
@@ -35,7 +40,15 @@ export function mondayOfIso(isoDate: string): string {
 /** Short weekday and day for a YYYY-MM-DD date, for example "Wed 11". */
 export function formatDayLabel(isoDate: string, locale: string): string {
   const [year = 1970, month = 1, day = 1] = isoDate.split('-').map(Number);
-  return new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric' }).format(
+  return new Intl.DateTimeFormat(intlLocale(locale), { weekday: 'short', day: 'numeric' }).format(
+    new Date(year, month - 1, day),
+  );
+}
+
+/** Day and short month for a YYYY-MM-DD date, for example "11/9"; fits narrow controls. */
+export function formatShortDate(isoDate: string, locale: string): string {
+  const [year = 1970, month = 1, day = 1] = isoDate.split('-').map(Number);
+  return new Intl.DateTimeFormat(intlLocale(locale), { day: 'numeric', month: 'numeric' }).format(
     new Date(year, month - 1, day),
   );
 }

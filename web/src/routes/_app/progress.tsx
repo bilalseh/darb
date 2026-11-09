@@ -82,7 +82,7 @@ function ProgressPage() {
             className="rounded-lg border border-stone-200 bg-white p-4"
           >
             <h2 id={`skill-${skill.skillId}`} className="text-xl font-semibold">
-              {skill.skill}
+              <bdi>{skill.skill}</bdi>
               {skill.level && (
                 <span className="ms-2 text-sm font-medium text-brand-800">
                   {t(`assessment.levels.${skill.level}`)}

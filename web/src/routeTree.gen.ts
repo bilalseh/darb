@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
 import { Route as AppPlanRouteImport } from './routes/_app/plan'
@@ -31,6 +32,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AppRoute = AppRouteImport.update({
   id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignInRoute = SignInRouteImport.update({
@@ -99,6 +105,7 @@ const AppSkillsSkillIdModulesModuleIndexQuizRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/pricing': typeof PricingRoute
   '/sign-in': typeof SignInRoute
   '/onboarding': typeof AppOnboardingRoute
   '/plan': typeof AppPlanRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/pricing': typeof PricingRoute
   '/sign-in': typeof SignInRoute
   '/onboarding': typeof AppOnboardingRoute
   '/plan': typeof AppPlanRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/pricing': typeof PricingRoute
   '/sign-in': typeof SignInRoute
   '/_app/onboarding': typeof AppOnboardingRoute
   '/_app/plan': typeof AppPlanRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/pricing'
     | '/sign-in'
     | '/onboarding'
     | '/plan'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/pricing'
     | '/sign-in'
     | '/onboarding'
     | '/plan'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/pricing'
     | '/sign-in'
     | '/_app/onboarding'
     | '/_app/plan'
@@ -196,6 +208,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  PricingRoute: typeof PricingRoute
   SignInRoute: typeof SignInRoute
 }
 
@@ -213,6 +226,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sign-in': {
@@ -336,6 +356,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  PricingRoute: PricingRoute,
   SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport

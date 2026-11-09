@@ -16,6 +16,7 @@
     "test:rules": "firebase emulators:exec --only firestore --project demo-darb \"pnpm --filter @darb/firebase test:rules\"",
     "test:emulator": "firebase emulators:exec --only firestore --project demo-darb \"pnpm --filter @darb/firebase test:rules && uv run --directory api pytest tests/integration\"",
     "test:e2e": "firebase emulators:exec --only auth,firestore --project demo-darb \"pnpm --filter @darb/e2e test:e2e\"",
+    "screenshots": "firebase emulators:exec --only auth,firestore --project demo-darb \"pnpm --filter @darb/e2e exec playwright test --config capture.config.ts\"",
     "build": "pnpm --filter @darb/web build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

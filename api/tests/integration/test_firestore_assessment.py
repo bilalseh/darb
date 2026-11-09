@@ -112,3 +112,38 @@ async def test_deleting_a_user_erases_their_tree_and_answer_keys(
     assert await repository.get_plan(uid, skill.id) is None
     assert await repository.get_quiz(uid, skill.id, 0) is None
     assert await repository.get_quiz(other, "theirs", 0) is not None
+
+
+async def test_tier_billing_refunds_and_expired_demos(
+    repository: FirestoreUserRepository,
+) -> None:
+    from datetime import timedelta
+
+    from darb_api.demo import new_profile
+    from darb_api.repository import BillingRecord
+    from darb_api.schemas import Language, Preferences, Tier
+    from tests.conftest import DEMO
+
+    uid = f"user-{uuid.uuid4().hex}"
+    started = NOW - timedelta(days=400)  # older than any other test's demo profile
+    profile = new_profile(DEMO, started).model_copy(update={"uid": uid})
+    await repository.ensure_profile(profile)
+    record = BillingRecord(customer_id="cus_1", subscription_id="sub_1")
+
+    await repository.set_tier(uid, Tier.PRO, record)
+    await repository.save_preferences(uid, Preferences(language=Language.AR))
+    day = f"refund-{uuid.uuid4().hex}"
+    await repository.count_ai_request(uid, day, 5, 1000)
+    await repository.refund_ai_request(uid, day)
+
+    stored = await repository.get_profile(uid)
+    assert stored is not None
+    assert (stored.tier, stored.preferences.language) == (Tier.PRO, Language.AR)
+    assert await repository.get_billing(uid) == record
+    assert await repository.ai_requests_on(uid, day) == 0
+    expired = await repository.expired_demo_users(started + timedelta(seconds=1), 500)
+    assert uid in expired
+
+    await repository.delete_user_data(uid)
+    assert await repository.get_billing(uid) is None
+    assert await repository.get_profile(uid) is None

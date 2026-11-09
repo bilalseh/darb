@@ -59,7 +59,9 @@ function ReviewPage() {
             {t('review.progress', { current: position + 1, total: cards.length })}
           </p>
           <fieldset className="mt-2">
-            <legend className="text-xl font-semibold">{card.prompt}</legend>
+            <legend className="text-xl font-semibold">
+              <bdi>{card.prompt}</bdi>
+            </legend>
             <div className="mt-4 grid gap-2">
               {card.options.map((option, index) => {
                 const reveal = outcome !== null;
@@ -85,7 +87,7 @@ function ReviewPage() {
                       }}
                       className="size-4 accent-brand-700"
                     />
-                    <span>{option}</span>
+                    <bdi>{option}</bdi>
                     {reveal && isRight && (
                       <span className="ms-auto text-sm font-semibold">
                         {t('review.correctAnswer')}
@@ -101,7 +103,9 @@ function ReviewPage() {
               <p className="font-semibold">
                 {outcome.correct ? t('review.right') : t('review.wrong')}
               </p>
-              <p className="mt-1 text-stone-700">{card.explanation}</p>
+              <p dir="auto" className="mt-1 text-stone-700">
+                {card.explanation}
+              </p>
               <button
                 type="button"
                 onClick={next}

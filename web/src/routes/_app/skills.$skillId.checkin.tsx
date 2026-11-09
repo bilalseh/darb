@@ -53,7 +53,9 @@ function CheckinPage() {
           <h2 className="font-semibold">
             {t('checkin.changedTitle', { week: checkin.data.adjustedWeekIndex + 1 })}
           </h2>
-          <p className="mt-2 text-stone-800">{checkin.data.explanation}</p>
+          <p dir="auto" className="mt-2 text-stone-800">
+            {checkin.data.explanation}
+          </p>
           <Link
             to="/plan"
             search={{ skill: skillId }}

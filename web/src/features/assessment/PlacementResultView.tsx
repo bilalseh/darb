@@ -16,7 +16,9 @@ export function PlacementResultView({ result }: { result: PlacementResult }) {
         <h2 id="placement-title" className="mt-1 text-3xl font-bold tracking-tight">
           {t(`assessment.levels.${result.level}`)}
         </h2>
-        <p className="mt-3 text-stone-700">{result.summary}</p>
+        <p dir="auto" className="mt-3 text-stone-700">
+          {result.summary}
+        </p>
       </div>
       <div className="rounded-lg border border-stone-200 bg-white p-4">
         <h3 className="font-semibold">{t('assessment.radarTitle')}</h3>

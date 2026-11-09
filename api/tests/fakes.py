@@ -1,10 +1,17 @@
 from collections.abc import Sequence
+from datetime import datetime
 
 from darb_api.ai.types import AiRequest, FailureKind, ProviderError
 from darb_api.auth import AuthenticatedUser, InvalidTokenError
 from darb_api.domain.usage import check_allowance
-from darb_api.repository import DayActivity, NewSkill, StoredAssessment, StoredQuiz
-from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
+from darb_api.repository import (
+    BillingRecord,
+    DayActivity,
+    NewSkill,
+    StoredAssessment,
+    StoredQuiz,
+)
+from darb_api.schemas import PlacementResult, Preferences, Profile, Skill, SkillStatus, Tier
 from darb_api.schemas.checkin import Checkin
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
@@ -37,6 +44,7 @@ class InMemoryUserRepository:
         self.quiz_results: dict[tuple[str, str, int], QuizResult] = {}
         self.reviews: dict[tuple[str, str], ReviewItem] = {}
         self.checkins: dict[str, list[Checkin]] = {}
+        self.billing: dict[str, BillingRecord] = {}
 
     async def ensure_profile(
         self,
@@ -52,6 +60,29 @@ class InMemoryUserRepository:
         for activity in seed_activity:
             self.activity[(profile.uid, activity.day)] = activity
         return profile
+
+    async def get_profile(self, uid: str) -> Profile | None:
+        return self.profiles.get(uid)
+
+    async def save_preferences(self, uid: str, preferences: Preferences) -> None:
+        self.profiles[uid] = self.profiles[uid].model_copy(update={"preferences": preferences})
+
+    async def set_tier(self, uid: str, tier: Tier, billing: BillingRecord | None) -> None:
+        self.profiles[uid] = self.profiles[uid].model_copy(update={"tier": tier})
+        if billing is None:
+            self.billing.pop(uid, None)
+        else:
+            self.billing[uid] = billing
+
+    async def get_billing(self, uid: str) -> BillingRecord | None:
+        return self.billing.get(uid)
+
+    async def refund_ai_request(self, uid: str, day: str) -> None:
+        self.usage[(uid, day)] = self.usage.get((uid, day), 0) - 1
+
+    async def expired_demo_users(self, created_before: datetime, limit: int) -> list[str]:
+        expired = [p for p in self.profiles.values() if p.is_demo and p.created_at < created_before]
+        return [p.uid for p in sorted(expired, key=lambda p: p.created_at)][:limit]
 
     async def add_skill(self, uid: str, skill: NewSkill) -> Skill:
         stored = Skill(
@@ -159,6 +190,7 @@ class InMemoryUserRepository:
         self.profiles.pop(uid, None)
         self.skills.pop(uid, None)
         self.checkins.pop(uid, None)
+        self.billing.pop(uid, None)
         self.assessments = {k: v for k, v in self.assessments.items() if k[0] != uid}
         self.usage = {k: v for k, v in self.usage.items() if k[0] != uid}
         self.plans = {k: v for k, v in self.plans.items() if k[0] != uid}

@@ -1,10 +1,17 @@
 """The storage boundary: routes depend on this protocol, never on Firestore directly."""
 
 from collections.abc import Sequence
+from datetime import datetime
 from typing import Protocol
 
-from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment, StoredQuiz
-from darb_api.schemas import PlacementResult, Profile, Skill
+from darb_api.repository.records import (
+    BillingRecord,
+    DayActivity,
+    NewSkill,
+    StoredAssessment,
+    StoredQuiz,
+)
+from darb_api.schemas import PlacementResult, Preferences, Profile, Skill, Tier
 from darb_api.schemas.checkin import Checkin
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
@@ -21,6 +28,16 @@ class UserRepository(Protocol):
         """Create the profile with its seed skills and activity, atomically, if it does not exist
         yet. Returns the stored profile, which may be an older one."""
         ...
+
+    async def get_profile(self, uid: str) -> Profile | None: ...
+
+    async def save_preferences(self, uid: str, preferences: Preferences) -> None: ...
+
+    async def set_tier(self, uid: str, tier: Tier, billing: BillingRecord | None) -> None:
+        """Change the user's plan and keep (or, with None, drop) their billing record."""
+        ...
+
+    async def get_billing(self, uid: str) -> BillingRecord | None: ...
 
     async def add_skill(self, uid: str, skill: NewSkill) -> Skill: ...
 
@@ -40,6 +57,10 @@ class UserRepository(Protocol):
         self, uid: str, day: str, user_limit: int, global_limit: int
     ) -> None:
         """Count one AI request, or raise UsageLimitError if a daily limit is already reached."""
+        ...
+
+    async def refund_ai_request(self, uid: str, day: str) -> None:
+        """Give back a counted request whose AI call failed."""
         ...
 
     async def get_plan(self, uid: str, skill_id: str) -> Plan | None: ...
@@ -83,6 +104,10 @@ class UserRepository(Protocol):
     async def list_quiz_results(self, uid: str) -> list[QuizResult]: ...
 
     async def ai_requests_on(self, uid: str, day: str) -> int: ...
+
+    async def expired_demo_users(self, created_before: datetime, limit: int) -> list[str]:
+        """Demo accounts whose profile was created before the cutoff, oldest first."""
+        ...
 
     async def delete_user_data(self, uid: str) -> None:
         """Erase everything the user owns, including server-only answer keys."""

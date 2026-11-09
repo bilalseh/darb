@@ -2,6 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useRef, useState, type SubmitEvent } from 'react';
 import { FormProvider, useForm, type FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Link } from '@tanstack/react-router';
+
+import { ApiError } from '../../lib/apiClient';
 
 import {
   onboardingFormSchema,
@@ -31,7 +34,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const setStepIndex = useOnboardingStore((state) => state.setStepIndex);
   const saveValues = useOnboardingStore((state) => state.saveValues);
   const [initialDraft] = useState(() => useOnboardingStore.getState().values);
-  const [submitFailed, setSubmitFailed] = useState(false);
+  const [submitFailed, setSubmitFailed] = useState<false | 'error' | 'skillLimit'>(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const navigated = useRef(false);
 
@@ -95,8 +98,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     setSubmitFailed(false);
     try {
       await onComplete(answers);
-    } catch {
-      setSubmitFailed(true);
+    } catch (error) {
+      // 402: the plan has no room for another skill, which an upgrade fixes.
+      setSubmitFailed(error instanceof ApiError && error.status === 402 ? 'skillLimit' : 'error');
     }
   }
 
@@ -152,10 +156,19 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
           )}
         </div>
 
-        {submitFailed && (
+        {submitFailed === 'error' && (
           <p role="alert" className="mt-6 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
             {t('onboarding.submitError')}
           </p>
+        )}
+        {submitFailed === 'skillLimit' && (
+          <div role="alert" className="mt-6 rounded-md bg-amber-50 px-4 py-3 text-amber-900">
+            <p className="font-semibold">{t('pricing.skillLimitTitle')}</p>
+            <p className="mt-1 text-sm">{t('pricing.skillLimitBody')}</p>
+            <Link to="/pricing" className="mt-2 inline-flex text-sm font-semibold underline">
+              {t('pricing.seePlans')}
+            </Link>
+          </div>
         )}
 
         <div className="mt-8 flex items-center justify-between gap-4">

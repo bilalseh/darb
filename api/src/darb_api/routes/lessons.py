@@ -2,14 +2,13 @@
 
 from fastapi import APIRouter, HTTPException, status
 
-from darb_api.ai.types import AiUnavailableError
 from darb_api.auth import CurrentUser
 from darb_api.dependencies import AiDep, ClockDep, RepositoryDep, SettingsDep
 from darb_api.domain import lessons as lesson_rules
 from darb_api.domain import plan as plan_rules
 from darb_api.prompts import render
 from darb_api.repository import UserRepository
-from darb_api.routes.common import AI_UNAVAILABLE, conflict, count_ai_request, require_skill
+from darb_api.routes.common import conflict, metered_ai, require_skill
 from darb_api.schemas.lesson import (
     CompleteLessonRequest,
     LessonContent,
@@ -55,22 +54,20 @@ async def get_lesson_content(
     skill = await require_skill(repository, user.uid, skill_id)
     plan, week, lesson = await _lesson_in_plan(repository, user.uid, skill_id, lesson_id)
 
-    await count_ai_request(repository, user, clock, settings)
-    prompt = render(
-        "lesson_content",
-        skill=skill.answers.skill,
-        level=skill.placement.level.value if skill.placement else skill.answers.level.value,
-        style=skill.answers.learning_style.value,
-        module=plan.modules[week.module_index].title,
-        title=lesson.title,
-        minutes=str(lesson.minutes),
-        kind=lesson.kind.value,
-        objective=lesson.objective,
-    )
-    try:
+    async with metered_ai(repository, user, clock, settings) as language:
+        prompt = render(
+            "lesson_content",
+            language=language,
+            skill=skill.answers.skill,
+            level=skill.placement.level.value if skill.placement else skill.answers.level.value,
+            style=skill.answers.learning_style.value,
+            module=plan.modules[week.module_index].title,
+            title=lesson.title,
+            minutes=str(lesson.minutes),
+            kind=lesson.kind.value,
+            objective=lesson.objective,
+        )
         result = await ai.generate(prompt.task, LessonContentDraft, prompt.system, prompt.user)
-    except AiUnavailableError as error:
-        raise AI_UNAVAILABLE from error
     draft = result.value
     content = LessonContent(
         skill_id=skill_id,
@@ -135,23 +132,21 @@ async def ask_tutor(
     skill = await require_skill(repository, user.uid, skill_id)
     _, _, lesson = await _lesson_in_plan(repository, user.uid, skill_id, lesson_id)
 
-    await count_ai_request(repository, user, clock, settings)
-    prompt = render(
-        "tutor",
-        skill=skill.answers.skill,
-        level=skill.placement.level.value if skill.placement else skill.answers.level.value,
-        title=lesson.title,
-        objective=lesson.objective,
-        explanation=content.explanation,
-        history=_history(content),
-        message=request.message.strip(),
-    )
-    try:
+    async with metered_ai(repository, user, clock, settings) as language:
+        prompt = render(
+            "tutor",
+            language=language,
+            skill=skill.answers.skill,
+            level=skill.placement.level.value if skill.placement else skill.answers.level.value,
+            title=lesson.title,
+            objective=lesson.objective,
+            explanation=content.explanation,
+            history=_history(content),
+            message=request.message.strip(),
+        )
         result = await ai.generate(
             prompt.task, TutorReplyDraft, prompt.system, prompt.user, temperature=0.6
         )
-    except AiUnavailableError as error:
-        raise AI_UNAVAILABLE from error
     now = clock()
     messages = [
         *content.tutor,

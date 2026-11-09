@@ -62,3 +62,10 @@ class StoredQuiz(ApiModel):
     title: str
     questions: list[QuizQuestionDraft]
     created_at: datetime
+
+
+class BillingRecord(ApiModel):
+    """The user's Stripe test-mode customer and subscription; server-only, like answer keys."""
+
+    customer_id: str
+    subscription_id: str

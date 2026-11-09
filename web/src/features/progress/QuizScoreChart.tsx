@@ -19,6 +19,7 @@ const AXIS_COLOR = '#57534e';
 
 export function QuizScoreChart({ points }: { points: readonly QuizScorePoint[] }) {
   const { t, i18n } = useTranslation();
+  const rtl = i18n.dir() === 'rtl';
   const data = points.map((point) => ({
     ...point,
     day: formatLocalDate(point.completedAt.slice(0, 10), i18n.language),
@@ -28,11 +29,21 @@ export function QuizScoreChart({ points }: { points: readonly QuizScorePoint[] }
     <figure>
       <div className="h-56 w-full" aria-hidden="true">
         <ResponsiveContainer>
-          <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: -16 }}>
+          <LineChart
+            data={data}
+            accessibilityLayer={false}
+            margin={{ top: 8, right: rtl ? -16 : 16, bottom: 0, left: rtl ? 16 : -16 }}
+          >
             <CartesianGrid stroke={GRID_COLOR} vertical={false} />
-            <XAxis dataKey="day" tick={{ fill: AXIS_COLOR, fontSize: 12 }} tickLine={false} />
+            <XAxis
+              dataKey="day"
+              reversed={rtl}
+              tick={{ fill: AXIS_COLOR, fontSize: 12 }}
+              tickLine={false}
+            />
             <YAxis
               domain={[0, 100]}
+              orientation={rtl ? 'right' : 'left'}
               ticks={[0, 50, 100]}
               tick={{ fill: AXIS_COLOR, fontSize: 12 }}
               tickLine={false}
@@ -58,7 +69,10 @@ export function QuizScoreChart({ points }: { points: readonly QuizScorePoint[] }
               className="flex justify-between gap-4"
             >
               <span>
-                {point.skill}: {point.title} <span className="text-stone-600">({point.day})</span>
+                <bdi>{point.skill}</bdi>: <bdi>{point.title}</bdi>{' '}
+                <span className="text-stone-600">
+                  (<bdi>{point.day}</bdi>)
+                </span>
               </span>
               <span className="font-semibold tabular-nums">{point.score}%</span>
             </li>

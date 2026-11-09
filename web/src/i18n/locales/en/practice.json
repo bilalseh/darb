@@ -16,15 +16,15 @@
     "saveFailed": "We could not save that answer. Please try again."
   },
   "quiz": {
-    "title": "Module quiz: {{module}}",
+    "title": "Module quiz: <bdi>{{module}}</bdi>",
     "backToPlan": "Back to the plan",
     "preparing": "Preparing your quiz…",
     "submit": "Submit answers",
     "score": "You scored {{score}}%",
     "addedToReview_one": "{{count}} missed question was added to your review queue.",
     "addedToReview_other": "{{count}} missed questions were added to your review queue.",
-    "yourAnswer": "Your answer: {{answer}}",
-    "correctWas": "Correct answer: {{answer}}",
+    "yourAnswer": "Your answer: <bdi>{{answer}}</bdi>",
+    "correctWas": "Correct answer: <bdi>{{answer}}</bdi>",
     "goToReview": "Go to Review",
     "take": "Take the module quiz"
   }

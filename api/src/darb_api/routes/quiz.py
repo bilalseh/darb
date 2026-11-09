@@ -4,14 +4,13 @@ import uuid
 
 from fastapi import APIRouter, HTTPException, status
 
-from darb_api.ai.types import AiUnavailableError
 from darb_api.auth import CurrentUser
 from darb_api.dependencies import AiDep, ClockDep, RepositoryDep, SettingsDep
 from darb_api.domain import lessons as lesson_rules
 from darb_api.domain import review as rules
 from darb_api.prompts import render
 from darb_api.repository import StoredQuiz
-from darb_api.routes.common import AI_UNAVAILABLE, conflict, count_ai_request, require_skill
+from darb_api.routes.common import conflict, metered_ai, require_skill
 from darb_api.schemas.quiz import (
     ModuleQuiz,
     ModuleQuizDraft,
@@ -65,18 +64,16 @@ async def start_module_quiz(
         for lesson in week.lessons
     ]
 
-    await count_ai_request(repository, user, clock, settings)
-    prompt = render(
-        "module_quiz",
-        skill=skill.answers.skill,
-        level=skill.placement.level.value if skill.placement else skill.answers.level.value,
-        module=module.title,
-        lessons="\n".join(lessons),
-    )
-    try:
+    async with metered_ai(repository, user, clock, settings) as language:
+        prompt = render(
+            "module_quiz",
+            language=language,
+            skill=skill.answers.skill,
+            level=skill.placement.level.value if skill.placement else skill.answers.level.value,
+            module=module.title,
+            lessons="\n".join(lessons),
+        )
         result = await ai.generate(prompt.task, ModuleQuizDraft, prompt.system, prompt.user)
-    except AiUnavailableError as error:
-        raise AI_UNAVAILABLE from error
     stored = StoredQuiz(
         skill_id=skill_id,
         module_index=module_index,

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { UserMenu } from '../../features/auth/UserMenu';
 import { useAuthUser } from '../../features/auth/useAuthUser';
+import { LanguageToggle } from './LanguageToggle';
 
 const NAV_ITEMS = [
   { to: '/today', labelKey: 'nav.today' },
@@ -23,7 +24,7 @@ export function SiteHeader() {
           className="flex items-baseline gap-2 rounded-md text-xl font-bold text-brand-700"
         >
           <span>Darb</span>
-          <span lang="ar" dir="rtl" className="text-base font-semibold text-brand-600">
+          <span lang="ar" dir="rtl" className="text-base font-semibold text-brand-700">
             درب
           </span>
         </Link>
@@ -44,7 +45,17 @@ export function SiteHeader() {
             </ul>
           </nav>
         )}
-        <UserMenu />
+        <div className="flex flex-wrap items-center gap-1">
+          <Link
+            to="/pricing"
+            className="rounded-md px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900"
+            activeProps={{ className: 'bg-brand-50 text-brand-800' }}
+          >
+            {t('nav.pricing')}
+          </Link>
+          <LanguageToggle />
+          <UserMenu />
+        </div>
       </div>
     </header>
   );

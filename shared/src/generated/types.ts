@@ -34,6 +34,15 @@ export interface AssessmentQuestion {
 export type Badge = 'first_lesson' | 'first_week' | 'first_quiz' | 'streak_7' | 'streak_30';
 
 /**
+ * Whether test-mode checkout is set up, and the user's current plan.
+ */
+export interface BillingStatus {
+  available: boolean;
+  tier: Tier;
+  priceCents: number;
+}
+
+/**
  * A completed check-in and the change it made, at users/{uid}/checkins/{id}.
  */
 export interface Checkin {
@@ -67,6 +76,13 @@ export interface CheckinRequest {
 }
 
 /**
+ * Where to send the browser for Stripe's hosted test-mode checkout.
+ */
+export interface CheckoutSession {
+  url: string;
+}
+
+/**
  * A free community or practice format suggested for a skill, with why it fits.
  */
 export interface CommunityMatch {
@@ -83,6 +99,10 @@ export interface CompleteLessonRequest {
   completedOn: string;
 }
 
+export interface ConfirmCheckoutRequest {
+  sessionId: string;
+}
+
 /**
  * Liveness payload returned by GET /api/health.
  */
@@ -90,6 +110,8 @@ export interface HealthResponse {
   status: 'ok';
   version: string;
 }
+
+export type Language = 'en' | 'ar';
 
 export type LearningStyle = 'reading' | 'video' | 'practice' | 'mixed';
 
@@ -198,6 +220,15 @@ export interface PlanWeek {
 }
 
 /**
+ * Settings the learner chooses. Language also sets the language the AI writes in.
+ */
+export interface Preferences {
+  language?: Language;
+  checkinReminders?: boolean;
+  reviewReminders?: boolean;
+}
+
+/**
  * The signed-in user's profile, stored at users/{uid}.
  */
 export interface Profile {
@@ -206,6 +237,8 @@ export interface Profile {
   email: string | null;
   isDemo: boolean;
   createdAt: string;
+  tier?: Tier;
+  preferences?: Preferences;
 }
 
 /**
@@ -380,6 +413,8 @@ export interface SyncResult {
   checkinsDue: CheckinDue[];
 }
 
+export type Tier = 'free' | 'pro';
+
 export interface TutorMessage {
   role: TutorRole;
   text: string;
@@ -393,12 +428,18 @@ export interface TutorRequest {
 export type TutorRole = 'learner' | 'tutor';
 
 /**
- * Today's AI requests against the daily allowance.
+ * Today's AI requests against the daily allowance of the user's plan.
  */
 export interface Usage {
   used: number;
   limit: number;
   resetsAt: string;
+  tier: Tier;
+  skills: number;
+  /**
+   * Skills allowed on this plan; null is unlimited
+   */
+  skillLimit: number | null;
 }
 
 export type WeekAdjustment = 'same' | 'easier' | 'harder';

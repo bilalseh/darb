@@ -4,7 +4,7 @@
   "needsPlacement": "Take the placement test first, so the plan starts at your level.",
   "loading": "Loading your plan…",
   "loadError": "We could not load your plan.",
-  "createTitle": "Build your {{skill}} plan",
+  "createTitle": "Build your <bdi>{{skill}}</bdi> plan",
   "createBody": "Darb will draft modules, weekly goals and lessons sized to your hours, then place them on your preferred days.",
   "create": "Create my plan",
   "creating": "Building your plan. This can take a few seconds…",

@@ -18,6 +18,8 @@ def test_creates_a_profile_on_first_sign_in(
         "email": "ada@example.com",
         "isDemo": False,
         "createdAt": "2026-11-09T12:00:00Z",
+        "tier": "free",
+        "preferences": {"language": "en", "checkinReminders": True, "reviewReminders": True},
     }
     assert repository.skills == {}
 

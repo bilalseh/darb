@@ -3,7 +3,7 @@
 import os
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 Environment = Literal["local", "test", "production"]
@@ -34,7 +34,24 @@ class Settings(BaseSettings):
     # Per provider. Firebase Hosting gives up after 60s, so a fallback must still fit.
     ai_timeout_seconds: float = 25
     ai_daily_limit_per_user: int = 20
+    ai_daily_limit_pro: int = 100
     ai_daily_limit_global: int = 500
+
+    # Billing runs in Stripe TEST MODE only; a live key is refused at startup.
+    app_url: str = "http://localhost:5173"
+    stripe_secret_key: SecretStr | None = None
+    stripe_webhook_secret: SecretStr | None = None
+
+    # Old demo accounts are erased by a scheduled call, signed as this service account.
+    cleanup_audience: str | None = None
+    cleanup_invoker: str | None = None
+
+    @field_validator("stripe_secret_key")
+    @classmethod
+    def _test_mode_only(cls, value: SecretStr | None) -> SecretStr | None:
+        if value and not value.get_secret_value().startswith(("sk_test_", "rk_test_")):
+            raise ValueError("only Stripe test-mode keys (sk_test_... or rk_test_...) are allowed")
+        return value
 
     @property
     def ai_provider_names(self) -> list[str]:

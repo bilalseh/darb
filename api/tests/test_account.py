@@ -32,7 +32,14 @@ def test_usage_shows_todays_ai_requests(
 
     usage = client.get("/api/me/usage", headers=AS_DEMO).json()
 
-    assert usage == {"used": 1, "limit": 20, "resetsAt": "2026-11-10T00:00:00Z"}
+    assert usage == {
+        "used": 1,
+        "limit": 20,
+        "resetsAt": "2026-11-10T00:00:00Z",
+        "tier": "free",
+        "skills": 1,
+        "skillLimit": 3,
+    }
 
 
 def test_deleting_the_account_erases_only_that_users_data(

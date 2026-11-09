@@ -4,9 +4,9 @@ from collections.abc import Sequence
 from typing import Any
 
 from google.api_core.exceptions import Aborted, AlreadyExists
-from google.cloud.firestore import AsyncClient, AsyncDocumentReference, FieldFilter, Increment
+from google.cloud.firestore import AsyncClient, AsyncDocumentReference, Increment
 
-from darb_api.domain.usage import check_allowance
+from darb_api.repository.firestore_account import FirestoreAccountStore
 from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment, StoredQuiz
 from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
 from darb_api.schemas.checkin import Checkin
@@ -30,16 +30,9 @@ def _skill_document(skill: NewSkill) -> dict[str, Any]:
     return document
 
 
-def _used(snapshot: Any) -> int:
-    return int((snapshot.to_dict() or {}).get("aiRequests", 0))
-
-
-class FirestoreUserRepository:
+class FirestoreUserRepository(FirestoreAccountStore):
     def __init__(self, client: AsyncClient) -> None:
         self._db = client
-
-    def _user(self, uid: str) -> AsyncDocumentReference:
-        return self._db.collection("users").document(uid)
 
     def _assessment_key(self, uid: str, skill_id: str) -> AsyncDocumentReference:
         return self._db.collection("assessmentKeys").document(f"{uid}__{skill_id}")
@@ -126,21 +119,6 @@ class FirestoreUserRepository:
             {"placement": result.model_dump(mode="json"), "status": SkillStatus.ASSESSED.value},
         )
         batch.delete(self._assessment_key(uid, skill_id))
-        await batch.commit()
-
-    async def count_ai_request(
-        self, uid: str, day: str, user_limit: int, global_limit: int
-    ) -> None:
-        # Soft limits: read, check, then atomic increments. A transaction would make every user
-        # contend on the one global document; this way concurrent requests can overshoot a daily
-        # limit by a request or two, but no count is ever lost.
-        user_ref = self._user(uid).collection("usage").document(day)
-        global_ref = self._db.collection("aiUsage").document(day)
-        user_snapshot, global_snapshot = await user_ref.get(), await global_ref.get()
-        check_allowance(_used(user_snapshot), _used(global_snapshot), user_limit, global_limit)
-        batch = self._db.batch()
-        batch.set(user_ref, {"aiRequests": Increment(1)}, merge=True)
-        batch.set(global_ref, {"aiRequests": Increment(1)}, merge=True)
         await batch.commit()
 
     def _plan(self, uid: str, skill_id: str) -> AsyncDocumentReference:
@@ -258,17 +236,3 @@ class FirestoreUserRepository:
             QuizResult.model_validate(snapshot.to_dict() or {})
             async for snapshot in self._user(uid).collection("quizResults").stream()
         ]
-
-    async def ai_requests_on(self, uid: str, day: str) -> int:
-        return _used(await self._user(uid).collection("usage").document(day).get())
-
-    async def delete_user_data(self, uid: str) -> None:
-        await self._db.recursive_delete(self._user(uid))
-        for collection in ("assessmentKeys", "quizKeys"):
-            # Key documents are named "{uid}__...", so a name range finds exactly this user's.
-            keys = self._db.collection(collection)
-            query = keys.where(
-                filter=FieldFilter("__name__", ">=", keys.document(f"{uid}__"))
-            ).where(filter=FieldFilter("__name__", "<", keys.document(f"{uid}__")))
-            async for snapshot in query.stream():
-                await snapshot.reference.delete()

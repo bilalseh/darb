@@ -7,6 +7,7 @@ from typing import Annotated
 from fastapi import Depends, Request
 
 from darb_api.ai.client import AiClient
+from darb_api.billing.stripe import Billing
 from darb_api.config import Settings
 from darb_api.repository import UserRepository
 
@@ -37,7 +38,14 @@ def get_settings(request: Request) -> Settings:
     return settings
 
 
+def get_billing(request: Request) -> Billing | None:
+    """Stripe test-mode billing, or None when its keys are not configured."""
+    billing: Billing | None = request.app.state.billing
+    return billing
+
+
 RepositoryDep = Annotated[UserRepository, Depends(get_repository)]
 ClockDep = Annotated[Clock, Depends(get_clock)]
 AiDep = Annotated[AiClient, Depends(get_ai)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
+BillingDep = Annotated[Billing | None, Depends(get_billing)]

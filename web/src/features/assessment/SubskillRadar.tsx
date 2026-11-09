@@ -29,7 +29,9 @@ export function SubskillRadar({ scores }: { scores: readonly SubskillScore[] }) 
     <figure>
       <div className="h-72 w-full" aria-hidden="true">
         <ResponsiveContainer>
-          <RadarChart data={[...scores]} outerRadius="72%">
+          {/* The chart is hidden from assistive tech (the list below carries the data), so it
+              must not take keyboard focus either. */}
+          <RadarChart data={[...scores]} outerRadius="72%" accessibilityLayer={false}>
             <PolarGrid stroke={GRID_COLOR} />
             <PolarAngleAxis dataKey="name" tick={{ fill: LABEL_COLOR, fontSize: 13 }} />
             <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
@@ -56,7 +58,9 @@ export function SubskillRadar({ scores }: { scores: readonly SubskillScore[] }) 
               key={item.name}
               className="flex justify-between gap-4 border-b border-stone-100 py-1"
             >
-              <dt className="text-stone-700">{item.name}</dt>
+              <dt className="text-stone-700">
+                <bdi>{item.name}</bdi>
+              </dt>
               <dd className="font-semibold tabular-nums">
                 {t('assessment.scoreValue', { score: String(item.score) })}
               </dd>

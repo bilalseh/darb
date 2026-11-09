@@ -14,6 +14,7 @@ from darb_api.schemas.assessment import (
     QuestionKind,
     SubskillScore,
 )
+from darb_api.schemas.billing import BillingStatus, CheckoutSession, ConfirmCheckoutRequest
 from darb_api.schemas.checkin import Checkin, CheckinRequest, SyncRequest, SyncResult
 from darb_api.schemas.health import HealthResponse
 from darb_api.schemas.lesson import CompleteLessonRequest, LessonContent, Stats, TutorRequest
@@ -25,7 +26,7 @@ from darb_api.schemas.onboarding import (
     Weekday,
 )
 from darb_api.schemas.plan import MoveLessonRequest, Plan, RegenerateWeekRequest
-from darb_api.schemas.profile import Profile, Usage
+from darb_api.schemas.profile import Language, Preferences, Profile, Tier, Usage
 from darb_api.schemas.progress import CommunityMatch, Progress
 from darb_api.schemas.quiz import (
     ModuleQuiz,
@@ -48,6 +49,8 @@ REQUEST_MODELS: tuple[type[BaseModel], ...] = (
     ReviewAnswer,
     CheckinRequest,
     SyncRequest,
+    Preferences,
+    ConfirmCheckoutRequest,
 )
 RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     HealthResponse,
@@ -67,6 +70,8 @@ RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     Progress,
     CommunityMatch,
     Usage,
+    BillingStatus,
+    CheckoutSession,
 )
 
 __all__ = [
@@ -76,10 +81,12 @@ __all__ = [
     "AssessmentProgress",
     "AssessmentQuestion",
     "HealthResponse",
+    "Language",
     "LearningStyle",
     "OnboardingAnswers",
     "PlacementLevel",
     "PlacementResult",
+    "Preferences",
     "Profile",
     "QuestionKind",
     "SelfRatedLevel",
@@ -87,5 +94,6 @@ __all__ = [
     "SkillReason",
     "SkillStatus",
     "SubskillScore",
+    "Tier",
     "Weekday",
 ]

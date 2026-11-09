@@ -27,8 +27,12 @@ export function Roadmap({ plan, today, pendingWeek, onRegenerate }: RoadmapProps
           <li key={module.title} className="rounded-lg border border-stone-200 bg-white">
             <details open={current || moduleIndex === 0}>
               <summary className="cursor-pointer px-4 py-3">
-                <span className="font-semibold">{module.title}</span>
-                <span className="block text-sm text-stone-600">{module.summary}</span>
+                <span className="font-semibold">
+                  <bdi>{module.title}</bdi>
+                </span>
+                <span className="block text-sm text-stone-600">
+                  <bdi>{module.summary}</bdi>
+                </span>
               </summary>
               <ol className="divide-y divide-stone-100 border-t border-stone-100">
                 {weeks.map((week) => {
@@ -40,11 +44,13 @@ export function Roadmap({ plan, today, pendingWeek, onRegenerate }: RoadmapProps
                       <h3 className="font-medium">
                         {t('plan.weekNumber', { number: week.index + 1 })}
                         <span className="ms-2 text-sm font-normal text-stone-600">
-                          {formatLocalDate(week.startDate, i18n.language)} ·{' '}
-                          {t('plan.progress', { done, total: week.lessons.length })}
+                          <bdi>{formatLocalDate(week.startDate, i18n.language)}</bdi> ·{' '}
+                          <bdi>{t('plan.progress', { done, total: week.lessons.length })}</bdi>
                         </span>
                       </h3>
-                      <p className="mt-1 text-sm text-stone-700">{week.goal}</p>
+                      <p className="mt-1 text-sm text-stone-700">
+                        <bdi>{week.goal}</bdi>
+                      </p>
                       <ul className="mt-2 space-y-1 text-sm">
                         {week.lessons.map((lesson) => (
                           <li key={lesson.id} className="flex flex-wrap gap-x-2">
@@ -52,7 +58,7 @@ export function Roadmap({ plan, today, pendingWeek, onRegenerate }: RoadmapProps
                             <span className="sr-only">
                               {lesson.status === 'done' ? t('plan.doneLabel') : t('plan.todoLabel')}
                             </span>
-                            <span className="font-medium">{lesson.title}</span>
+                            <bdi className="font-medium">{lesson.title}</bdi>
                             <span className="text-stone-600">
                               {t(`plan.kinds.${lesson.kind}`)} ·{' '}
                               {t('plan.minutes', { count: lesson.minutes })}

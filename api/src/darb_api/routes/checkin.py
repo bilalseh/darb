@@ -5,14 +5,13 @@ from datetime import date
 
 from fastapi import APIRouter, HTTPException, status
 
-from darb_api.ai.types import AiUnavailableError
 from darb_api.auth import CurrentUser
 from darb_api.dependencies import AiDep, ClockDep, RepositoryDep, SettingsDep
 from darb_api.domain import lessons as lesson_rules
 from darb_api.domain import plan as plan_rules
 from darb_api.domain import reschedule as rules
 from darb_api.prompts import render
-from darb_api.routes.common import AI_UNAVAILABLE, conflict, count_ai_request, require_skill
+from darb_api.routes.common import conflict, metered_ai, require_skill
 from darb_api.schemas.checkin import (
     Checkin,
     CheckinDraft,
@@ -81,27 +80,28 @@ async def weekly_checkin(
         raise conflict("No check-in is due right now")
     week, next_week = plan.weeks[week_index], plan.weeks[week_index + 1]
 
-    await count_ai_request(repository, user, clock, settings)
-    difficulty = plan_rules.adjusted_difficulty(plan.difficulty, FEELING_CHANGE[request.feeling])
-    minutes = skill.answers.hours_per_week * 60
-    done = [lesson for lesson in week.lessons if lesson.status is LessonStatus.DONE]
-    prompt = render(
-        "checkin",
-        skill=skill.answers.skill,
-        level=skill.placement.level.value if skill.placement else skill.answers.level.value,
-        week_number=str(week_index + 1),
-        goal=week.goal,
-        done=str(len(done)),
-        total=str(len(week.lessons)),
-        went_well=request.went_well.strip() or "(nothing written)",
-        hard=request.hard.strip() or "(nothing written)",
-        feeling=request.feeling.value.replace("_", " "),
-        difficulty=plan_rules.DIFFICULTY_WORDS[difficulty],
-        next_number=str(week_index + 2),
-        next_goal=next_week.goal,
-        minutes_per_week=str(minutes),
-    )
-    try:
+    async with metered_ai(repository, user, clock, settings) as language:
+        change = FEELING_CHANGE[request.feeling]
+        difficulty = plan_rules.adjusted_difficulty(plan.difficulty, change)
+        minutes = skill.answers.hours_per_week * 60
+        done = [lesson for lesson in week.lessons if lesson.status is LessonStatus.DONE]
+        prompt = render(
+            "checkin",
+            language=language,
+            skill=skill.answers.skill,
+            level=skill.placement.level.value if skill.placement else skill.answers.level.value,
+            week_number=str(week_index + 1),
+            goal=week.goal,
+            done=str(len(done)),
+            total=str(len(week.lessons)),
+            went_well=request.went_well.strip() or "(nothing written)",
+            hard=request.hard.strip() or "(nothing written)",
+            feeling=request.feeling.value.replace("_", " "),
+            difficulty=plan_rules.DIFFICULTY_WORDS[difficulty],
+            next_number=str(week_index + 2),
+            next_goal=next_week.goal,
+            minutes_per_week=str(minutes),
+        )
         result = await ai.generate(
             prompt.task,
             CheckinDraft,
@@ -109,8 +109,6 @@ async def weekly_checkin(
             prompt.user,
             check=lambda draft: plan_rules.week_problems(draft.week, minutes, "next week"),
         )
-    except AiUnavailableError as error:
-        raise AI_UNAVAILABLE from error
 
     kept = [lesson for lesson in next_week.lessons if lesson.status is LessonStatus.DONE]
     rebuilt = plan_rules.build_week(

@@ -54,3 +54,15 @@ export const CheckinRequestSchema = z
   .strict();
 
 export const SyncRequestSchema = z.object({ today: z.string().date() }).strict();
+
+export const PreferencesSchema = z
+  .object({
+    language: z.enum(['en', 'ar']).optional(),
+    checkinReminders: z.boolean().default(true),
+    reviewReminders: z.boolean().default(true),
+  })
+  .strict();
+
+export const ConfirmCheckoutRequestSchema = z
+  .object({ sessionId: z.string().regex(new RegExp('^cs_test_[A-Za-z0-9_]+$')).min(10).max(255) })
+  .strict();

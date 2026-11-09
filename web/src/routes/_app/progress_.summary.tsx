@@ -45,11 +45,13 @@ function ProgressSummaryPage() {
           {t('progress.summaryTitle')}
         </h1>
         <p className="mt-6 text-lg">{t('progress.summaryFor')}</p>
-        <p className="text-2xl font-semibold">{name}</p>
+        <p className="text-2xl font-semibold">
+          <bdi>{name}</bdi>
+        </p>
         <ul className="mt-6 space-y-1">
           {skills.map((skill) => (
             <li key={skill.skillId}>
-              {skill.skill}
+              <bdi>{skill.skill}</bdi>
               {skill.level && ` · ${t(`assessment.levels.${skill.level}`)}`} ·{' '}
               {t('progress.lessonsOf', { done: skill.lessonsDone, total: skill.lessonsTotal })}
             </li>

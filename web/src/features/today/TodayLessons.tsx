@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { formatLocalDate, todayLocalIso } from '../../lib/dates';
 import { allLessons, planQueryOptions } from '../plan/planApi';
+import type { FullPreferences } from '../settings/preferences';
 import { TodayNotices } from './TodayNotices';
 
 interface DueLesson {
@@ -22,10 +23,17 @@ function LessonRow({ item, showDate }: { item: DueLesson; showDate: boolean }) {
         className="flex items-center justify-between gap-3 rounded-lg border border-stone-200 bg-white p-3 hover:border-brand-600"
       >
         <span>
-          <span className="block font-medium">{item.lesson.title}</span>
+          <span className="block font-medium">
+            <bdi>{item.lesson.title}</bdi>
+          </span>
           <span className="block text-sm text-stone-600">
-            {item.skill.answers.skill} · {t(`plan.kinds.${item.lesson.kind}`)}
-            {showDate && ` · ${formatLocalDate(item.lesson.scheduledDate, i18n.language)}`}
+            <bdi>{item.skill.answers.skill}</bdi> · {t(`plan.kinds.${item.lesson.kind}`)}
+            {showDate && (
+              <>
+                {' · '}
+                <bdi>{formatLocalDate(item.lesson.scheduledDate, i18n.language)}</bdi>
+              </>
+            )}
           </span>
         </span>
         <span className="shrink-0 text-sm font-semibold text-stone-700">
@@ -37,7 +45,13 @@ function LessonRow({ item, showDate }: { item: DueLesson; showDate: boolean }) {
 }
 
 /** Today's lessons across all skills, plus missed ones to catch up on. */
-export function TodayLessons({ uid, skills }: { uid: string; skills: Skill[] }) {
+interface TodayLessonsProps {
+  uid: string;
+  skills: Skill[];
+  reminders: FullPreferences;
+}
+
+export function TodayLessons({ uid, skills, reminders }: TodayLessonsProps) {
   const { t } = useTranslation();
   const today = todayLocalIso();
   const withPlans = skills.filter((skill) => skill.placement);
@@ -67,7 +81,12 @@ export function TodayLessons({ uid, skills }: { uid: string; skills: Skill[] }) 
 
   return (
     <div className="space-y-6">
-      <TodayNotices uid={uid} plans={withPlanData} />
+      <TodayNotices
+        uid={uid}
+        plans={withPlanData}
+        checkinReminders={reminders.checkinReminders}
+        reviewReminders={reminders.reviewReminders}
+      />
       <section aria-labelledby="due-title">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="due-title" className="text-xl font-semibold">

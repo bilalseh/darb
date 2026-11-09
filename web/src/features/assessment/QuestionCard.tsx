@@ -66,7 +66,7 @@ export function QuestionCard({
   return (
     <form onSubmit={handleSubmit} noValidate aria-labelledby={titleId} className="max-w-2xl">
       <p className="text-sm font-medium text-stone-600">
-        {t('assessment.questionNumber', { number })} · {question.subskill}
+        {t('assessment.questionNumber', { number })} · <bdi>{question.subskill}</bdi>
       </p>
       <h2
         id={titleId}
@@ -74,7 +74,7 @@ export function QuestionCard({
         tabIndex={-1}
         className="mt-2 text-2xl font-bold tracking-tight focus:outline-none"
       >
-        {question.prompt}
+        <bdi>{question.prompt}</bdi>
       </h2>
 
       <div className="mt-6" aria-describedby={showError ? errorId : undefined}>
@@ -92,7 +92,7 @@ export function QuestionCard({
                   }}
                   className="size-4 accent-brand-700"
                 />
-                <span>{option}</span>
+                <bdi>{option}</bdi>
               </label>
             ))}
           </fieldset>

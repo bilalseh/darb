@@ -1,0 +1,27 @@
+{
+  "title": "المراجعة الأسبوعية",
+  "intro": "دقيقتان من التأمل، وسيعدّل درب الأسبوع القادم بناءً عليهما.",
+  "wentWell": "ما الذي سار بشكل جيد هذا الأسبوع؟",
+  "hard": "ما الذي كان صعبًا؟",
+  "feeling": "كيف وجدت الوتيرة؟",
+  "feelings": {
+    "too_easy": "سهلة جدًا",
+    "just_right": "مناسبة تمامًا",
+    "too_hard": "صعبة جدًا"
+  },
+  "submit": "عدّل الأسبوع القادم",
+  "submitting": "نعدّل خطتك…",
+  "changedTitle": "تم تعديل الأسبوع {{week}}",
+  "seePlan": "اطّلع على الخطة المحدّثة",
+  "dueTitle": "حان وقت مراجعتك الأسبوعية",
+  "dueBody": "أخبر درب كيف سار تعلّمك لـ<bdi>{{skill}}</bdi>، وسيتكيّف الأسبوع القادم معك.",
+  "dueCta": "ابدأ المراجعة",
+  "rescheduledTitle_zero": "لم نحتج إلى نقل أي درس فائت",
+  "rescheduledTitle_one": "نقلنا درسًا فائتًا واحدًا",
+  "rescheduledTitle_two": "نقلنا درسين فائتين",
+  "rescheduledTitle_few": "نقلنا {{count}} دروس فائتة",
+  "rescheduledTitle_many": "نقلنا {{count}} درسًا فائتًا",
+  "rescheduledTitle_other": "نقلنا {{count}} درس فائت",
+  "rescheduledBody": "الظروف تتغير. هذه الدروس لها مواعيد جديدة الآن:",
+  "moved": "<bdi>{{title}}</bdi>: أصبح في <bdi>{{date}}</bdi>"
+}

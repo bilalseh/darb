@@ -49,7 +49,7 @@ export function TutorChat({ skillId, lessonId, messages }: TutorChatProps) {
             <span className="sr-only">
               {message.role === 'learner' ? t('lesson.you') : t('lesson.tutor')}:{' '}
             </span>
-            {message.text}
+            <p dir="auto">{message.text}</p>
           </li>
         ))}
         {ask.isPending && (

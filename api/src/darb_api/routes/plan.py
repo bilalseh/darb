@@ -4,13 +4,12 @@ from datetime import timedelta
 
 from fastapi import APIRouter, HTTPException, status
 
-from darb_api.ai.types import AiUnavailableError
 from darb_api.auth import CurrentUser
 from darb_api.dependencies import AiDep, ClockDep, RepositoryDep, SettingsDep
 from darb_api.domain import plan as rules
 from darb_api.prompts import render
 from darb_api.repository import UserRepository
-from darb_api.routes.common import AI_UNAVAILABLE, conflict, count_ai_request, require_skill
+from darb_api.routes.common import conflict, metered_ai, require_skill
 from darb_api.schemas import Skill
 from darb_api.schemas.plan import (
     LessonStatus,
@@ -56,23 +55,23 @@ async def create_plan(
     if await repository.get_plan(user.uid, skill_id) is not None:
         raise conflict("This skill already has a plan")
 
-    await count_ai_request(repository, user, clock, settings)
-    now = clock()
-    answers = skill.answers
-    weeks = rules.plan_weeks(now.date(), answers.target_date)
-    minutes = answers.hours_per_week * 60
-    prompt = render(
-        "plan_outline",
-        skill=answers.skill,
-        reason=answers.reason.value,
-        level=skill.placement.level.value,
-        subskills=_subskills(skill),
-        style=answers.learning_style.value,
-        difficulty=rules.DIFFICULTY_WORDS[0],
-        weeks=str(weeks),
-        minutes_per_week=str(minutes),
-    )
-    try:
+    async with metered_ai(repository, user, clock, settings) as language:
+        now = clock()
+        answers = skill.answers
+        weeks = rules.plan_weeks(now.date(), answers.target_date)
+        minutes = answers.hours_per_week * 60
+        prompt = render(
+            "plan_outline",
+            language=language,
+            skill=answers.skill,
+            reason=answers.reason.value,
+            level=skill.placement.level.value,
+            subskills=_subskills(skill),
+            style=answers.learning_style.value,
+            difficulty=rules.DIFFICULTY_WORDS[0],
+            weeks=str(weeks),
+            minutes_per_week=str(minutes),
+        )
         result = await ai.generate(
             prompt.task,
             PlanDraft,
@@ -80,8 +79,6 @@ async def create_plan(
             prompt.user,
             check=lambda draft: rules.draft_problems(rules.draft_weeks(draft), weeks, minutes),
         )
-    except AiUnavailableError as error:
-        raise AI_UNAVAILABLE from error
     plan = rules.assemble_plan(skill_id, result.value, answers.preferred_days, now.date(), now)
     await repository.save_plan(user.uid, plan)
     return plan
@@ -108,25 +105,25 @@ async def regenerate_week(
     if week.start_date + timedelta(days=6) < today:
         raise conflict("Past weeks cannot be changed")
 
-    await count_ai_request(repository, user, clock, settings)
-    difficulty = rules.adjusted_difficulty(plan.difficulty, DIFFICULTY_CHANGE[request.adjust])
-    done = [lesson for lesson in week.lessons if lesson.status is LessonStatus.DONE]
-    minutes = skill.answers.hours_per_week * 60
-    remaining = max(minutes - sum(lesson.minutes for lesson in done), 30)
-    prompt = render(
-        "plan_week",
-        skill=skill.answers.skill,
-        level=skill.placement.level.value if skill.placement else "unknown",
-        style=skill.answers.learning_style.value,
-        difficulty=rules.DIFFICULTY_WORDS[difficulty],
-        week_number=str(week_index + 1),
-        module=plan.modules[week.module_index].title,
-        goal=week.goal,
-        done=", ".join(lesson.title for lesson in done) or "none",
-        minutes_per_week=str(minutes),
-        remaining_minutes=str(remaining),
-    )
-    try:
+    async with metered_ai(repository, user, clock, settings) as language:
+        difficulty = rules.adjusted_difficulty(plan.difficulty, DIFFICULTY_CHANGE[request.adjust])
+        done = [lesson for lesson in week.lessons if lesson.status is LessonStatus.DONE]
+        minutes = skill.answers.hours_per_week * 60
+        remaining = max(minutes - sum(lesson.minutes for lesson in done), 30)
+        prompt = render(
+            "plan_week",
+            language=language,
+            skill=skill.answers.skill,
+            level=skill.placement.level.value if skill.placement else "unknown",
+            style=skill.answers.learning_style.value,
+            difficulty=rules.DIFFICULTY_WORDS[difficulty],
+            week_number=str(week_index + 1),
+            module=plan.modules[week.module_index].title,
+            goal=week.goal,
+            done=", ".join(lesson.title for lesson in done) or "none",
+            minutes_per_week=str(minutes),
+            remaining_minutes=str(remaining),
+        )
         result = await ai.generate(
             prompt.task,
             WeekDraft,
@@ -134,8 +131,6 @@ async def regenerate_week(
             prompt.user,
             check=lambda draft: rules.week_problems(draft, remaining, "the week"),
         )
-    except AiUnavailableError as error:
-        raise AI_UNAVAILABLE from error
     new_week = rules.build_week(
         week_index,
         week.module_index,

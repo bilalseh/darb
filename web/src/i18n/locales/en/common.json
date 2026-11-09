@@ -8,7 +8,8 @@
     "today": "Today",
     "plan": "Plan",
     "review": "Review",
-    "progress": "Progress"
+    "progress": "Progress",
+    "pricing": "Pricing"
   },
   "auth": {
     "signIn": "Sign in",
@@ -31,10 +32,10 @@
     "title": "A study plan that adapts to you, week after week.",
     "subtitle": "Darb builds a personal plan for any skill, schedules your week, checks what you know, and adjusts when life gets in the way.",
     "goToToday": "Go to Today",
-    "previewNotice": "Early preview: the placement test and personal plans are being built."
+    "previewNotice": "A portfolio project. Payments run in Stripe test mode only, so nothing is ever charged."
   },
   "today": {
-    "greeting": "Welcome back, {{name}}.",
+    "greeting": "Welcome back, <bdi>{{name}}</bdi>.",
     "greetingDemo": "Welcome to the demo. Everything here is yours to explore.",
     "learner": "learner",
     "loading": "Loading your skills…",
@@ -49,8 +50,8 @@
     "hoursPerWeek_one": "{{count}} hour a week",
     "hoursPerWeek_other": "{{count}} hours a week",
     "goalDate": "Goal date: {{date}}",
-    "takePlacement": "Take the placement test for {{skill}}",
-    "seePlacement": "See your {{skill}} placement result",
+    "takePlacement": "Take the placement test for <bdi>{{skill}}</bdi>",
+    "seePlacement": "See your <bdi>{{skill}}</bdi> placement result",
     "dueTitle": "Today's lessons",
     "estimate_one": "About {{count}} minute",
     "estimate_other": "About {{count}} minutes",
@@ -60,7 +61,10 @@
     "streak_one": "{{count}}-day streak",
     "streak_other": "{{count}}-day streak",
     "activeToday": "You studied today. Nice work.",
-    "keepStreak": "Finish a lesson today to keep it going."
+    "keepStreak": "Finish a lesson today to keep it going.",
+    "reviewsDueTitle": "Review cards are waiting",
+    "reviewsDueBody": "A few minutes of review keeps what you learned.",
+    "reviewsDueCta": "Start reviewing"
   },
   "comingSoon": {
     "body": "This part of Darb is being built."
@@ -79,5 +83,9 @@
     "checking": "Checking API…",
     "online": "API online ({{version}})",
     "offline": "API unreachable"
+  },
+  "language": {
+    "toggle": "العربية",
+    "toggleLabel": "Switch to Arabic"
   }
 }

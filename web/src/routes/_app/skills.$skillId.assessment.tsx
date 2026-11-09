@@ -2,7 +2,7 @@ import type { AssessmentProgress } from '@darb/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   aiProblem,
@@ -75,7 +75,11 @@ function AssessmentPage() {
           {t('assessment.backToToday')}
         </Link>
         <h1 id="assessment-title" className="mt-2 text-3xl font-bold tracking-tight">
-          {t('assessment.title', { skill: skill?.answers.skill ?? '' })}
+          <Trans
+            i18nKey="assessment.title"
+            values={{ skill: skill?.answers.skill ?? '' }}
+            components={{ bdi: <bdi /> }}
+          />
         </h1>
       </div>
 

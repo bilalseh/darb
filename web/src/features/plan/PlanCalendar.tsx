@@ -1,7 +1,13 @@
 import type { Plan, PlanLesson } from '@darb/shared';
 import { useTranslation } from 'react-i18next';
 
-import { addDaysIso, formatDayLabel, formatLocalDate, mondayOfIso } from '../../lib/dates';
+import {
+  addDaysIso,
+  formatDayLabel,
+  formatLocalDate,
+  formatShortDate,
+  mondayOfIso,
+} from '../../lib/dates';
 import { allLessons } from './planApi';
 
 const WEEKS_SHOWN = 4;
@@ -32,7 +38,7 @@ function LessonChip({
         event.dataTransfer.setData('text/plain', lesson.id);
         event.dataTransfer.effectAllowed = 'move';
       }}
-      className={`rounded-md border px-2 py-1.5 text-sm ${
+      className={`rounded-md border px-2 py-1.5 text-sm [overflow-wrap:anywhere] ${
         done
           ? 'border-stone-200 bg-stone-50 text-stone-500'
           : 'cursor-grab border-brand-100 bg-brand-50 text-stone-900'
@@ -41,7 +47,7 @@ function LessonChip({
       <p className="font-medium">
         {done && <span className="sr-only">{t('plan.doneLabel')} </span>}
         {done && <span aria-hidden="true">✓ </span>}
-        {lesson.title}
+        <bdi>{lesson.title}</bdi>
       </p>
       <p className="text-xs text-stone-600">{t('plan.minutes', { count: lesson.minutes })}</p>
       {!done && (
@@ -61,7 +67,7 @@ function LessonChip({
               .sort()
               .map((day) => (
                 <option key={day} value={day}>
-                  {formatLocalDate(day, i18n.language)}
+                  {formatShortDate(day, i18n.language)}
                 </option>
               ))}
           </select>
@@ -124,7 +130,7 @@ export function PlanCalendar({ plan, today, onMove }: PlanCalendarProps) {
                     } ${lessons.length === 0 ? 'hidden sm:block' : ''}`}
                   >
                     <p className="mb-1 text-xs font-semibold text-stone-600">
-                      {formatDayLabel(day, i18n.language)}
+                      <bdi>{formatDayLabel(day, i18n.language)}</bdi>
                       {day === today && ` · ${t('plan.today')}`}
                     </p>
                     <ul className="space-y-1.5">

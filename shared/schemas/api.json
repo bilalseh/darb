@@ -131,6 +131,28 @@
       "title": "Badge",
       "type": "string"
     },
+    "BillingStatus": {
+      "additionalProperties": false,
+      "description": "Whether test-mode checkout is set up, and the user's current plan.",
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        },
+        "priceCents": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "available",
+        "tier",
+        "priceCents"
+      ],
+      "title": "BillingStatus",
+      "type": "object"
+    },
     "Checkin": {
       "additionalProperties": false,
       "description": "A completed check-in and the change it made, at users/{uid}/checkins/{id}.",
@@ -237,6 +259,20 @@
       "title": "CheckinRequest",
       "type": "object"
     },
+    "CheckoutSession": {
+      "additionalProperties": false,
+      "description": "Where to send the browser for Stripe's hosted test-mode checkout.",
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "CheckoutSession",
+      "type": "object"
+    },
     "CommunityMatch": {
       "additionalProperties": false,
       "description": "A free community or practice format suggested for a skill, with why it fits.",
@@ -278,6 +314,22 @@
       "title": "CompleteLessonRequest",
       "type": "object"
     },
+    "ConfirmCheckoutRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "sessionId": {
+          "maxLength": 255,
+          "minLength": 10,
+          "pattern": "^cs_test_[A-Za-z0-9_]+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sessionId"
+      ],
+      "title": "ConfirmCheckoutRequest",
+      "type": "object"
+    },
     "HealthResponse": {
       "additionalProperties": false,
       "description": "Liveness payload returned by GET /api/health.",
@@ -296,6 +348,14 @@
       ],
       "title": "HealthResponse",
       "type": "object"
+    },
+    "Language": {
+      "enum": [
+        "en",
+        "ar"
+      ],
+      "title": "Language",
+      "type": "string"
     },
     "LearningStyle": {
       "enum": [
@@ -663,6 +723,26 @@
       "title": "PlanWeek",
       "type": "object"
     },
+    "Preferences": {
+      "additionalProperties": false,
+      "description": "Settings the learner chooses. Language also sets the language the AI writes in.",
+      "properties": {
+        "language": {
+          "$ref": "#/$defs/Language",
+          "default": "en"
+        },
+        "checkinReminders": {
+          "default": true,
+          "type": "boolean"
+        },
+        "reviewReminders": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "title": "Preferences",
+      "type": "object"
+    },
     "Profile": {
       "additionalProperties": false,
       "description": "The signed-in user's profile, stored at users/{uid}.",
@@ -696,6 +776,13 @@
         "createdAt": {
           "format": "date-time",
           "type": "string"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier",
+          "default": "free"
+        },
+        "preferences": {
+          "$ref": "#/$defs/Preferences"
         }
       },
       "required": [
@@ -1299,6 +1386,14 @@
       "title": "SyncResult",
       "type": "object"
     },
+    "Tier": {
+      "enum": [
+        "free",
+        "pro"
+      ],
+      "title": "Tier",
+      "type": "string"
+    },
     "TutorMessage": {
       "additionalProperties": false,
       "properties": {
@@ -1346,7 +1441,7 @@
     },
     "Usage": {
       "additionalProperties": false,
-      "description": "Today's AI requests against the daily allowance.",
+      "description": "Today's AI requests against the daily allowance of the user's plan.",
       "properties": {
         "used": {
           "type": "integer"
@@ -1357,12 +1452,32 @@
         "resetsAt": {
           "format": "date-time",
           "type": "string"
+        },
+        "tier": {
+          "$ref": "#/$defs/Tier"
+        },
+        "skills": {
+          "type": "integer"
+        },
+        "skillLimit": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Skills allowed on this plan; null is unlimited"
         }
       },
       "required": [
         "used",
         "limit",
-        "resetsAt"
+        "resetsAt",
+        "tier",
+        "skills",
+        "skillLimit"
       ],
       "title": "Usage",
       "type": "object"
@@ -1401,6 +1516,8 @@
     "QuizSubmission",
     "ReviewAnswer",
     "CheckinRequest",
-    "SyncRequest"
+    "SyncRequest",
+    "Preferences",
+    "ConfirmCheckoutRequest"
   ]
 }

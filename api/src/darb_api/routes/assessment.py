@@ -3,13 +3,12 @@ time (answers never leave the server), and one AI call reviews it at the end."""
 
 from fastapi import APIRouter, HTTPException, status
 
-from darb_api.ai.types import AiUnavailableError
 from darb_api.auth import CurrentUser
 from darb_api.dependencies import AiDep, ClockDep, RepositoryDep, SettingsDep
 from darb_api.domain import assessment as rules
 from darb_api.prompts import render
 from darb_api.repository import RecordedAnswer, StoredAssessment, UserRepository
-from darb_api.routes.common import AI_UNAVAILABLE, conflict, count_ai_request, require_skill
+from darb_api.routes.common import conflict, metered_ai, require_skill
 from darb_api.schemas import (
     AnswerSubmission,
     AssessmentProgress,
@@ -66,19 +65,17 @@ async def start_assessment(
         raise conflict("This skill already has a placement result")
     stored = await repository.get_assessment(user.uid, skill_id)
     if stored is None:
-        await count_ai_request(repository, user, clock, settings)
-        answers = skill.answers
-        prompt = render(
-            "placement_quiz",
-            skill=answers.skill,
-            reason=answers.reason.value,
-            level=answers.level.value,
-            style=answers.learning_style.value,
-        )
-        try:
+        async with metered_ai(repository, user, clock, settings) as language:
+            answers = skill.answers
+            prompt = render(
+                "placement_quiz",
+                language=language,
+                skill=answers.skill,
+                reason=answers.reason.value,
+                level=answers.level.value,
+                style=answers.learning_style.value,
+            )
             result = await ai.generate(prompt.task, PlacementQuiz, prompt.system, prompt.user)
-        except AiUnavailableError as error:
-            raise AI_UNAVAILABLE from error
         stored = StoredAssessment(
             quiz=result.value,
             answers=[],
@@ -155,18 +152,16 @@ async def complete_assessment(
     if rules.next_question(questions, answers) is not None:
         raise conflict("Answer every question first")
 
-    await count_ai_request(repository, user, clock, settings)
-    results, short_answers = _review_prompt_sections(stored)
-    prompt = render(
-        "assessment_review",
-        skill=skill.answers.skill,
-        results=results,
-        short_answers=short_answers,
-    )
-    try:
+    async with metered_ai(repository, user, clock, settings) as language:
+        results, short_answers = _review_prompt_sections(stored)
+        prompt = render(
+            "assessment_review",
+            language=language,
+            skill=skill.answers.skill,
+            results=results,
+            short_answers=short_answers,
+        )
         review = await ai.generate(prompt.task, AssessmentReview, prompt.system, prompt.user)
-    except AiUnavailableError as error:
-        raise AI_UNAVAILABLE from error
 
     grades = {grade.question_id: grade.score for grade in review.value.grades}
     scores = rules.subskill_scores(stored.quiz.subskills, questions, answers, grades)

@@ -26,7 +26,14 @@ class RenderedPrompt:
     user: str
 
 
-def render(task: str, **values: str) -> RenderedPrompt:
+# Added to every system prompt, so each template stays language-neutral.
+LANGUAGE_RULE = (
+    "Write every text meant for the learner in $language. Keep JSON keys, enum values and "
+    "anything the schema fixes exactly as specified."
+)
+
+
+def render(task: str, language: str = "English", **values: str) -> RenderedPrompt:
     version = CURRENT_VERSIONS[task]
     text = files(__package__).joinpath(f"{task}.{version}.txt").read_text(encoding="utf-8")
     system, separator, user = text.removeprefix("[system]\n").partition("\n[user]\n")
@@ -35,6 +42,8 @@ def render(task: str, **values: str) -> RenderedPrompt:
     return RenderedPrompt(
         task=task,
         version=version,
-        system=Template(system.strip()).substitute(values),
+        system=Template(system.strip() + "\n\n" + LANGUAGE_RULE).substitute(
+            values, language=language
+        ),
         user=Template(user.strip()).substitute(values),
     )

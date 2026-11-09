@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
+import { profileQueryOptions } from '../../features/auth/profileQuery';
+import { preferencesOf } from '../../features/settings/preferences';
 import { SkillCard } from '../../features/skills/SkillCard';
 import { skillsQueryOptions } from '../../features/skills/skillsQuery';
 import { StreakTile } from '../../features/today/StreakTile';
@@ -16,12 +18,19 @@ const primaryLink =
 
 function TodayPage() {
   const { t } = useTranslation();
-  const { user, profile } = Route.useRouteContext();
+  const { user, profile: initialProfile } = Route.useRouteContext();
+  const profile = useQuery(profileQueryOptions(user.uid)).data ?? initialProfile;
   const skills = useQuery(skillsQueryOptions(user.uid));
 
-  const greeting = profile.isDemo
-    ? t('today.greetingDemo')
-    : t('today.greeting', { name: profile.displayName ?? t('today.learner') });
+  const greeting = profile.isDemo ? (
+    t('today.greetingDemo')
+  ) : (
+    <Trans
+      i18nKey="today.greeting"
+      values={{ name: profile.displayName ?? t('today.learner') }}
+      components={{ bdi: <bdi /> }}
+    />
+  );
 
   return (
     <section aria-labelledby="today-title" className="space-y-8">
@@ -34,7 +43,7 @@ function TodayPage() {
 
       <StreakTile uid={user.uid} />
       {skills.isSuccess && skills.data.length > 0 && (
-        <TodayLessons uid={user.uid} skills={skills.data} />
+        <TodayLessons uid={user.uid} skills={skills.data} reminders={preferencesOf(profile)} />
       )}
 
       {skills.isPending && (

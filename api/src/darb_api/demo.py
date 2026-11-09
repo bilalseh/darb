@@ -66,3 +66,12 @@ def demo_skills(now: datetime) -> list[NewSkill]:
             quiz_results=demo_quiz_results(now),
         )
     ]
+
+
+DEMO_RETENTION = timedelta(days=7)
+
+
+def demo_expiry_cutoff(now: datetime) -> datetime:
+    """Demo profiles are back-dated by DEMO_HISTORY, so one created before this cutoff was
+    started more than DEMO_RETENTION ago."""
+    return now - DEMO_HISTORY - DEMO_RETENTION

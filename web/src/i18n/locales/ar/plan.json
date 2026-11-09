@@ -1,0 +1,48 @@
+{
+  "skillPicker": "اختر مهارة",
+  "noSkills": "لا توجد لديك مهارات بعد.",
+  "needsPlacement": "خض اختبار تحديد المستوى أولًا، لتبدأ الخطة من مستواك.",
+  "loading": "جارٍ تحميل خطتك…",
+  "loadError": "لم نتمكن من تحميل خطتك.",
+  "createTitle": "ابنِ خطتك في <bdi>{{skill}}</bdi>",
+  "createBody": "سيُعدّ درب وحدات وأهدافًا أسبوعية ودروسًا تناسب ساعاتك، ثم يوزّعها على أيامك المفضّلة.",
+  "create": "أنشئ خطتي",
+  "creating": "نبني خطتك. قد يستغرق ذلك بضع ثوانٍ…",
+  "calendarTitle": "الأسابيع القادمة",
+  "calendarHint": "اسحب الدرس إلى يوم آخر، أو اختر له تاريخًا جديدًا من قائمته.",
+  "roadmapTitle": "خريطة الطريق",
+  "weekOf": "أسبوع {{date}}",
+  "weekNumber": "الأسبوع {{number}}",
+  "progress": "أُنجز {{done}} من {{total}}",
+  "today": "اليوم",
+  "minutes_zero": "أقل من دقيقة",
+  "minutes_one": "دقيقة واحدة",
+  "minutes_two": "دقيقتان",
+  "minutes_few": "{{count}} دقائق",
+  "minutes_many": "{{count}} دقيقة",
+  "minutes_other": "{{count}} دقيقة",
+  "doneLabel": "مكتمل:",
+  "todoLabel": "متبقٍّ:",
+  "moveLabel": "انقل {{title}} إلى",
+  "moveFailed": "تعذّر نقل هذا الدرس. حاول مرة أخرى.",
+  "regenerating": "جارٍ إعادة الإنشاء…",
+  "adjust": {
+    "same": "أعد إنشاء الأسبوع {{number}}",
+    "easier": "اجعله أسهل",
+    "harder": "اجعله أصعب"
+  },
+  "kinds": {
+    "learn": "تعلّم",
+    "practice": "تدرّب",
+    "review": "مراجعة",
+    "project": "مشروع"
+  },
+  "matchesTitle": "اعثر على من يشاركونك الاهتمام",
+  "matchesHint": "مجتمعات وأساليب تدريب مجانية تناسب مهارتك ومستواك وهدفك.",
+  "matchKinds": {
+    "community": "مجتمع",
+    "forum": "منتدى",
+    "chat": "خادم دردشة",
+    "practice": "تدريب"
+  }
+}

@@ -93,6 +93,14 @@ describe('everything outside users/{uid}', () => {
     await assertFails(getDoc(doc(asAlice(), 'quizKeys/alice__guitar__0')));
   });
 
+  it("keeps Stripe billing records private, even the user's own", async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'billing/alice'), { subscriptionId: 'sub_1' });
+    });
+
+    await assertFails(getDoc(doc(asAlice(), 'billing/alice')));
+  });
+
   it('keeps the global AI usage counter private', async () => {
     await assertFails(getDoc(doc(asAlice(), 'aiUsage/2026-11-09')));
   });

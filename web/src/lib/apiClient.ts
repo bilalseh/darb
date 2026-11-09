@@ -19,7 +19,7 @@ interface RequestOptions {
 
 /** Calls the Darb API, served same-origin under `/api`, with the user's ID token if signed in. */
 async function request<T>(
-  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: `/${string}`,
   options: RequestOptions,
 ) {
@@ -48,6 +48,10 @@ export function apiGet<T>(path: `/${string}`, options: RequestOptions = {}): Pro
 
 export function apiPost<T>(path: `/${string}`, body?: unknown): Promise<T> {
   return request<T>('POST', path, { body });
+}
+
+export function apiPut<T>(path: `/${string}`, body: unknown): Promise<T> {
+  return request<T>('PUT', path, { body });
 }
 
 export function apiPatch<T>(path: `/${string}`, body: unknown): Promise<T> {

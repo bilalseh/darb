@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState, type SubmitEvent } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { aiProblem } from '../../features/assessment/assessmentApi';
 import {
@@ -51,7 +51,11 @@ function ModuleQuizPage() {
           {t('quiz.backToPlan')}
         </Link>
         <h1 id="quiz-title" className="mt-2 text-3xl font-bold tracking-tight">
-          {t('quiz.title', { module: quiz.data?.title ?? '' })}
+          <Trans
+            i18nKey="quiz.title"
+            values={{ module: quiz.data?.title ?? '' }}
+            components={{ bdi: <bdi /> }}
+          />
         </h1>
       </div>
       {quiz.isPending && <p role="status">{t('quiz.preparing')}</p>}
@@ -72,20 +76,34 @@ function ModuleQuizPage() {
           <ol className="space-y-3">
             {submit.data.results.map((result) => (
               <li key={result.id} className="rounded-lg border border-stone-200 bg-white p-4">
-                <p className="font-medium">{result.prompt}</p>
+                <p className="font-medium">
+                  <bdi>{result.prompt}</bdi>
+                </p>
                 <p
                   className={`mt-1 text-sm font-semibold ${result.correct ? 'text-emerald-800' : 'text-red-800'}`}
                 >
-                  {result.correct
-                    ? t('review.right')
-                    : t('quiz.yourAnswer', { answer: result.options[result.chosen] ?? '' })}
+                  {result.correct ? (
+                    t('review.right')
+                  ) : (
+                    <Trans
+                      i18nKey="quiz.yourAnswer"
+                      values={{ answer: result.options[result.chosen] ?? '' }}
+                      components={{ bdi: <bdi /> }}
+                    />
+                  )}
                 </p>
                 {!result.correct && (
                   <p className="text-sm">
-                    {t('quiz.correctWas', { answer: result.options[result.correctOption] ?? '' })}
+                    <Trans
+                      i18nKey="quiz.correctWas"
+                      values={{ answer: result.options[result.correctOption] ?? '' }}
+                      components={{ bdi: <bdi /> }}
+                    />
                   </p>
                 )}
-                <p className="mt-1 text-sm text-stone-600">{result.explanation}</p>
+                <p dir="auto" className="mt-1 text-sm text-stone-600">
+                  {result.explanation}
+                </p>
               </li>
             ))}
           </ol>
@@ -105,7 +123,7 @@ function ModuleQuizPage() {
                 className="rounded-lg border border-stone-200 bg-white p-4"
               >
                 <legend className="px-1 font-medium">
-                  {number + 1}. {question.prompt}
+                  {number + 1}. <bdi>{question.prompt}</bdi>
                 </legend>
                 <div className="mt-2 grid gap-2">
                   {question.options.map((option, index) => (
@@ -119,7 +137,7 @@ function ModuleQuizPage() {
                         }}
                         className="size-4 accent-brand-700"
                       />
-                      <span>{option}</span>
+                      <bdi>{option}</bdi>
                     </label>
                   ))}
                 </div>

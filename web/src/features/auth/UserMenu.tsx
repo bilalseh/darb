@@ -31,8 +31,8 @@ export function UserMenu() {
   }
 
   return (
-    <div className="flex items-center gap-3 text-sm">
-      <span className="font-medium text-stone-700">
+    <div className="flex items-center gap-1 text-sm sm:gap-3">
+      <span className="hidden font-medium text-stone-700 sm:inline">
         {user.isAnonymous ? t('auth.demoName') : (user.displayName ?? user.email)}
       </span>
       {user.isAnonymous && (

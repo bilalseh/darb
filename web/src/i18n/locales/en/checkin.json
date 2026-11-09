@@ -14,10 +14,10 @@
   "changedTitle": "Week {{week}} was adjusted",
   "seePlan": "See the updated plan",
   "dueTitle": "Time for your weekly check-in",
-  "dueBody": "Tell Darb how {{skill}} went, and next week will adapt.",
+  "dueBody": "Tell Darb how <bdi>{{skill}}</bdi> went, and next week will adapt.",
   "dueCta": "Start the check-in",
   "rescheduledTitle_one": "We moved {{count}} missed lesson",
   "rescheduledTitle_other": "We moved {{count}} missed lessons",
   "rescheduledBody": "Life happens. These lessons now have new days:",
-  "moved": "{{title}}: now {{date}}"
+  "moved": "<bdi>{{title}}</bdi>: now <bdi>{{date}}</bdi>"
 }

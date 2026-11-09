@@ -92,7 +92,12 @@ describe('signed-in pages', () => {
     fakeSession.setUser(GOOGLE_USER);
     renderAt('/today');
 
-    expect(await screen.findByText('Welcome back, Ada.')).toBeInTheDocument();
+    // The name sits in its own <bdi>, so match the whole paragraph's text.
+    expect(
+      await screen.findByText(
+        (_, element) => element?.tagName === 'P' && element.textContent === 'Welcome back, Ada.',
+      ),
+    ).toBeInTheDocument();
     expect(await screen.findByRole('link', { name: 'Start learning a skill' })).toHaveAttribute(
       'href',
       '/onboarding',

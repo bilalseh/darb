@@ -53,7 +53,9 @@ export function ReviewStep({ onEdit }: { onEdit: (step: StepId) => void }) {
         <div key={row.label} className="flex items-start justify-between gap-4 px-4 py-3">
           <div>
             <dt className="text-sm text-stone-600">{row.label}</dt>
-            <dd className="font-medium">{row.value}</dd>
+            <dd className="font-medium">
+              <bdi>{row.value}</bdi>
+            </dd>
           </div>
           <button
             type="button"

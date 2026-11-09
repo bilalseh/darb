@@ -46,9 +46,11 @@ function LessonPage() {
           {t(`plan.kinds.${lesson.kind}`)} · {t('plan.minutes', { count: lesson.minutes })}
         </p>
         <h1 id="lesson-title" className="text-3xl font-bold tracking-tight">
-          {lesson.title}
+          <bdi>{lesson.title}</bdi>
         </h1>
-        <p className="mt-2 text-lg text-stone-700">{lesson.objective}</p>
+        <p className="mt-2 text-lg text-stone-700">
+          <bdi>{lesson.objective}</bdi>
+        </p>
       </div>
 
       {content.isPending && <p role="status">{t('lesson.writing')}</p>}
@@ -73,7 +75,7 @@ function LessonPage() {
             </h2>
             {/* Plain paragraphs only: AI text is never rendered as HTML. */}
             {content.data.explanation.split(/\n\s*\n/).map((paragraph, index) => (
-              <p key={index} className="leading-relaxed text-stone-800">
+              <p key={index} dir="auto" className="leading-relaxed text-stone-800">
                 {paragraph}
               </p>
             ))}
@@ -85,7 +87,9 @@ function LessonPage() {
             <h2 id="exercise-title" className="font-semibold">
               {t('lesson.exercise')}
             </h2>
-            <p className="mt-1 text-stone-800">{content.data.exercise}</p>
+            <p dir="auto" className="mt-1 text-stone-800">
+              {content.data.exercise}
+            </p>
           </section>
           <section aria-labelledby="resources-title">
             <h2 id="resources-title" className="text-xl font-semibold">
@@ -100,7 +104,7 @@ function LessonPage() {
                     rel="noopener noreferrer"
                     className="font-medium text-brand-700 underline"
                   >
-                    {resource.title}
+                    <bdi>{resource.title}</bdi>
                   </a>{' '}
                   <span className="text-sm text-stone-600">
                     ({t(`lesson.resourceKinds.${resource.kind}`)})

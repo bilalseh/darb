@@ -2,7 +2,7 @@ import type { Plan, WeekAdjustment } from '@darb/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, type SearchSchemaInput } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { aiProblem } from '../../features/assessment/assessmentApi';
 import { CommunityMatches } from '../../features/plan/CommunityMatches';
@@ -51,7 +51,7 @@ function PlanPage() {
               aria-current={candidate.id === skill?.id ? 'page' : undefined}
               className="rounded-full border border-stone-300 px-3 py-1 text-sm aria-[current=page]:border-brand-700 aria-[current=page]:bg-brand-50"
             >
-              {candidate.answers.skill}
+              <bdi>{candidate.answers.skill}</bdi>
             </Link>
           ))}
         </nav>
@@ -72,7 +72,11 @@ function PlanPage() {
             params={{ skillId: skill.id }}
             className="font-semibold text-brand-700 underline"
           >
-            {t('today.takePlacement', { skill: skill.answers.skill })}
+            <Trans
+              i18nKey="today.takePlacement"
+              values={{ skill: skill.answers.skill }}
+              components={{ bdi: <bdi /> }}
+            />
           </Link>
         </p>
       )}
@@ -127,7 +131,13 @@ function SkillPlan({ uid, skillId, name }: { uid: string; skillId: string; name:
   if (!plan.data) {
     return (
       <div className="max-w-xl rounded-lg border border-dashed border-stone-300 bg-white p-6">
-        <h2 className="text-xl font-semibold">{t('plan.createTitle', { skill: name })}</h2>
+        <h2 className="text-xl font-semibold">
+          <Trans
+            i18nKey="plan.createTitle"
+            values={{ skill: name }}
+            components={{ bdi: <bdi /> }}
+          />
+        </h2>
         <p className="mt-2 text-stone-600">{t('plan.createBody')}</p>
         <button
           type="button"

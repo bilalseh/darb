@@ -1,5 +1,5 @@
 {
-  "title": "Placement test: {{skill}}",
+  "title": "Placement test: <bdi>{{skill}}</bdi>",
   "backToToday": "Back to Today",
   "notFound": "We could not find this skill.",
   "preparing": "Preparing your questions. This can take a few seconds…",

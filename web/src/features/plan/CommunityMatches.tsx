@@ -28,10 +28,12 @@ export function CommunityMatches({ skillId }: { skillId: string }) {
               rel="noopener noreferrer"
               className="font-semibold text-brand-700 underline"
             >
-              {match.name}
+              <bdi>{match.name}</bdi>
             </a>{' '}
             <span className="text-xs text-stone-600">({t(`plan.matchKinds.${match.kind}`)})</span>
-            <p className="mt-1 text-sm text-stone-700">{match.reason}</p>
+            <p className="mt-1 text-sm text-stone-700">
+              <bdi>{match.reason}</bdi>
+            </p>
           </li>
         ))}
       </ul>
