@@ -104,5 +104,38 @@ anything that changes architecture also has an ADR.
   keys, then the sign-in account itself. The browser deletes the sign-in account (Firebase may ask
   Google users to sign in again first), so the API needs no extra admin permissions.
 - **The usage meter** shows today's AI requests against the daily allowance and when it resets.
-- **Stripe test-mode checkout, Pro limits and old demo-account cleanup** are not built yet: they
-  need Stripe test keys and one more permission on the API's service account (see the README).
+- **A failed AI call is not counted.** The request is counted before the call (so limits hold under
+  concurrency) and given back if every provider fails.
+
+## Phase 8: plans and billing
+
+- **Free** has 1 skill and 20 AI requests a day; **Pro** has unlimited skills and 100 AI requests a
+  day, for 5 USD a month. "Active skill" means any skill on the account, since there is no archive
+  yet; a learner on Free who wants another skill upgrades (removing a skill can come later).
+- **Demo accounts are on Free but may hold up to 3 skills**, so a reviewer can try onboarding, the
+  placement test and plan creation on top of the seeded Spanish skill. They can also try the whole
+  test-mode checkout with Stripe's test card.
+- **Checkout is Stripe-hosted, test mode only, monthly.** Cancelling ends Pro at once (no
+  end-of-period grace), which keeps the demo simple to try again. See ADR 0007.
+- **Reminders are in the app only.** "Notification preferences" switch Today's reminders for due
+  check-ins and review cards on or off; Darb sends no email or push notifications.
+- **Demo accounts are erased a week after they were started** by a daily scheduled call: their data,
+  any test subscription, then the anonymous sign-in. If the sign-in cannot be deleted, it holds no
+  data and simply gets a fresh demo if used again.
+
+## Phase 9: Arabic, accessibility and responsiveness
+
+- **Language** is remembered per device and starts from the browser's language. Signed-in learners'
+  profiles follow the app's language, and **the AI writes new content in it** (lessons, quizzes,
+  tutor replies, check-ins). Content written earlier stays in the language it was written in; the
+  demo seed and the curated community list are in English.
+- **Arabic uses Western digits** (as in the translations) and Modern Standard Arabic, addressing the
+  learner in the masculine generic form. Charts mirror their time axis in right-to-left layout.
+- **Accessibility is checked automatically**: Playwright runs axe (WCAG 2.2 A and AA) on every main
+  page in both languages. Charts are hidden from assistive technology because a text list next to
+  each carries the same data.
+
+## Phase 10: documentation
+
+- The README GIF and screenshots are captured from the local app with the deterministic fake AI
+  (`pnpm screenshots`), so they can be regenerated at any time without an AI key.
