@@ -4,7 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 import { SubskillRadar } from './SubskillRadar';
 
-export function PlacementResultView({ result }: { result: PlacementResult }) {
+interface PlacementResultViewProps {
+  result: PlacementResult;
+  skillId: string;
+}
+
+export function PlacementResultView({ result, skillId }: PlacementResultViewProps) {
   const { t } = useTranslation();
 
   return (
@@ -24,12 +29,18 @@ export function PlacementResultView({ result }: { result: PlacementResult }) {
         <h3 className="font-semibold">{t('assessment.radarTitle')}</h3>
         <SubskillRadar scores={result.subskills} />
       </div>
-      <Link
-        to="/today"
-        className="inline-flex rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800"
-      >
-        {t('assessment.backToToday')}
-      </Link>
+      <div className="flex flex-wrap items-center gap-4">
+        <Link
+          to="/plan"
+          search={{ skill: skillId }}
+          className="inline-flex rounded-md bg-brand-700 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800"
+        >
+          {t('assessment.buildPlan')}
+        </Link>
+        <Link to="/today" className="text-sm font-semibold text-brand-700 hover:underline">
+          {t('assessment.backToToday')}
+        </Link>
+      </div>
     </section>
   );
 }

@@ -67,3 +67,7 @@ export const PreferencesSchema = z
 export const ConfirmCheckoutRequestSchema = z
   .object({ sessionId: z.string().regex(new RegExp('^cs_test_[A-Za-z0-9_]+$')).min(10).max(255) })
   .strict();
+
+export const EnsureProfileRequestSchema = z
+  .object({ today: z.union([z.string().date(), z.null()]).default(null) })
+  .strict();

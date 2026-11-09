@@ -85,10 +85,9 @@ function TodayPage() {
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {skills.data.map((skill) => (
-              <SkillCard key={skill.id} skill={skill} />
+              <SkillCard key={skill.id} uid={user.uid} skill={skill} />
             ))}
           </div>
-          <p className="mt-6 text-sm text-stone-600">{t('today.planPending')}</p>
         </div>
       )}
     </section>

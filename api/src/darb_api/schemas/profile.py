@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 
 from pydantic import Field
@@ -34,6 +34,13 @@ class Profile(ApiModel):
     created_at: datetime
     tier: Tier = Tier.FREE
     preferences: Preferences = Field(default_factory=Preferences)
+
+
+class EnsureProfileRequest(ApiModel):
+    """Sent on sign-in: the learner's own calendar date, so a new demo account's history lines up
+    with their day rather than UTC's."""
+
+    today: date | None = None
 
 
 class Usage(ApiModel):

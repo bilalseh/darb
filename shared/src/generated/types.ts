@@ -107,6 +107,14 @@ export interface ConfirmCheckoutRequest {
 }
 
 /**
+ * Sent on sign-in: the learner's own calendar date, so a new demo account's history lines up
+ * with their day rather than UTC's.
+ */
+export interface EnsureProfileRequest {
+  today?: string | null;
+}
+
+/**
  * Liveness payload returned by GET /api/health.
  */
 export interface HealthResponse {

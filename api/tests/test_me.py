@@ -51,3 +51,20 @@ def test_seeds_demo_users_only_once(client: TestClient, repository: InMemoryUser
 
 def test_requires_a_token(client: TestClient) -> None:
     assert client.post("/api/me").status_code == 401
+
+
+def test_demo_history_follows_the_learners_calendar_day(
+    client: TestClient, repository: InMemoryUserRepository
+) -> None:
+    # NOW is 12:00 UTC on 9 November; east of UTC it can already be the 10th.
+    client.post("/api/me", json={"today": "2026-11-10"}, headers=AS_DEMO)
+
+    days = sorted(day for (uid, day) in repository.activity if uid == "user-demo")
+    assert days[-1] == "2026-11-09"  # yesterday for the learner, so the streak is live
+
+
+def test_far_off_dates_are_ignored(client: TestClient, repository: InMemoryUserRepository) -> None:
+    client.post("/api/me", json={"today": "2027-01-01"}, headers=AS_DEMO)
+
+    days = sorted(day for (uid, day) in repository.activity if uid == "user-demo")
+    assert days[-1] == "2026-11-08"

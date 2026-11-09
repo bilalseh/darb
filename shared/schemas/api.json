@@ -338,6 +338,26 @@
       "title": "ConfirmCheckoutRequest",
       "type": "object"
     },
+    "EnsureProfileRequest": {
+      "additionalProperties": false,
+      "description": "Sent on sign-in: the learner's own calendar date, so a new demo account's history lines up\nwith their day rather than UTC's.",
+      "properties": {
+        "today": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "EnsureProfileRequest",
+      "type": "object"
+    },
     "HealthResponse": {
       "additionalProperties": false,
       "description": "Liveness payload returned by GET /api/health.",
@@ -1526,6 +1546,7 @@
     "CheckinRequest",
     "SyncRequest",
     "Preferences",
-    "ConfirmCheckoutRequest"
+    "ConfirmCheckoutRequest",
+    "EnsureProfileRequest"
   ]
 }

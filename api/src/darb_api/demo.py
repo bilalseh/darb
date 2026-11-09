@@ -4,7 +4,7 @@ Dates are relative to the moment the demo starts, so the account always looks th
 Later phases add lesson content and quiz history to this seed.
 """
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from darb_api.auth import AuthenticatedUser
 from darb_api.demo_plan import demo_plan, demo_quiz_results, demo_reviews
@@ -25,6 +25,15 @@ from darb_api.schemas import (
 DEMO_HISTORY = timedelta(weeks=3)
 DEMO_TRIP_IN = timedelta(weeks=9)
 DEMO_SUBSKILLS = {"Vocabulary": 58, "Grammar": 44, "Listening": 52, "Speaking": 36}
+
+
+def demo_clock(now: datetime, learner_today: date | None) -> datetime:
+    """The moment the demo is seeded from, moved to the learner's calendar day. East of UTC just
+    after midnight their today is UTC's tomorrow; seeding from UTC would leave their streak broken
+    and today's lessons on yesterday. Dates more than a day from UTC's are ignored."""
+    if learner_today is None or abs((learner_today - now.date()).days) > 1:
+        return now
+    return now + (learner_today - now.date())
 
 
 def new_profile(user: AuthenticatedUser, now: datetime) -> Profile:

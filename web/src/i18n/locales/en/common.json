@@ -46,7 +46,6 @@
     "emptyTitle": "Start with your first skill",
     "emptyBody": "Answer a few questions and Darb will shape a plan around your goal and your week.",
     "emptyCta": "Start learning a skill",
-    "planPending": "Your daily tasks will appear here once your plan is ready.",
     "hoursPerWeek_one": "{{count}} hour a week",
     "hoursPerWeek_other": "{{count}} hours a week",
     "goalDate": "Goal date: {{date}}",
@@ -64,7 +63,8 @@
     "keepStreak": "Finish a lesson today to keep it going.",
     "reviewsDueTitle": "Review cards are waiting",
     "reviewsDueBody": "A few minutes of review keeps what you learned.",
-    "reviewsDueCta": "Start reviewing"
+    "reviewsDueCta": "Start reviewing",
+    "createPlan": "Create your plan"
   },
   "comingSoon": {
     "body": "This part of Darb is being built."

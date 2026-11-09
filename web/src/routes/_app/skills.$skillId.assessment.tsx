@@ -94,7 +94,7 @@ function AssessmentPage() {
 
       {skills.isSuccess && !skill && <p>{t('assessment.notFound')}</p>}
 
-      {result && <PlacementResultView result={result} />}
+      {result && <PlacementResultView result={result} skillId={skillId} />}
 
       {!result && progress.isPending && skill && (
         <p role="status" className="text-stone-600">

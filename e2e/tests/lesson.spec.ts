@@ -10,8 +10,9 @@ test('missed lessons are moved and explained, then studied with the tutor', asyn
   await startDemo(page);
   await expect(page.getByRole('heading', { name: '3-day streak' })).toBeVisible();
 
-  // The demo left two lessons undone; opening the app moved them and says so.
-  const notice = page.getByRole('status').filter({ hasText: 'We moved 2 missed lessons' });
+  // The demo left lessons undone; opening the app moved them and says so. How many depends on
+  // the weekday the demo starts, since the current week's past days add to them.
+  const notice = page.getByRole('status').filter({ hasText: /We moved \d+ missed lessons/ });
   await expect(notice).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Catch up' })).toHaveCount(0);
   const moved = notice.getByRole('link').first();

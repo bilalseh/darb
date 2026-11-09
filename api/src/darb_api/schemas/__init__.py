@@ -26,7 +26,14 @@ from darb_api.schemas.onboarding import (
     Weekday,
 )
 from darb_api.schemas.plan import MoveLessonRequest, Plan, RegenerateWeekRequest
-from darb_api.schemas.profile import Language, Preferences, Profile, Tier, Usage
+from darb_api.schemas.profile import (
+    EnsureProfileRequest,
+    Language,
+    Preferences,
+    Profile,
+    Tier,
+    Usage,
+)
 from darb_api.schemas.progress import CommunityMatch, Progress
 from darb_api.schemas.quiz import (
     ModuleQuiz,
@@ -51,6 +58,7 @@ REQUEST_MODELS: tuple[type[BaseModel], ...] = (
     SyncRequest,
     Preferences,
     ConfirmCheckoutRequest,
+    EnsureProfileRequest,
 )
 RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     HealthResponse,

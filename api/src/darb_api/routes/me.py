@@ -4,13 +4,13 @@ from fastapi import APIRouter, HTTPException, Response, status
 
 from darb_api.auth import CurrentUser
 from darb_api.billing.stripe import BillingError
-from darb_api.demo import demo_skills, new_profile
+from darb_api.demo import demo_clock, demo_skills, new_profile
 from darb_api.demo_plan import demo_activity
 from darb_api.dependencies import BillingDep, ClockDep, RepositoryDep, SettingsDep
 from darb_api.domain.usage import next_reset, skill_allowance, usage_day
 from darb_api.routes.common import daily_ai_limit, tier_of
 from darb_api.schemas import Preferences, Profile, Tier
-from darb_api.schemas.profile import Usage
+from darb_api.schemas.profile import EnsureProfileRequest, Usage
 
 router = APIRouter(tags=["profile"])
 logger = logging.getLogger(__name__)
@@ -18,7 +18,10 @@ logger = logging.getLogger(__name__)
 
 @router.post("/me")
 async def ensure_my_profile(
-    user: CurrentUser, repository: RepositoryDep, clock: ClockDep
+    user: CurrentUser,
+    repository: RepositoryDep,
+    clock: ClockDep,
+    request: EnsureProfileRequest | None = None,
 ) -> Profile:
     """Return the signed-in user's profile, creating it on first sign-in. Safe to repeat.
 
@@ -28,6 +31,7 @@ async def ensure_my_profile(
     now = clock()
     if not user.is_anonymous:
         return await repository.ensure_profile(new_profile(user, now))
+    now = demo_clock(now, request.today if request else None)
     seed = demo_skills(now)
     activity = [day for skill in seed if skill.plan for day in demo_activity(now, skill.plan)]
     return await repository.ensure_profile(new_profile(user, now), seed, activity)
