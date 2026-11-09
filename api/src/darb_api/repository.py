@@ -13,6 +13,7 @@ from darb_api.domain.usage import check_allowance
 from darb_api.schemas import OnboardingAnswers, PlacementResult, Profile, Skill, SkillStatus
 from darb_api.schemas.assessment import PlacementQuiz
 from darb_api.schemas.base import ApiModel
+from darb_api.schemas.plan import Plan
 
 # A failed create means another request won the race (or Firestore aborted on contention);
 # either way nothing was written, so re-reading and trying again is safe.
@@ -25,6 +26,7 @@ class NewSkill:
     status: SkillStatus
     created_at: datetime
     placement: PlacementResult | None = None
+    plan: Plan | None = None  # its skill_id is filled in when the skill is written
 
 
 class RecordedAnswer(ApiModel):
@@ -79,6 +81,10 @@ class UserRepository(Protocol):
         """Count one AI request, or raise UsageLimitError if a daily limit is already reached."""
         ...
 
+    async def get_plan(self, uid: str, skill_id: str) -> Plan | None: ...
+
+    async def save_plan(self, uid: str, plan: Plan) -> None: ...
+
 
 def _skill_document(skill: NewSkill) -> dict[str, Any]:
     document: dict[str, Any] = {
@@ -116,7 +122,13 @@ class FirestoreUserRepository:
             batch = self._db.batch()
             batch.create(user_ref, profile.model_dump(exclude={"uid"}))
             for skill in seed_skills:
-                batch.create(user_ref.collection("skills").document(), _skill_document(skill))
+                skill_ref = user_ref.collection("skills").document()
+                batch.create(skill_ref, _skill_document(skill))
+                if skill.plan:
+                    plan = skill.plan.model_copy(update={"skill_id": skill_ref.id})
+                    batch.create(
+                        self._plan(profile.uid, skill_ref.id), plan.model_dump(mode="json")
+                    )
             try:
                 await batch.commit()
             except (AlreadyExists, Aborted):
@@ -175,3 +187,16 @@ class FirestoreUserRepository:
         batch.set(user_ref, {"aiRequests": Increment(1)}, merge=True)
         batch.set(global_ref, {"aiRequests": Increment(1)}, merge=True)
         await batch.commit()
+
+    def _plan(self, uid: str, skill_id: str) -> AsyncDocumentReference:
+        reference: AsyncDocumentReference = self._user(uid).collection("plans").document(skill_id)
+        return reference
+
+    async def get_plan(self, uid: str, skill_id: str) -> Plan | None:
+        snapshot = await self._plan(uid, skill_id).get()
+        if not snapshot.exists:
+            return None
+        return Plan.model_validate(snapshot.to_dict() or {})
+
+    async def save_plan(self, uid: str, plan: Plan) -> None:
+        await self._plan(uid, plan.skill_id).set(plan.model_dump(mode="json"))

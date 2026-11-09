@@ -149,6 +149,39 @@
       "title": "LearningStyle",
       "type": "string"
     },
+    "LessonKind": {
+      "enum": [
+        "learn",
+        "practice",
+        "review",
+        "project"
+      ],
+      "title": "LessonKind",
+      "type": "string"
+    },
+    "LessonStatus": {
+      "enum": [
+        "todo",
+        "done"
+      ],
+      "title": "LessonStatus",
+      "type": "string"
+    },
+    "MoveLessonRequest": {
+      "additionalProperties": false,
+      "description": "Move a lesson to another day, from today to the end of the plan.",
+      "properties": {
+        "scheduledDate": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scheduledDate"
+      ],
+      "title": "MoveLessonRequest",
+      "type": "object"
+    },
     "OnboardingAnswers": {
       "additionalProperties": false,
       "description": "What the onboarding wizard collects about a new skill.\n\nOnly rules JSON Schema can express live here, so the generated frontend form enforces\nthe same ones. Rules that need the clock live in darb_api.domain.onboarding.",
@@ -244,6 +277,133 @@
       "title": "PlacementResult",
       "type": "object"
     },
+    "Plan": {
+      "additionalProperties": false,
+      "description": "A skill's study plan: modules, then weeks with dated lessons.",
+      "properties": {
+        "skillId": {
+          "type": "string"
+        },
+        "modules": {
+          "items": {
+            "$ref": "#/$defs/PlanModule"
+          },
+          "type": "array"
+        },
+        "weeks": {
+          "items": {
+            "$ref": "#/$defs/PlanWeek"
+          },
+          "type": "array"
+        },
+        "difficulty": {
+          "maximum": 2,
+          "minimum": -2,
+          "type": "integer"
+        },
+        "generatedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "skillId",
+        "modules",
+        "weeks",
+        "difficulty",
+        "generatedAt"
+      ],
+      "title": "Plan",
+      "type": "object"
+    },
+    "PlanLesson": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "objective": {
+          "type": "string"
+        },
+        "minutes": {
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/LessonKind"
+        },
+        "scheduledDate": {
+          "format": "date",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/LessonStatus"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "objective",
+        "minutes",
+        "kind",
+        "scheduledDate",
+        "status"
+      ],
+      "title": "PlanLesson",
+      "type": "object"
+    },
+    "PlanModule": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "summary"
+      ],
+      "title": "PlanModule",
+      "type": "object"
+    },
+    "PlanWeek": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "type": "integer"
+        },
+        "startDate": {
+          "format": "date",
+          "type": "string"
+        },
+        "moduleIndex": {
+          "type": "integer"
+        },
+        "goal": {
+          "type": "string"
+        },
+        "lessons": {
+          "items": {
+            "$ref": "#/$defs/PlanLesson"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "index",
+        "startDate",
+        "moduleIndex",
+        "goal",
+        "lessons"
+      ],
+      "title": "PlanWeek",
+      "type": "object"
+    },
     "Profile": {
       "additionalProperties": false,
       "description": "The signed-in user's profile, stored at users/{uid}.",
@@ -297,6 +457,18 @@
       ],
       "title": "QuestionKind",
       "type": "string"
+    },
+    "RegenerateWeekRequest": {
+      "additionalProperties": false,
+      "description": "Replace a week's unfinished lessons; \"easier\" and \"harder\" shift the plan's difficulty.",
+      "properties": {
+        "adjust": {
+          "$ref": "#/$defs/WeekAdjustment",
+          "default": "same"
+        }
+      },
+      "title": "RegenerateWeekRequest",
+      "type": "object"
     },
     "SelfRatedLevel": {
       "enum": [
@@ -386,6 +558,15 @@
       "title": "SubskillScore",
       "type": "object"
     },
+    "WeekAdjustment": {
+      "enum": [
+        "same",
+        "easier",
+        "harder"
+      ],
+      "title": "WeekAdjustment",
+      "type": "string"
+    },
     "Weekday": {
       "enum": [
         "mon",
@@ -403,6 +584,8 @@
   "title": "DarbApi",
   "x-request-models": [
     "OnboardingAnswers",
-    "AnswerSubmission"
+    "AnswerSubmission",
+    "RegenerateWeekRequest",
+    "MoveLessonRequest"
   ]
 }

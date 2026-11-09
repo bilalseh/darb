@@ -22,16 +22,23 @@ from darb_api.schemas.onboarding import (
     SkillReason,
     Weekday,
 )
+from darb_api.schemas.plan import MoveLessonRequest, Plan, RegenerateWeekRequest
 from darb_api.schemas.profile import Profile
 from darb_api.schemas.skills import Skill, SkillStatus
 
-REQUEST_MODELS: tuple[type[BaseModel], ...] = (OnboardingAnswers, AnswerSubmission)
+REQUEST_MODELS: tuple[type[BaseModel], ...] = (
+    OnboardingAnswers,
+    AnswerSubmission,
+    RegenerateWeekRequest,
+    MoveLessonRequest,
+)
 RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     HealthResponse,
     Profile,
     Skill,
     AssessmentProgress,
     PlacementResult,
+    Plan,
 )
 
 __all__ = [

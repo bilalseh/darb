@@ -1,12 +1,13 @@
 """Seed data for "Try the demo": a learner three weeks into learning Spanish for a trip.
 
 Dates are relative to the moment the demo starts, so the account always looks three weeks in.
-Later phases add the plan, lessons and quiz history to this seed.
+Later phases add lesson content and quiz history to this seed.
 """
 
 from datetime import datetime, timedelta
 
 from darb_api.auth import AuthenticatedUser
+from darb_api.demo_plan import demo_plan
 from darb_api.repository import NewSkill
 from darb_api.schemas import (
     LearningStyle,
@@ -60,5 +61,6 @@ def demo_skills(now: datetime) -> list[NewSkill]:
                 subskills=[SubskillScore(name=n, score=s) for n, s in DEMO_SUBSKILLS.items()],
                 completed_at=now - DEMO_HISTORY + timedelta(hours=1),
             ),
+            plan=demo_plan(now),
         )
     ]

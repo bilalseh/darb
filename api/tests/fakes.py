@@ -5,6 +5,7 @@ from darb_api.auth import AuthenticatedUser, InvalidTokenError
 from darb_api.domain.usage import check_allowance
 from darb_api.repository import NewSkill, StoredAssessment
 from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
+from darb_api.schemas.plan import Plan
 
 
 class FakeTokenVerifier:
@@ -26,6 +27,7 @@ class InMemoryUserRepository:
         self.skills: dict[str, list[Skill]] = {}
         self.assessments: dict[tuple[str, str], StoredAssessment] = {}
         self.usage: dict[tuple[str, str], int] = {}
+        self.plans: dict[tuple[str, str], Plan] = {}
 
     async def ensure_profile(
         self, profile: Profile, seed_skills: Sequence[NewSkill] = ()
@@ -46,6 +48,8 @@ class InMemoryUserRepository:
             placement=skill.placement,
         )
         self.skills.setdefault(uid, []).append(stored)
+        if skill.plan:
+            self.plans[(uid, stored.id)] = skill.plan.model_copy(update={"skill_id": stored.id})
         return stored
 
     async def get_skill(self, uid: str, skill_id: str) -> Skill | None:
@@ -72,6 +76,12 @@ class InMemoryUserRepository:
         used_globally = sum(n for (_, d), n in self.usage.items() if d == day)
         check_allowance(self.usage.get((uid, day), 0), used_globally, user_limit, global_limit)
         self.usage[(uid, day)] = self.usage.get((uid, day), 0) + 1
+
+    async def get_plan(self, uid: str, skill_id: str) -> Plan | None:
+        return self.plans.get((uid, skill_id))
+
+    async def save_plan(self, uid: str, plan: Plan) -> None:
+        self.plans[(uid, plan.skill_id)] = plan
 
 
 class ScriptedProvider:

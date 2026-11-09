@@ -47,6 +47,10 @@ async def test_demo_profile_and_seed_are_written_once(client: AsyncClient) -> No
     stored = (await client.document(f"users/{profile.uid}").get()).to_dict() or {}
     assert stored["isDemo"] is True
     assert "uid" not in stored
+    # The demo plan is written in the same batch, keyed by the new skill's id.
+    plans = [doc async for doc in client.collection(f"users/{profile.uid}/plans").stream()]
+    assert [plan.id for plan in plans] == [skills[0].id]
+    assert (plans[0].to_dict() or {})["skillId"] == skills[0].id
 
 
 async def test_existing_profile_is_returned_unchanged(client: AsyncClient) -> None:

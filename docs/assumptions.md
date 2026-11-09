@@ -28,3 +28,22 @@ anything that changes architecture also has an ADR.
   limit by a request or two; no request is ever lost from the count.
 - **The demo seed** gains a finished placement result for Spanish, so reviewers see the radar
   chart immediately.
+
+## Phase 4: the plan
+
+- **A plan covers up to 8 weeks.** With a goal date it runs until that date (at least 2 weeks);
+  without one, 8 weeks. Extending a finished plan comes with the weekly check-in (phase 6).
+- **One AI call writes the outline**: modules, a goal per week, and short lessons (title, objective,
+  minutes, kind). The longer lesson content (explanation, exercise, resource links) is written when
+  a lesson is first opened (phase 5), which keeps each AI call well under the 60-second limit.
+- **The AI proposes, the server disposes.** Beyond the schema, the API checks that the plan has the
+  right number of weeks and that each week fits the learner's hours (within 40% either way); a
+  plan that does not fit gets the problems back for repair. Dates are never chosen by the AI: pure
+  domain code spreads each week's lessons over the learner's preferred days, lightest day first.
+- **Moving a lesson** is allowed to any day from today to the end of the plan; the lesson keeps its
+  place in its week's curriculum. Phones get a "Move to" date picker; desktops can also drag.
+- **"Regenerate this week"** replaces that week's unfinished lessons and keeps finished ones.
+  "Easier" and "Harder" shift the plan's difficulty one step (within two steps either way) and
+  regenerate the week at the new difficulty.
+- **The demo plan** is hand-written (no AI), starts three weeks ago, and has the first two weeks
+  done and the third in progress.

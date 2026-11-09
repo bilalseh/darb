@@ -2,7 +2,7 @@
 
 Learn any skill with a personal AI plan that adapts week by week.
 
-> Status: phase 3 of 10 (AI placement assessment). Live: https://darb-learn.web.app
+> Status: phase 4 of 10 (plans, calendar, editing). Live: https://darb-learn.web.app
 
 ## Repository layout
 

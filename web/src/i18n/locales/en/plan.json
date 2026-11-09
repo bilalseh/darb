@@ -1,0 +1,36 @@
+{
+  "skillPicker": "Choose a skill",
+  "noSkills": "You have no skills yet.",
+  "needsPlacement": "Take the placement test first, so the plan starts at your level.",
+  "loading": "Loading your plan…",
+  "loadError": "We could not load your plan.",
+  "createTitle": "Build your {{skill}} plan",
+  "createBody": "Darb will draft modules, weekly goals and lessons sized to your hours, then place them on your preferred days.",
+  "create": "Create my plan",
+  "creating": "Building your plan. This can take a few seconds…",
+  "calendarTitle": "Coming weeks",
+  "calendarHint": "Drag a lesson to another day, or pick a new date from its list.",
+  "roadmapTitle": "Roadmap",
+  "weekOf": "Week of {{date}}",
+  "weekNumber": "Week {{number}}",
+  "progress": "{{done}} of {{total}} done",
+  "today": "today",
+  "minutes_one": "{{count}} minute",
+  "minutes_other": "{{count}} minutes",
+  "doneLabel": "Done:",
+  "todoLabel": "To do:",
+  "moveLabel": "Move {{title}} to",
+  "moveFailed": "That lesson could not be moved. Please try again.",
+  "regenerating": "Regenerating…",
+  "adjust": {
+    "same": "Regenerate week {{number}}",
+    "easier": "Make it easier",
+    "harder": "Make it harder"
+  },
+  "kinds": {
+    "learn": "Learn",
+    "practice": "Practice",
+    "review": "Review",
+    "project": "Project"
+  }
+}

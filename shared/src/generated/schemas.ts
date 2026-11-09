@@ -25,3 +25,9 @@ export const AnswerSubmissionSchema = z
     confidence: z.union([z.number().int().gte(1).lte(5), z.null()]).default(null),
   })
   .strict();
+
+export const RegenerateWeekRequestSchema = z
+  .object({ adjust: z.enum(['same', 'easier', 'harder']).optional() })
+  .strict();
+
+export const MoveLessonRequestSchema = z.object({ scheduledDate: z.string().date() }).strict();

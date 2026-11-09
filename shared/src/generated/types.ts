@@ -41,6 +41,17 @@ export interface HealthResponse {
 
 export type LearningStyle = 'reading' | 'video' | 'practice' | 'mixed';
 
+export type LessonKind = 'learn' | 'practice' | 'review' | 'project';
+
+export type LessonStatus = 'todo' | 'done';
+
+/**
+ * Move a lesson to another day, from today to the end of the plan.
+ */
+export interface MoveLessonRequest {
+  scheduledDate: string;
+}
+
 /**
  * What the onboarding wizard collects about a new skill.
  *
@@ -74,6 +85,40 @@ export interface PlacementResult {
 }
 
 /**
+ * A skill's study plan: modules, then weeks with dated lessons.
+ */
+export interface Plan {
+  skillId: string;
+  modules: PlanModule[];
+  weeks: PlanWeek[];
+  difficulty: number;
+  generatedAt: string;
+}
+
+export interface PlanLesson {
+  id: string;
+  title: string;
+  objective: string;
+  minutes: number;
+  kind: LessonKind;
+  scheduledDate: string;
+  status: LessonStatus;
+}
+
+export interface PlanModule {
+  title: string;
+  summary: string;
+}
+
+export interface PlanWeek {
+  index: number;
+  startDate: string;
+  moduleIndex: number;
+  goal: string;
+  lessons: PlanLesson[];
+}
+
+/**
  * The signed-in user's profile, stored at users/{uid}.
  */
 export interface Profile {
@@ -85,6 +130,13 @@ export interface Profile {
 }
 
 export type QuestionKind = 'multiple_choice' | 'short_answer' | 'confidence';
+
+/**
+ * Replace a week's unfinished lessons; "easier" and "harder" shift the plan's difficulty.
+ */
+export interface RegenerateWeekRequest {
+  adjust?: WeekAdjustment;
+}
 
 export type SelfRatedLevel = 'none' | 'beginner' | 'elementary' | 'intermediate' | 'advanced';
 
@@ -107,5 +159,7 @@ export interface SubskillScore {
   name: string;
   score: number;
 }
+
+export type WeekAdjustment = 'same' | 'easier' | 'harder';
 
 export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';

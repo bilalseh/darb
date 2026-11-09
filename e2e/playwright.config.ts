@@ -7,6 +7,8 @@ const isCI = Boolean(process.env['CI']);
 export default defineConfig({
   testDir: './tests',
   timeout: 60_000,
+  // Demo sign-in seeds a profile, a skill and a plan; on busy CI machines that can take seconds.
+  expect: { timeout: 10_000 },
   retries: isCI ? 1 : 0,
   reporter: isCI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {

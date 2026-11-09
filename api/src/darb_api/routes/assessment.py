@@ -4,40 +4,23 @@ time (answers never leave the server), and one AI call reviews it at the end."""
 from fastapi import APIRouter, HTTPException, status
 
 from darb_api.ai.types import AiUnavailableError
-from darb_api.auth import AuthenticatedUser, CurrentUser
+from darb_api.auth import CurrentUser
 from darb_api.dependencies import AiDep, ClockDep, RepositoryDep, SettingsDep
 from darb_api.domain import assessment as rules
-from darb_api.domain.usage import UsageLimitError, next_reset, usage_day
 from darb_api.prompts import render
 from darb_api.repository import RecordedAnswer, StoredAssessment, UserRepository
+from darb_api.routes.common import AI_UNAVAILABLE, conflict, count_ai_request, require_skill
 from darb_api.schemas import (
     AnswerSubmission,
     AssessmentProgress,
     AssessmentQuestion,
     PlacementResult,
     QuestionKind,
-    Skill,
     SubskillScore,
 )
 from darb_api.schemas.assessment import AssessmentReview, PlacementQuiz
 
 router = APIRouter(tags=["assessment"], prefix="/skills/{skill_id}/assessment")
-
-AI_UNAVAILABLE = HTTPException(
-    status.HTTP_503_SERVICE_UNAVAILABLE,
-    detail={"code": "ai_unavailable", "message": "The AI is resting. Please try again soon."},
-)
-
-
-def _conflict(message: str) -> HTTPException:
-    return HTTPException(status.HTTP_409_CONFLICT, detail={"code": "conflict", "message": message})
-
-
-async def _skill(repository: UserRepository, uid: str, skill_id: str) -> Skill:
-    skill = await repository.get_skill(uid, skill_id)
-    if skill is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Skill not found")
-    return skill
 
 
 async def _assessment(repository: UserRepository, uid: str, skill_id: str) -> StoredAssessment:
@@ -45,28 +28,6 @@ async def _assessment(repository: UserRepository, uid: str, skill_id: str) -> St
     if stored is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No assessment in progress")
     return stored
-
-
-async def _count_ai_request(
-    repository: UserRepository, user: AuthenticatedUser, clock: ClockDep, settings: SettingsDep
-) -> None:
-    now = clock()
-    try:
-        await repository.count_ai_request(
-            user.uid,
-            usage_day(now),
-            settings.ai_daily_limit_per_user,
-            settings.ai_daily_limit_global,
-        )
-    except UsageLimitError as error:
-        raise HTTPException(
-            status.HTTP_429_TOO_MANY_REQUESTS,
-            detail={
-                "code": "ai_limit_reached",
-                "scope": error.scope.value,
-                "resetsAt": next_reset(now).isoformat(),
-            },
-        ) from error
 
 
 def _progress(stored: StoredAssessment) -> AssessmentProgress:
@@ -100,12 +61,12 @@ async def start_assessment(
     settings: SettingsDep,
 ) -> AssessmentProgress:
     """Start the placement assessment, or resume the one in progress without a new AI call."""
-    skill = await _skill(repository, user.uid, skill_id)
+    skill = await require_skill(repository, user.uid, skill_id)
     if skill.placement is not None:
-        raise _conflict("This skill already has a placement result")
+        raise conflict("This skill already has a placement result")
     stored = await repository.get_assessment(user.uid, skill_id)
     if stored is None:
-        await _count_ai_request(repository, user, clock, settings)
+        await count_ai_request(repository, user, clock, settings)
         answers = skill.answers
         prompt = render(
             "placement_quiz",
@@ -136,9 +97,9 @@ async def answer_question(
     stored = await _assessment(repository, user.uid, skill_id)
     expected = rules.next_question(stored.quiz.questions, stored.domain_answers())
     if expected is None:
-        raise _conflict("The assessment is finished")
+        raise conflict("The assessment is finished")
     if submission.question_id != rules.question_id(expected):
-        raise _conflict("Answer the current question")
+        raise conflict("Answer the current question")
     answer = RecordedAnswer(
         question_index=expected,
         choice=submission.choice,
@@ -188,13 +149,13 @@ async def complete_assessment(
     settings: SettingsDep,
 ) -> PlacementResult:
     """Grade the short answers, work out the level and store the result on the skill."""
-    skill = await _skill(repository, user.uid, skill_id)
+    skill = await require_skill(repository, user.uid, skill_id)
     stored = await _assessment(repository, user.uid, skill_id)
     questions, answers = stored.quiz.questions, stored.domain_answers()
     if rules.next_question(questions, answers) is not None:
-        raise _conflict("Answer every question first")
+        raise conflict("Answer every question first")
 
-    await _count_ai_request(repository, user, clock, settings)
+    await count_ai_request(repository, user, clock, settings)
     results, short_answers = _review_prompt_sections(stored)
     prompt = render(
         "assessment_review",

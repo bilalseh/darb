@@ -61,10 +61,20 @@ class AiClient:
             self._skip_until[error.provider] = self._clock() + seconds
 
     async def generate(
-        self, task: str, model: type[T], system: str, prompt: str, temperature: float = 0.4
+        self,
+        task: str,
+        model: type[T],
+        system: str,
+        prompt: str,
+        temperature: float = 0.4,
+        check: Callable[[T], list[str]] | None = None,
     ) -> AiResult[T]:
         """Ask each available provider in turn. Invalid replies get one repair attempt with the
-        validation errors; output that still fails validation is never returned."""
+        validation errors; output that still fails validation is never returned.
+
+        `check` adds rules the schema cannot express (they depend on the learner); its problems
+        are treated like validation errors.
+        """
         base = AiRequest(task, system, prompt, provider_schema(model), temperature)
         for provider in self._available():
             request = base
@@ -87,6 +97,17 @@ class AiClient:
                         error.error_count(),
                     )
                     request = base.with_repair(raw, describe_problems(error))
+                    continue
+                problems = check(value) if check else []
+                if problems:
+                    logger.warning(
+                        "ai %s from %s did not fit (attempt %d): %d problem(s)",
+                        task,
+                        provider.name,
+                        attempt + 1,
+                        len(problems),
+                    )
+                    request = base.with_repair(raw, "\n".join(f"- {p}" for p in problems))
                     continue
                 logger.info(
                     "ai %s served by %s in %.1fs", task, provider.name, self._clock() - started

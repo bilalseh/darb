@@ -18,7 +18,11 @@ interface RequestOptions {
 }
 
 /** Calls the Darb API, served same-origin under `/api`, with the user's ID token if signed in. */
-async function request<T>(method: 'GET' | 'POST', path: `/${string}`, options: RequestOptions) {
+async function request<T>(
+  method: 'GET' | 'POST' | 'PATCH',
+  path: `/${string}`,
+  options: RequestOptions,
+) {
   const headers: Record<string, string> = { Accept: 'application/json' };
   const token = await getIdToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -43,4 +47,8 @@ export function apiGet<T>(path: `/${string}`, options: RequestOptions = {}): Pro
 
 export function apiPost<T>(path: `/${string}`, body?: unknown): Promise<T> {
   return request<T>('POST', path, { body });
+}
+
+export function apiPatch<T>(path: `/${string}`, body: unknown): Promise<T> {
+  return request<T>('PATCH', path, { body });
 }

@@ -17,3 +17,25 @@ export function formatLocalDate(isoDate: string, locale: string): string {
   const date = new Date(year ?? 1970, (month ?? 1) - 1, day ?? 1);
   return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(date);
 }
+
+/** Adds days to a YYYY-MM-DD date (calendar arithmetic, no time zone involved). */
+export function addDaysIso(isoDate: string, days: number): string {
+  const [year = 1970, month = 1, day = 1] = isoDate.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + days));
+  return date.toISOString().slice(0, 10);
+}
+
+/** Monday of the week that contains a YYYY-MM-DD date. */
+export function mondayOfIso(isoDate: string): string {
+  const [year = 1970, month = 1, day = 1] = isoDate.split('-').map(Number);
+  const weekday = (new Date(Date.UTC(year, month - 1, day)).getUTCDay() + 6) % 7;
+  return addDaysIso(isoDate, -weekday);
+}
+
+/** Short weekday and day for a YYYY-MM-DD date, for example "Wed 11". */
+export function formatDayLabel(isoDate: string, locale: string): string {
+  const [year = 1970, month = 1, day = 1] = isoDate.split('-').map(Number);
+  return new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric' }).format(
+    new Date(year, month - 1, day),
+  );
+}

@@ -6,7 +6,12 @@ from importlib.resources import files
 from string import Template
 
 # Bump a version by adding a new file; the version used is stored with what it produced.
-CURRENT_VERSIONS = {"placement_quiz": "v1", "assessment_review": "v1"}
+CURRENT_VERSIONS = {
+    "placement_quiz": "v1",
+    "assessment_review": "v1",
+    "plan_outline": "v1",
+    "plan_week": "v1",
+}
 
 
 @dataclass(frozen=True, slots=True)

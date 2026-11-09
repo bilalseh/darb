@@ -6,6 +6,48 @@ import re
 from darb_api.ai.types import AiRequest, FailureKind, ProviderError
 
 _SHORT_ANSWER_ID = re.compile(r"^\s*-\s*id:\s*(q\d+)\s*\(short answer\)", re.MULTILINE)
+_WEEKS = re.compile(r"^- Weeks: (\d+)$", re.MULTILINE)
+_REMAINING = re.compile(r"add up to\s+roughly (\d+)")
+_MINUTES = re.compile(r"^- Minutes per week: (\d+)$", re.MULTILINE)
+
+
+def _number(pattern: re.Pattern[str], text: str, default: int) -> int:
+    match = pattern.search(text)
+    return int(match.group(1)) if match else default
+
+
+def _week(number: int, minutes: int) -> dict[str, object]:
+    each = max(10, min(90, minutes // 3))
+    kinds = ["learn", "practice", "review"]
+    return {
+        "goal": f"Build steady progress in week {number} with focused practice.",
+        "lessons": [
+            {
+                "title": f"Week {number}: {kind} session",
+                "objective": f"Complete a focused {kind} session for this week's goal.",
+                "minutes": each,
+                "kind": kind,
+            }
+            for kind in kinds
+        ],
+    }
+
+
+def _plan(weeks: int, minutes: int) -> dict[str, object]:
+    first = (weeks + 1) // 2
+    sizes = [size for size in (first, weeks - first) if size]
+    modules = []
+    start = 1
+    for index, size in enumerate(sizes, start=1):
+        modules.append(
+            {
+                "title": f"Module {index}",
+                "summary": f"Module {index} builds the skills needed for the next stage.",
+                "weeks": [_week(start + offset, minutes) for offset in range(size)],
+            }
+        )
+        start += size
+    return {"modules": modules}
 
 
 def _mc(prompt: str, subskill: str, difficulty: int) -> dict[str, object]:
@@ -67,4 +109,9 @@ class FakeProvider:
                 "practice on the harder techniques."
             )
             return json.dumps({"grades": grades, "summary": summary})
+        if request.task == "plan_outline":
+            weeks = _number(_WEEKS, request.prompt, 4)
+            return json.dumps(_plan(weeks, _number(_MINUTES, request.prompt, 180)))
+        if request.task == "plan_week":
+            return json.dumps(_week(0, _number(_REMAINING, request.prompt, 180)))
         raise ProviderError(self.name, FailureKind.REJECTED, f"unknown task {request.task}")

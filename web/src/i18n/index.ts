@@ -4,9 +4,10 @@ import { initReactI18next } from 'react-i18next';
 import enAssessment from './locales/en/assessment.json';
 import enCommon from './locales/en/common.json';
 import enOnboarding from './locales/en/onboarding.json';
+import enPlan from './locales/en/plan.json';
 
 // One file per feature keeps each small; they merge into a single namespace.
-const en = { ...enCommon, onboarding: enOnboarding, assessment: enAssessment };
+const en = { ...enCommon, onboarding: enOnboarding, assessment: enAssessment, plan: enPlan };
 
 export const defaultNS = 'translation';
 export const resources = { en: { translation: en } } as const;
