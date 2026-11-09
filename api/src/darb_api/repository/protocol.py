@@ -5,6 +5,7 @@ from typing import Protocol
 
 from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment, StoredQuiz
 from darb_api.schemas import PlacementResult, Profile, Skill
+from darb_api.schemas.checkin import Checkin
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
 from darb_api.schemas.quiz import QuizResult, ReviewItem
@@ -74,3 +75,7 @@ class UserRepository(Protocol):
     async def record_review(self, uid: str, day: str) -> None:
         """Count one answered review card on a calendar day."""
         ...
+
+    async def list_skills(self, uid: str) -> list[Skill]: ...
+
+    async def add_checkin(self, uid: str, checkin: Checkin) -> None: ...

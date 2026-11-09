@@ -1,15 +1,22 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-test('a learner catches up on a missed lesson with the tutor', async ({ page }) => {
+async function startDemo(page: Page) {
   await page.goto('/');
   await page.getByRole('button', { name: 'Try the demo' }).click();
   await expect(page).toHaveURL(/\/today$/);
+}
+
+test('missed lessons are moved and explained, then studied with the tutor', async ({ page }) => {
+  await startDemo(page);
   await expect(page.getByRole('heading', { name: '3-day streak' })).toBeVisible();
 
-  const catchUp = page.getByRole('region', { name: 'Catch up' });
-  const missed = catchUp.getByRole('link').first();
-  const title = (await missed.locator('span span').first().textContent()) ?? '';
-  await missed.click();
+  // The demo left two lessons undone; opening the app moved them and says so.
+  const notice = page.getByRole('status').filter({ hasText: 'We moved 2 missed lessons' });
+  await expect(notice).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Catch up' })).toHaveCount(0);
+  const moved = notice.getByRole('link').first();
+  const title = ((await moved.textContent()) ?? '').split(':')[0] ?? '';
+  await moved.click();
 
   await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Your exercise' })).toBeVisible();
@@ -28,5 +35,20 @@ test('a learner catches up on a missed lesson with the tutor', async ({ page }) 
 
   await page.getByRole('link', { name: 'Back to Today' }).click();
   await expect(page.getByRole('heading', { name: '4-day streak' })).toBeVisible();
-  await expect(catchUp.getByRole('link', { name: new RegExp(title) })).toHaveCount(0);
+});
+
+test('a weekly check-in adjusts next week and explains why', async ({ page }) => {
+  await startDemo(page);
+
+  await page.getByRole('link', { name: 'Start the check-in' }).click();
+  await page.getByLabel('What went well this week?').fill('Ordering food felt natural.');
+  await page.getByLabel('What was hard?').fill('Speaking quickly.');
+  await page.getByRole('radio', { name: 'Too hard' }).check();
+  await page.getByRole('button', { name: 'Adjust next week' }).click();
+
+  await expect(page.getByRole('heading', { name: /Week \d+ was adjusted/ })).toBeVisible();
+  await expect(page.getByText('shorter speaking drills', { exact: false })).toBeVisible();
+
+  await page.getByRole('link', { name: 'Back to Today' }).click();
+  await expect(page.getByRole('link', { name: 'Start the check-in' })).toHaveCount(0);
 });

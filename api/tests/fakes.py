@@ -5,6 +5,7 @@ from darb_api.auth import AuthenticatedUser, InvalidTokenError
 from darb_api.domain.usage import check_allowance
 from darb_api.repository import DayActivity, NewSkill, StoredAssessment, StoredQuiz
 from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
+from darb_api.schemas.checkin import Checkin
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
 from darb_api.schemas.quiz import QuizResult, ReviewItem
@@ -35,6 +36,7 @@ class InMemoryUserRepository:
         self.quizzes: dict[tuple[str, str, int], StoredQuiz] = {}
         self.quiz_results: dict[tuple[str, str, int], QuizResult] = {}
         self.reviews: dict[tuple[str, str], ReviewItem] = {}
+        self.checkins: dict[str, list[Checkin]] = {}
 
     async def ensure_profile(
         self,
@@ -137,6 +139,12 @@ class InMemoryUserRepository:
     async def record_review(self, uid: str, day: str) -> None:
         old = self.activity.get((uid, day), DayActivity(day, 0, 0))
         self.activity[(uid, day)] = DayActivity(day, old.lessons, old.minutes, old.reviews + 1)
+
+    async def list_skills(self, uid: str) -> list[Skill]:
+        return list(self.skills.get(uid, []))
+
+    async def add_checkin(self, uid: str, checkin: Checkin) -> None:
+        self.checkins.setdefault(uid, []).append(checkin)
 
 
 class ScriptedProvider:

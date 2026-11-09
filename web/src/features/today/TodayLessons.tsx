@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { formatLocalDate, todayLocalIso } from '../../lib/dates';
 import { allLessons, planQueryOptions } from '../plan/planApi';
+import { TodayNotices } from './TodayNotices';
 
 interface DueLesson {
   skill: Skill;
@@ -59,9 +60,14 @@ export function TodayLessons({ uid, skills }: { uid: string; skills: Skill[] }) 
     }
   });
   const totalMinutes = due.reduce((sum, item) => sum + item.lesson.minutes, 0);
+  const withPlanData = plans.flatMap((plan, index) => {
+    const skill = withPlans[index];
+    return plan.data && skill ? [{ skill, plan: plan.data }] : [];
+  });
 
   return (
     <div className="space-y-6">
+      <TodayNotices uid={uid} plans={withPlanData} />
       <section aria-labelledby="due-title">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="due-title" className="text-xl font-semibold">

@@ -77,6 +77,20 @@ class PlanModule(ApiModel):
     summary: str
 
 
+class RescheduleMove(ApiModel):
+    lesson_id: str
+    title: str
+    from_date: date
+    to_date: date
+
+
+class RescheduleNotice(ApiModel):
+    """Missed lessons the app moved, shown to the learner on the day it happened."""
+
+    on: date
+    moves: list[RescheduleMove]
+
+
 class Plan(ApiModel):
     """A skill's study plan: modules, then weeks with dated lessons."""
 
@@ -85,6 +99,8 @@ class Plan(ApiModel):
     weeks: list[PlanWeek]
     difficulty: int = Field(ge=-2, le=2)
     generated_at: datetime
+    last_reschedule: RescheduleNotice | None = None
+    checked_in_weeks: list[int] = Field(default_factory=list)
 
 
 # ---- Requests ----

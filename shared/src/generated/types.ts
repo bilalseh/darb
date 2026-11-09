@@ -32,6 +32,39 @@ export interface AssessmentQuestion {
 }
 
 /**
+ * A completed check-in and the change it made, at users/{uid}/checkins/{id}.
+ */
+export interface Checkin {
+  id: string;
+  skillId: string;
+  weekIndex: number;
+  adjustedWeekIndex: number;
+  wentWell: string;
+  hard: string;
+  feeling: CheckinFeeling;
+  explanation: string;
+  difficulty: number;
+  createdOn: string;
+}
+
+export interface CheckinDue {
+  skillId: string;
+  weekIndex: number;
+}
+
+export type CheckinFeeling = 'too_easy' | 'just_right' | 'too_hard';
+
+/**
+ * The weekly check-in; `today` is the learner's own calendar date.
+ */
+export interface CheckinRequest {
+  wentWell: string;
+  hard: string;
+  feeling: CheckinFeeling;
+  today: string;
+}
+
+/**
  * Mark a lesson done; `completedOn` is the learner's own calendar date.
  */
 export interface CompleteLessonRequest {
@@ -123,6 +156,8 @@ export interface Plan {
   weeks: PlanWeek[];
   difficulty: number;
   generatedAt: string;
+  lastReschedule?: RescheduleNotice | null;
+  checkedInWeeks?: number[];
 }
 
 export interface PlanLesson {
@@ -208,6 +243,21 @@ export interface RegenerateWeekRequest {
   adjust?: WeekAdjustment;
 }
 
+export interface RescheduleMove {
+  lessonId: string;
+  title: string;
+  fromDate: string;
+  toDate: string;
+}
+
+/**
+ * Missed lessons the app moved, shown to the learner on the day it happened.
+ */
+export interface RescheduleNotice {
+  on: string;
+  moves: RescheduleMove[];
+}
+
 export type ResourceKind = 'article' | 'video' | 'exercise' | 'reference';
 
 export interface ResourceLink {
@@ -275,6 +325,18 @@ export interface Stats {
 export interface SubskillScore {
   name: string;
   score: number;
+}
+
+/**
+ * Sent when the app opens, so missed lessons can be rescheduled against the learner's date.
+ */
+export interface SyncRequest {
+  today: string;
+}
+
+export interface SyncResult {
+  rescheduledLessons: number;
+  checkinsDue: CheckinDue[];
 }
 
 export interface TutorMessage {

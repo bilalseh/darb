@@ -14,6 +14,7 @@ CURRENT_VERSIONS = {
     "lesson_content": "v1",
     "tutor": "v1",
     "module_quiz": "v1",
+    "checkin": "v1",
 }
 
 

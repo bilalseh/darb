@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 import enAssessment from './locales/en/assessment.json';
+import enCheckin from './locales/en/checkin.json';
 import enCommon from './locales/en/common.json';
 import enLesson from './locales/en/lesson.json';
 import enOnboarding from './locales/en/onboarding.json';
@@ -16,6 +17,7 @@ const en = {
   plan: enPlan,
   lesson: enLesson,
   ...enPractice,
+  checkin: enCheckin,
 };
 
 export const defaultNS = 'translation';

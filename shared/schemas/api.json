@@ -120,6 +120,112 @@
       "title": "AssessmentQuestion",
       "type": "object"
     },
+    "Checkin": {
+      "additionalProperties": false,
+      "description": "A completed check-in and the change it made, at users/{uid}/checkins/{id}.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "skillId": {
+          "type": "string"
+        },
+        "weekIndex": {
+          "type": "integer"
+        },
+        "adjustedWeekIndex": {
+          "type": "integer"
+        },
+        "wentWell": {
+          "type": "string"
+        },
+        "hard": {
+          "type": "string"
+        },
+        "feeling": {
+          "$ref": "#/$defs/CheckinFeeling"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "difficulty": {
+          "type": "integer"
+        },
+        "createdOn": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "skillId",
+        "weekIndex",
+        "adjustedWeekIndex",
+        "wentWell",
+        "hard",
+        "feeling",
+        "explanation",
+        "difficulty",
+        "createdOn"
+      ],
+      "title": "Checkin",
+      "type": "object"
+    },
+    "CheckinDue": {
+      "additionalProperties": false,
+      "properties": {
+        "skillId": {
+          "type": "string"
+        },
+        "weekIndex": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "skillId",
+        "weekIndex"
+      ],
+      "title": "CheckinDue",
+      "type": "object"
+    },
+    "CheckinFeeling": {
+      "enum": [
+        "too_easy",
+        "just_right",
+        "too_hard"
+      ],
+      "title": "CheckinFeeling",
+      "type": "string"
+    },
+    "CheckinRequest": {
+      "additionalProperties": false,
+      "description": "The weekly check-in; `today` is the learner's own calendar date.",
+      "properties": {
+        "wentWell": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "hard": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "feeling": {
+          "$ref": "#/$defs/CheckinFeeling"
+        },
+        "today": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "wentWell",
+        "hard",
+        "feeling",
+        "today"
+      ],
+      "title": "CheckinRequest",
+      "type": "object"
+    },
     "CompleteLessonRequest": {
       "additionalProperties": false,
       "description": "Mark a lesson done; `completedOn` is the learner's own calendar date.",
@@ -393,6 +499,23 @@
         "generatedAt": {
           "format": "date-time",
           "type": "string"
+        },
+        "lastReschedule": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RescheduleNotice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "checkedInWeeks": {
+          "items": {
+            "type": "integer"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -686,6 +809,55 @@
       "title": "RegenerateWeekRequest",
       "type": "object"
     },
+    "RescheduleMove": {
+      "additionalProperties": false,
+      "properties": {
+        "lessonId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "fromDate": {
+          "format": "date",
+          "type": "string"
+        },
+        "toDate": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lessonId",
+        "title",
+        "fromDate",
+        "toDate"
+      ],
+      "title": "RescheduleMove",
+      "type": "object"
+    },
+    "RescheduleNotice": {
+      "additionalProperties": false,
+      "description": "Missed lessons the app moved, shown to the learner on the day it happened.",
+      "properties": {
+        "on": {
+          "format": "date",
+          "type": "string"
+        },
+        "moves": {
+          "items": {
+            "$ref": "#/$defs/RescheduleMove"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "on",
+        "moves"
+      ],
+      "title": "RescheduleNotice",
+      "type": "object"
+    },
     "ResourceKind": {
       "enum": [
         "article",
@@ -937,6 +1109,41 @@
       "title": "SubskillScore",
       "type": "object"
     },
+    "SyncRequest": {
+      "additionalProperties": false,
+      "description": "Sent when the app opens, so missed lessons can be rescheduled against the learner's date.",
+      "properties": {
+        "today": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "today"
+      ],
+      "title": "SyncRequest",
+      "type": "object"
+    },
+    "SyncResult": {
+      "additionalProperties": false,
+      "properties": {
+        "rescheduledLessons": {
+          "type": "integer"
+        },
+        "checkinsDue": {
+          "items": {
+            "$ref": "#/$defs/CheckinDue"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "rescheduledLessons",
+        "checkinsDue"
+      ],
+      "title": "SyncResult",
+      "type": "object"
+    },
     "TutorMessage": {
       "additionalProperties": false,
       "properties": {
@@ -1014,6 +1221,8 @@
     "CompleteLessonRequest",
     "TutorRequest",
     "QuizSubmission",
-    "ReviewAnswer"
+    "ReviewAnswer",
+    "CheckinRequest",
+    "SyncRequest"
   ]
 }

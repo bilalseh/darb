@@ -73,3 +73,14 @@ anything that changes architecture also has an ADR.
   30 days), a wrong answer sends it back to box one (tomorrow). Reviews count toward the streak.
 - **Review cards are readable by their owner** (they hold the answer). That is fine: the learner has
   already seen it in the quiz results, and reviews are practice, not a graded test.
+
+## Phase 6: check-ins and rescheduling
+
+- **Missed lessons move automatically** when the learner opens the app: every unfinished lesson
+  dated before today goes to the lightest of their preferred days in the next two weeks (within
+  the plan). The plan keeps a note of what moved, and Today shows it that day, so the change is
+  explained, never silent.
+- **The weekly check-in** asks what went well, what was hard, and how the pace felt. The AI then
+  rewrites the following week and explains the change in a few sentences; "too easy" and "too
+  hard" shift the plan's difficulty by one step. A check-in is offered for the current week from
+  its fourth day, or for last week if it was skipped; each week is checked in once.

@@ -8,7 +8,7 @@ from darb_api.ai.types import AiRequest, FailureKind, ProviderError
 _SHORT_ANSWER_ID = re.compile(r"^\s*-\s*id:\s*(q\d+)\s*\(short answer\)", re.MULTILINE)
 _WEEKS = re.compile(r"^- Weeks: (\d+)$", re.MULTILINE)
 _REMAINING = re.compile(r"add up to\s+roughly (\d+)")
-_MINUTES = re.compile(r"^- Minutes per week: (\d+)$", re.MULTILINE)
+_MINUTES = re.compile(r"(?:^- Minutes per week: |roughly\s+)(\d+)", re.MULTILINE)
 
 
 def _number(pattern: re.Pattern[str], text: str, default: int) -> int:
@@ -135,6 +135,14 @@ class FakeProvider:
                             "kind": "article",
                         },
                     ],
+                }
+            )
+        if request.task == "checkin":
+            return json.dumps(
+                {
+                    "explanation": "You found the speaking practice hard, so next week has "
+                    "shorter speaking drills and an extra review lesson.",
+                    "week": _week(0, _number(_MINUTES, request.prompt, 180)),
                 }
             )
         if request.task == "module_quiz":

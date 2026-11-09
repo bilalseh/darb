@@ -12,7 +12,17 @@ from darb_api.config import Settings, apply_emulator_hosts, load_settings
 from darb_api.dependencies import Clock, utc_now
 from darb_api.logging_config import configure_logging
 from darb_api.repository import FirestoreUserRepository, UserRepository
-from darb_api.routes import assessment, health, lessons, me, plan, quiz, skills, stats
+from darb_api.routes import (
+    assessment,
+    checkin,
+    health,
+    lessons,
+    me,
+    plan,
+    quiz,
+    skills,
+    stats,
+)
 
 # Firebase Hosting forwards `/api/**` to Cloud Run with the path intact.
 API_PREFIX = "/api"
@@ -71,6 +81,7 @@ def create_app(
         lessons.router,
         stats.router,
         quiz.router,
+        checkin.router,
     )
     for router in routers:
         app.include_router(router, prefix=API_PREFIX)

@@ -14,6 +14,7 @@ from darb_api.schemas.assessment import (
     QuestionKind,
     SubskillScore,
 )
+from darb_api.schemas.checkin import Checkin, CheckinRequest, SyncRequest, SyncResult
 from darb_api.schemas.health import HealthResponse
 from darb_api.schemas.lesson import CompleteLessonRequest, LessonContent, Stats, TutorRequest
 from darb_api.schemas.onboarding import (
@@ -44,6 +45,8 @@ REQUEST_MODELS: tuple[type[BaseModel], ...] = (
     TutorRequest,
     QuizSubmission,
     ReviewAnswer,
+    CheckinRequest,
+    SyncRequest,
 )
 RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     HealthResponse,
@@ -58,6 +61,8 @@ RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     QuizResult,
     ReviewItem,
     ReviewOutcome,
+    Checkin,
+    SyncResult,
 )
 
 __all__ = [

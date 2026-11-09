@@ -2,7 +2,7 @@
 
 Learn any skill with a personal AI plan that adapts week by week.
 
-> Status: phase 5 of 10 done (daily use: Today, lessons, tutor, quizzes, review). Live: https://darb-learn.web.app
+> Status: phase 6 of 10 done (check-ins and automatic rescheduling). Live: https://darb-learn.web.app
 
 ## Repository layout
 

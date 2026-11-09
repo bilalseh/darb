@@ -43,3 +43,14 @@ export const QuizSubmissionSchema = z
 export const ReviewAnswerSchema = z
   .object({ choice: z.number().int().gte(0).lte(3), answeredOn: z.string().date() })
   .strict();
+
+export const CheckinRequestSchema = z
+  .object({
+    wentWell: z.string().max(500),
+    hard: z.string().max(500),
+    feeling: z.enum(['too_easy', 'just_right', 'too_hard']),
+    today: z.string().date(),
+  })
+  .strict();
+
+export const SyncRequestSchema = z.object({ today: z.string().date() }).strict();

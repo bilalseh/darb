@@ -9,6 +9,7 @@ from google.cloud.firestore import AsyncClient, AsyncDocumentReference, Incremen
 from darb_api.domain.usage import check_allowance
 from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment, StoredQuiz
 from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
+from darb_api.schemas.checkin import Checkin
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
 from darb_api.schemas.quiz import QuizResult, ReviewItem
@@ -233,3 +234,13 @@ class FirestoreUserRepository:
             .document(day)
             .set({"reviews": Increment(1)}, merge=True)
         )
+
+    async def list_skills(self, uid: str) -> list[Skill]:
+        return [
+            Skill.model_validate({"id": snapshot.id, **(snapshot.to_dict() or {})})
+            async for snapshot in self._user(uid).collection("skills").stream()
+        ]
+
+    async def add_checkin(self, uid: str, checkin: Checkin) -> None:
+        reference = self._user(uid).collection("checkins").document(checkin.id)
+        await reference.set(checkin.model_dump(mode="json"))

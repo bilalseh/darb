@@ -1,0 +1,23 @@
+{
+  "title": "Weekly check-in",
+  "intro": "Two minutes of reflection. Darb will adjust next week to match.",
+  "wentWell": "What went well this week?",
+  "hard": "What was hard?",
+  "feeling": "How did the pace feel?",
+  "feelings": {
+    "too_easy": "Too easy",
+    "just_right": "Just right",
+    "too_hard": "Too hard"
+  },
+  "submit": "Adjust next week",
+  "submitting": "Adjusting your plan…",
+  "changedTitle": "Week {{week}} was adjusted",
+  "seePlan": "See the updated plan",
+  "dueTitle": "Time for your weekly check-in",
+  "dueBody": "Tell Darb how {{skill}} went, and next week will adapt.",
+  "dueCta": "Start the check-in",
+  "rescheduledTitle_one": "We moved {{count}} missed lesson",
+  "rescheduledTitle_other": "We moved {{count}} missed lessons",
+  "rescheduledBody": "Life happens. These lessons now have new days:",
+  "moved": "{{title}}: now {{date}}"
+}
