@@ -14,6 +14,7 @@ from darb_api.schemas.plan import (
     PlanWeek,
     WeekDraft,
 )
+from darb_api.schemas.quiz import ReviewItem
 
 L, P, R, J = LessonKind.LEARN, LessonKind.PRACTICE, LessonKind.REVIEW, LessonKind.PROJECT
 
@@ -192,3 +193,44 @@ def demo_activity(now: datetime, plan: Plan) -> list[DayActivity]:
         old = totals.get(key, DayActivity(key, 0, 0))
         totals[key] = DayActivity(key, old.lessons + 1, old.minutes + lesson.minutes)
     return list(totals.values())
+
+
+_REVIEW_CARDS = [
+    (
+        "Which verb describes a feeling that can change: 'Estoy cansado' or 'Soy cansado'?",
+        ["Estoy cansado", "Soy cansado"],
+        0,
+        "Estar is used for states that change, like being tired.",
+    ),
+    (
+        "How do you politely order a coffee?",
+        ["Dame un café", "Quisiera un café, por favor", "Café ahora"],
+        1,
+        "Quisiera (I would like) is polite and very common when ordering.",
+    ),
+    (
+        "What is 'cuarenta y cinco'?",
+        ["35", "45", "54"],
+        1,
+        "Cuarenta is forty and cinco is five: 45.",
+    ),
+]
+
+
+def demo_reviews(now: datetime) -> tuple[ReviewItem, ...]:
+    """Three cards from the demo learner's first-week check, due today."""
+    today = now.date()
+    return tuple(
+        ReviewItem(
+            id=f"demo-review-{n}",
+            skill_id="",  # filled in when the demo skill is written
+            prompt=prompt,
+            options=options,
+            correct_option=correct,
+            explanation=explanation,
+            box=0,
+            due_on=today,
+            last_reviewed_on=today - timedelta(days=1),
+        )
+        for n, (prompt, options, correct, explanation) in enumerate(_REVIEW_CARDS, start=1)
+    )

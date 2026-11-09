@@ -8,6 +8,7 @@ from darb_api.schemas import OnboardingAnswers, PlacementResult, SkillStatus
 from darb_api.schemas.assessment import PlacementQuiz
 from darb_api.schemas.base import ApiModel
 from darb_api.schemas.plan import Plan
+from darb_api.schemas.quiz import QuizQuestionDraft, ReviewItem
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,6 +18,7 @@ class NewSkill:
     created_at: datetime
     placement: PlacementResult | None = None
     plan: Plan | None = None  # its skill_id is filled in when the skill is written
+    reviews: tuple[ReviewItem, ...] = ()  # likewise
 
 
 class RecordedAnswer(ApiModel):
@@ -34,6 +36,7 @@ class DayActivity:
     day: str
     lessons: int
     minutes: int
+    reviews: int = 0
 
 
 class StoredAssessment(ApiModel):
@@ -48,3 +51,13 @@ class StoredAssessment(ApiModel):
 
     def domain_answers(self) -> list[Answer]:
         return [answer.to_domain() for answer in self.answers]
+
+
+class StoredQuiz(ApiModel):
+    """A module quiz in progress, answer key included; kept where the browser cannot read it."""
+
+    skill_id: str
+    module_index: int
+    title: str
+    questions: list[QuizQuestionDraft]
+    created_at: datetime

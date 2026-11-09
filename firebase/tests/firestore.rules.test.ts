@@ -85,6 +85,14 @@ describe('everything outside users/{uid}', () => {
     await assertFails(getDoc(doc(asAlice(), 'assessmentKeys/alice__guitar')));
   });
 
+  it('keeps module quiz answer keys away from the quiz taker', async () => {
+    await env.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'quizKeys/alice__guitar__0'), { questions: [] });
+    });
+
+    await assertFails(getDoc(doc(asAlice(), 'quizKeys/alice__guitar__0')));
+  });
+
   it('keeps the global AI usage counter private', async () => {
     await assertFails(getDoc(doc(asAlice(), 'aiUsage/2026-11-09')));
   });

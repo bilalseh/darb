@@ -137,6 +137,21 @@ class FakeProvider:
                     ],
                 }
             )
+        if request.task == "module_quiz":
+            question = {
+                "prompt": "Which option is correct?",
+                "options": ["The right one", "A wrong one", "Another wrong one"],
+                "correctOption": 0,
+                "explanation": "The first option matches what the lessons taught.",
+            }
+            return json.dumps(
+                {
+                    "questions": [
+                        {**question, "prompt": f"Question {n}: which is correct?"}
+                        for n in range(1, 6)
+                    ]
+                }
+            )
         if request.task == "tutor":
             return json.dumps(
                 {"reply": "Good question! Try breaking it into one small step and practise that."}

@@ -6,6 +6,7 @@ import enCommon from './locales/en/common.json';
 import enLesson from './locales/en/lesson.json';
 import enOnboarding from './locales/en/onboarding.json';
 import enPlan from './locales/en/plan.json';
+import enPractice from './locales/en/practice.json';
 
 // One file per feature keeps each small; they merge into a single namespace.
 const en = {
@@ -14,6 +15,7 @@ const en = {
   assessment: enAssessment,
   plan: enPlan,
   lesson: enLesson,
+  ...enPractice,
 };
 
 export const defaultNS = 'translation';

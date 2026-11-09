@@ -25,6 +25,14 @@ from darb_api.schemas.onboarding import (
 )
 from darb_api.schemas.plan import MoveLessonRequest, Plan, RegenerateWeekRequest
 from darb_api.schemas.profile import Profile
+from darb_api.schemas.quiz import (
+    ModuleQuiz,
+    QuizResult,
+    QuizSubmission,
+    ReviewAnswer,
+    ReviewItem,
+    ReviewOutcome,
+)
 from darb_api.schemas.skills import Skill, SkillStatus
 
 REQUEST_MODELS: tuple[type[BaseModel], ...] = (
@@ -34,6 +42,8 @@ REQUEST_MODELS: tuple[type[BaseModel], ...] = (
     MoveLessonRequest,
     CompleteLessonRequest,
     TutorRequest,
+    QuizSubmission,
+    ReviewAnswer,
 )
 RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     HealthResponse,
@@ -44,6 +54,10 @@ RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     Plan,
     LessonContent,
     Stats,
+    ModuleQuiz,
+    QuizResult,
+    ReviewItem,
+    ReviewOutcome,
 )
 
 __all__ = [

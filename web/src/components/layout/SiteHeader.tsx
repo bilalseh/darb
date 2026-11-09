@@ -7,6 +7,7 @@ import { useAuthUser } from '../../features/auth/useAuthUser';
 const NAV_ITEMS = [
   { to: '/today', labelKey: 'nav.today' },
   { to: '/plan', labelKey: 'nav.plan' },
+  { to: '/review', labelKey: 'nav.review' },
   { to: '/progress', labelKey: 'nav.progress' },
 ] as const;
 

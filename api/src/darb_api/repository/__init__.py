@@ -2,7 +2,13 @@
 
 from darb_api.repository.firestore import FirestoreUserRepository
 from darb_api.repository.protocol import UserRepository
-from darb_api.repository.records import DayActivity, NewSkill, RecordedAnswer, StoredAssessment
+from darb_api.repository.records import (
+    DayActivity,
+    NewSkill,
+    RecordedAnswer,
+    StoredAssessment,
+    StoredQuiz,
+)
 
 __all__ = [
     "DayActivity",
@@ -10,5 +16,6 @@ __all__ = [
     "NewSkill",
     "RecordedAnswer",
     "StoredAssessment",
+    "StoredQuiz",
     "UserRepository",
 ]

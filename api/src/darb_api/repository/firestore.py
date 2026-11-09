@@ -7,10 +7,11 @@ from google.api_core.exceptions import Aborted, AlreadyExists
 from google.cloud.firestore import AsyncClient, AsyncDocumentReference, Increment
 
 from darb_api.domain.usage import check_allowance
-from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment
+from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment, StoredQuiz
 from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
+from darb_api.schemas.quiz import QuizResult, ReviewItem
 
 # A failed create means another request won the race (or Firestore aborted on contention);
 # either way nothing was written, so re-reading and trying again is safe.
@@ -62,6 +63,12 @@ class FirestoreUserRepository:
                     plan = skill.plan.model_copy(update={"skill_id": skill_ref.id})
                     batch.create(
                         self._plan(profile.uid, skill_ref.id), plan.model_dump(mode="json")
+                    )
+                for item in skill.reviews:
+                    card = item.model_copy(update={"skill_id": skill_ref.id})
+                    batch.create(
+                        user_ref.collection("reviews").document(card.id),
+                        card.model_dump(mode="json"),
                     )
             for activity in seed_activity:
                 batch.create(
@@ -171,6 +178,58 @@ class FirestoreUserRepository:
         async for snapshot in self._user(uid).collection("activity").stream():
             data = snapshot.to_dict() or {}
             days.append(
-                DayActivity(snapshot.id, int(data.get("lessons", 0)), int(data.get("minutes", 0)))
+                DayActivity(
+                    snapshot.id,
+                    int(data.get("lessons", 0)),
+                    int(data.get("minutes", 0)),
+                    int(data.get("reviews", 0)),
+                )
             )
         return days
+
+    def _quiz_key(self, uid: str, skill_id: str, module_index: int) -> AsyncDocumentReference:
+        reference: AsyncDocumentReference = self._db.collection("quizKeys").document(
+            f"{uid}__{skill_id}__{module_index}"
+        )
+        return reference
+
+    async def get_quiz(self, uid: str, skill_id: str, module_index: int) -> StoredQuiz | None:
+        snapshot = await self._quiz_key(uid, skill_id, module_index).get()
+        return StoredQuiz.model_validate(snapshot.to_dict() or {}) if snapshot.exists else None
+
+    async def save_quiz(self, uid: str, quiz: StoredQuiz) -> None:
+        reference = self._quiz_key(uid, quiz.skill_id, quiz.module_index)
+        await reference.set(quiz.model_dump(mode="json"))
+
+    async def finish_quiz(
+        self, uid: str, result: QuizResult, reviews: Sequence[ReviewItem]
+    ) -> None:
+        batch = self._db.batch()
+        result_id = f"{result.skill_id}__{result.module_index}"
+        batch.set(
+            self._user(uid).collection("quizResults").document(result_id),
+            result.model_dump(mode="json"),
+        )
+        for item in reviews:
+            batch.set(
+                self._user(uid).collection("reviews").document(item.id),
+                item.model_dump(mode="json"),
+            )
+        batch.delete(self._quiz_key(uid, result.skill_id, result.module_index))
+        await batch.commit()
+
+    async def get_review(self, uid: str, review_id: str) -> ReviewItem | None:
+        snapshot = await self._user(uid).collection("reviews").document(review_id).get()
+        return ReviewItem.model_validate(snapshot.to_dict() or {}) if snapshot.exists else None
+
+    async def save_review(self, uid: str, item: ReviewItem) -> None:
+        reference = self._user(uid).collection("reviews").document(item.id)
+        await reference.set(item.model_dump(mode="json"))
+
+    async def record_review(self, uid: str, day: str) -> None:
+        await (
+            self._user(uid)
+            .collection("activity")
+            .document(day)
+            .set({"reviews": Increment(1)}, merge=True)
+        )

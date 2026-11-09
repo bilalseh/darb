@@ -3,10 +3,11 @@
 from collections.abc import Sequence
 from typing import Protocol
 
-from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment
+from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment, StoredQuiz
 from darb_api.schemas import PlacementResult, Profile, Skill
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
+from darb_api.schemas.quiz import QuizResult, ReviewItem
 
 
 class UserRepository(Protocol):
@@ -55,3 +56,21 @@ class UserRepository(Protocol):
         ...
 
     async def list_activity(self, uid: str) -> list[DayActivity]: ...
+
+    async def get_quiz(self, uid: str, skill_id: str, module_index: int) -> StoredQuiz | None: ...
+
+    async def save_quiz(self, uid: str, quiz: StoredQuiz) -> None: ...
+
+    async def finish_quiz(
+        self, uid: str, result: QuizResult, reviews: Sequence[ReviewItem]
+    ) -> None:
+        """Store the result and new review cards and drop the answer key, in one write."""
+        ...
+
+    async def get_review(self, uid: str, review_id: str) -> ReviewItem | None: ...
+
+    async def save_review(self, uid: str, item: ReviewItem) -> None: ...
+
+    async def record_review(self, uid: str, day: str) -> None:
+        """Count one answered review card on a calendar day."""
+        ...

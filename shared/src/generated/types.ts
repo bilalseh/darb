@@ -66,6 +66,16 @@ export type LessonKind = 'learn' | 'practice' | 'review' | 'project';
 export type LessonStatus = 'todo' | 'done';
 
 /**
+ * A module quiz as the learner sees it: no answers until it is submitted.
+ */
+export interface ModuleQuiz {
+  skillId: string;
+  moduleIndex: number;
+  title: string;
+  questions: QuizQuestion[];
+}
+
+/**
  * Move a lesson to another day, from today to the end of the plan.
  */
 export interface MoveLessonRequest {
@@ -151,6 +161,46 @@ export interface Profile {
 
 export type QuestionKind = 'multiple_choice' | 'short_answer' | 'confidence';
 
+export interface QuestionResult {
+  id: string;
+  prompt: string;
+  options: string[];
+  chosen: number;
+  correctOption: number;
+  correct: boolean;
+  explanation: string;
+}
+
+export interface QuizQuestion {
+  id: string;
+  prompt: string;
+  options: string[];
+}
+
+/**
+ * A graded module quiz, stored at users/{uid}/quizResults/{skillId}__{module}.
+ */
+export interface QuizResult {
+  skillId: string;
+  moduleIndex: number;
+  title: string;
+  score: number;
+  results: QuestionResult[];
+  addedToReview: number;
+  completedAt: string;
+}
+
+/**
+ * One chosen option index per question, in question order.
+ */
+export interface QuizSubmission {
+  /**
+   * @minItems 1
+   * @maxItems 6
+   */
+  answers: [number, ...number[]];
+}
+
 /**
  * Replace a week's unfinished lessons; "easier" and "harder" shift the plan's difficulty.
  */
@@ -164,6 +214,34 @@ export interface ResourceLink {
   title: string;
   url: string;
   kind: ResourceKind;
+}
+
+/**
+ * The learner's answer to a review card; `answeredOn` is their own calendar date.
+ */
+export interface ReviewAnswer {
+  choice: number;
+  answeredOn: string;
+}
+
+/**
+ * A spaced-repetition card from a missed quiz question, at users/{uid}/reviews/{id}.
+ */
+export interface ReviewItem {
+  id: string;
+  skillId: string;
+  prompt: string;
+  options: string[];
+  correctOption: number;
+  explanation: string;
+  box: number;
+  dueOn: string;
+  lastReviewedOn: string | null;
+}
+
+export interface ReviewOutcome {
+  item: ReviewItem;
+  correct: boolean;
 }
 
 export type SelfRatedLevel = 'none' | 'beginner' | 'elementary' | 'intermediate' | 'advanced';

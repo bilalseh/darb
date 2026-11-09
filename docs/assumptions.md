@@ -65,3 +65,11 @@ anything that changes architecture also has an ADR.
   declines unrelated requests.
 - **Missed lessons** (scheduled before today, not done) show on Today as "Catch up" until phase 6
   reschedules them automatically.
+- **Module quizzes** have 5 multiple choice questions written by the AI from the module's lessons.
+  They can be taken any time (the roadmap suggests it once every lesson in the module is done);
+  retaking replaces the previous score. Answer keys stay on the server until the quiz is submitted.
+- **Wrong answers go to the review queue** with the correct answer and a short explanation. The
+  queue uses Leitner boxes: a right answer moves a card up a box (next review in 1, 3, 7, 14, then
+  30 days), a wrong answer sends it back to box one (tomorrow). Reviews count toward the streak.
+- **Review cards are readable by their owner** (they hold the answer). That is fine: the learner has
+  already seen it in the quiz results, and reviews are practice, not a graded test.

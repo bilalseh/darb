@@ -7,7 +7,7 @@ Later phases add lesson content and quiz history to this seed.
 from datetime import datetime, timedelta
 
 from darb_api.auth import AuthenticatedUser
-from darb_api.demo_plan import demo_plan
+from darb_api.demo_plan import demo_plan, demo_reviews
 from darb_api.repository import NewSkill
 from darb_api.schemas import (
     LearningStyle,
@@ -62,5 +62,6 @@ def demo_skills(now: datetime) -> list[NewSkill]:
                 completed_at=now - DEMO_HISTORY + timedelta(hours=1),
             ),
             plan=demo_plan(now),
+            reviews=demo_reviews(now),
         )
     ]

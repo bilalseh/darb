@@ -1,4 +1,5 @@
 import type { Plan, WeekAdjustment } from '@darb/shared';
+import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { addDaysIso, formatLocalDate } from '../../lib/dates';
@@ -82,6 +83,15 @@ export function Roadmap({ plan, today, pendingWeek, onRegenerate }: RoadmapProps
                   );
                 })}
               </ol>
+              <div className="border-t border-stone-100 px-4 py-3">
+                <Link
+                  to="/skills/$skillId/modules/$moduleIndex/quiz"
+                  params={{ skillId: plan.skillId, moduleIndex: String(moduleIndex) }}
+                  className="text-sm font-semibold text-brand-700 hover:underline"
+                >
+                  {t('quiz.take')}
+                </Link>
+              </div>
             </details>
           </li>
         );

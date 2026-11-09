@@ -7,6 +7,12 @@ import { PlanCalendar } from './PlanCalendar';
 import { withLessonMoved } from './planApi';
 import { Roadmap } from './Roadmap';
 
+// These components are tested on their own, outside the app's router.
+vi.mock('@tanstack/react-router', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@tanstack/react-router')>()),
+  Link: ({ children }: { children: React.ReactNode }) => <a href="/">{children}</a>,
+}));
+
 const PLAN: Plan = {
   skillId: 'skill-1',
   difficulty: 0,

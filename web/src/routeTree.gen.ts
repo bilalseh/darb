@@ -15,9 +15,11 @@ import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
 import { Route as AppPlanRouteImport } from './routes/_app/plan'
 import { Route as AppProgressRouteImport } from './routes/_app/progress'
+import { Route as AppReviewRouteImport } from './routes/_app/review'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
 import { Route as AppSkillsSkillIdAssessmentRouteImport } from './routes/_app/skills.$skillId.assessment'
 import { Route as AppSkillsSkillIdLessonsLessonIdRouteImport } from './routes/_app/skills.$skillId.lessons.$lessonId'
+import { Route as AppSkillsSkillIdModulesModuleIndexQuizRouteImport } from './routes/_app/skills.$skillId.modules.$moduleIndex.quiz'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,6 +50,11 @@ const AppProgressRoute = AppProgressRouteImport.update({
   path: '/progress',
   getParentRoute: () => AppRoute,
 } as any)
+const AppReviewRoute = AppReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTodayRoute = AppTodayRouteImport.update({
   id: '/today',
   path: '/today',
@@ -65,6 +72,12 @@ const AppSkillsSkillIdLessonsLessonIdRoute =
     path: '/skills/$skillId/lessons/$lessonId',
     getParentRoute: () => AppRoute,
   } as any)
+const AppSkillsSkillIdModulesModuleIndexQuizRoute =
+  AppSkillsSkillIdModulesModuleIndexQuizRouteImport.update({
+    id: '/skills/$skillId/modules/$moduleIndex/quiz',
+    path: '/skills/$skillId/modules/$moduleIndex/quiz',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -72,9 +85,11 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AppOnboardingRoute
   '/plan': typeof AppPlanRoute
   '/progress': typeof AppProgressRoute
+  '/review': typeof AppReviewRoute
   '/today': typeof AppTodayRoute
   '/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
   '/skills/$skillId/lessons/$lessonId': typeof AppSkillsSkillIdLessonsLessonIdRoute
+  '/skills/$skillId/modules/$moduleIndex/quiz': typeof AppSkillsSkillIdModulesModuleIndexQuizRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -82,9 +97,11 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AppOnboardingRoute
   '/plan': typeof AppPlanRoute
   '/progress': typeof AppProgressRoute
+  '/review': typeof AppReviewRoute
   '/today': typeof AppTodayRoute
   '/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
   '/skills/$skillId/lessons/$lessonId': typeof AppSkillsSkillIdLessonsLessonIdRoute
+  '/skills/$skillId/modules/$moduleIndex/quiz': typeof AppSkillsSkillIdModulesModuleIndexQuizRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,9 +111,11 @@ export interface FileRoutesById {
   '/_app/onboarding': typeof AppOnboardingRoute
   '/_app/plan': typeof AppPlanRoute
   '/_app/progress': typeof AppProgressRoute
+  '/_app/review': typeof AppReviewRoute
   '/_app/today': typeof AppTodayRoute
   '/_app/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
   '/_app/skills/$skillId/lessons/$lessonId': typeof AppSkillsSkillIdLessonsLessonIdRoute
+  '/_app/skills/$skillId/modules/$moduleIndex/quiz': typeof AppSkillsSkillIdModulesModuleIndexQuizRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,9 +125,11 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/plan'
     | '/progress'
+    | '/review'
     | '/today'
     | '/skills/$skillId/assessment'
     | '/skills/$skillId/lessons/$lessonId'
+    | '/skills/$skillId/modules/$moduleIndex/quiz'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -116,9 +137,11 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/plan'
     | '/progress'
+    | '/review'
     | '/today'
     | '/skills/$skillId/assessment'
     | '/skills/$skillId/lessons/$lessonId'
+    | '/skills/$skillId/modules/$moduleIndex/quiz'
   id:
     | '__root__'
     | '/'
@@ -127,9 +150,11 @@ export interface FileRouteTypes {
     | '/_app/onboarding'
     | '/_app/plan'
     | '/_app/progress'
+    | '/_app/review'
     | '/_app/today'
     | '/_app/skills/$skillId/assessment'
     | '/_app/skills/$skillId/lessons/$lessonId'
+    | '/_app/skills/$skillId/modules/$moduleIndex/quiz'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -182,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProgressRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/review': {
+      id: '/_app/review'
+      path: '/review'
+      fullPath: '/review'
+      preLoaderRoute: typeof AppReviewRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/today': {
       id: '/_app/today'
       path: '/today'
@@ -203,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSkillsSkillIdLessonsLessonIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/skills/$skillId/modules/$moduleIndex/quiz': {
+      id: '/_app/skills/$skillId/modules/$moduleIndex/quiz'
+      path: '/skills/$skillId/modules/$moduleIndex/quiz'
+      fullPath: '/skills/$skillId/modules/$moduleIndex/quiz'
+      preLoaderRoute: typeof AppSkillsSkillIdModulesModuleIndexQuizRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -210,18 +249,23 @@ interface AppRouteChildren {
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppPlanRoute: typeof AppPlanRoute
   AppProgressRoute: typeof AppProgressRoute
+  AppReviewRoute: typeof AppReviewRoute
   AppTodayRoute: typeof AppTodayRoute
   AppSkillsSkillIdAssessmentRoute: typeof AppSkillsSkillIdAssessmentRoute
   AppSkillsSkillIdLessonsLessonIdRoute: typeof AppSkillsSkillIdLessonsLessonIdRoute
+  AppSkillsSkillIdModulesModuleIndexQuizRoute: typeof AppSkillsSkillIdModulesModuleIndexQuizRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppOnboardingRoute: AppOnboardingRoute,
   AppPlanRoute: AppPlanRoute,
   AppProgressRoute: AppProgressRoute,
+  AppReviewRoute: AppReviewRoute,
   AppTodayRoute: AppTodayRoute,
   AppSkillsSkillIdAssessmentRoute: AppSkillsSkillIdAssessmentRoute,
   AppSkillsSkillIdLessonsLessonIdRoute: AppSkillsSkillIdLessonsLessonIdRoute,
+  AppSkillsSkillIdModulesModuleIndexQuizRoute:
+    AppSkillsSkillIdModulesModuleIndexQuizRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

@@ -227,6 +227,35 @@
       "title": "LessonStatus",
       "type": "string"
     },
+    "ModuleQuiz": {
+      "additionalProperties": false,
+      "description": "A module quiz as the learner sees it: no answers until it is submitted.",
+      "properties": {
+        "skillId": {
+          "type": "string"
+        },
+        "moduleIndex": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "questions": {
+          "items": {
+            "$ref": "#/$defs/QuizQuestion"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "skillId",
+        "moduleIndex",
+        "title",
+        "questions"
+      ],
+      "title": "ModuleQuiz",
+      "type": "object"
+    },
     "MoveLessonRequest": {
       "additionalProperties": false,
       "description": "Move a lesson to another day, from today to the end of the plan.",
@@ -518,6 +547,133 @@
       "title": "QuestionKind",
       "type": "string"
     },
+    "QuestionResult": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "chosen": {
+          "type": "integer"
+        },
+        "correctOption": {
+          "type": "integer"
+        },
+        "correct": {
+          "type": "boolean"
+        },
+        "explanation": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "prompt",
+        "options",
+        "chosen",
+        "correctOption",
+        "correct",
+        "explanation"
+      ],
+      "title": "QuestionResult",
+      "type": "object"
+    },
+    "QuizQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "prompt",
+        "options"
+      ],
+      "title": "QuizQuestion",
+      "type": "object"
+    },
+    "QuizResult": {
+      "additionalProperties": false,
+      "description": "A graded module quiz, stored at users/{uid}/quizResults/{skillId}__{module}.",
+      "properties": {
+        "skillId": {
+          "type": "string"
+        },
+        "moduleIndex": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "score": {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "results": {
+          "items": {
+            "$ref": "#/$defs/QuestionResult"
+          },
+          "type": "array"
+        },
+        "addedToReview": {
+          "type": "integer"
+        },
+        "completedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "skillId",
+        "moduleIndex",
+        "title",
+        "score",
+        "results",
+        "addedToReview",
+        "completedAt"
+      ],
+      "title": "QuizResult",
+      "type": "object"
+    },
+    "QuizSubmission": {
+      "additionalProperties": false,
+      "description": "One chosen option index per question, in question order.",
+      "properties": {
+        "answers": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 6,
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "answers"
+      ],
+      "title": "QuizSubmission",
+      "type": "object"
+    },
     "RegenerateWeekRequest": {
       "additionalProperties": false,
       "description": "Replace a week's unfinished lessons; \"easier\" and \"harder\" shift the plan's difficulty.",
@@ -563,6 +719,104 @@
         "kind"
       ],
       "title": "ResourceLink",
+      "type": "object"
+    },
+    "ReviewAnswer": {
+      "additionalProperties": false,
+      "description": "The learner's answer to a review card; `answeredOn` is their own calendar date.",
+      "properties": {
+        "choice": {
+          "maximum": 3,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "answeredOn": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "choice",
+        "answeredOn"
+      ],
+      "title": "ReviewAnswer",
+      "type": "object"
+    },
+    "ReviewItem": {
+      "additionalProperties": false,
+      "description": "A spaced-repetition card from a missed quiz question, at users/{uid}/reviews/{id}.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "skillId": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "correctOption": {
+          "type": "integer"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "box": {
+          "maximum": 4,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "dueOn": {
+          "format": "date",
+          "type": "string"
+        },
+        "lastReviewedOn": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "skillId",
+        "prompt",
+        "options",
+        "correctOption",
+        "explanation",
+        "box",
+        "dueOn",
+        "lastReviewedOn"
+      ],
+      "title": "ReviewItem",
+      "type": "object"
+    },
+    "ReviewOutcome": {
+      "additionalProperties": false,
+      "properties": {
+        "item": {
+          "$ref": "#/$defs/ReviewItem"
+        },
+        "correct": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "item",
+        "correct"
+      ],
+      "title": "ReviewOutcome",
       "type": "object"
     },
     "SelfRatedLevel": {
@@ -758,6 +1012,8 @@
     "RegenerateWeekRequest",
     "MoveLessonRequest",
     "CompleteLessonRequest",
-    "TutorRequest"
+    "TutorRequest",
+    "QuizSubmission",
+    "ReviewAnswer"
   ]
 }

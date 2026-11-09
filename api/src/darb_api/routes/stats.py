@@ -19,7 +19,7 @@ async def get_stats(
     if today is None or rules.completion_date_problem(today, server_today):
         today = server_today
     activity = await repository.list_activity(user.uid)
-    active_days = {date.fromisoformat(a.day) for a in activity if a.lessons > 0}
+    active_days = {date.fromisoformat(a.day) for a in activity if a.lessons + a.reviews > 0}
     current, longest = rules.streaks(active_days, today)
     return Stats(
         streak=current,

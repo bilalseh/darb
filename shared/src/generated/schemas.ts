@@ -35,3 +35,11 @@ export const MoveLessonRequestSchema = z.object({ scheduledDate: z.string().date
 export const CompleteLessonRequestSchema = z.object({ completedOn: z.string().date() }).strict();
 
 export const TutorRequestSchema = z.object({ message: z.string().min(1).max(800) }).strict();
+
+export const QuizSubmissionSchema = z
+  .object({ answers: z.array(z.number().int()).min(1).max(6) })
+  .strict();
+
+export const ReviewAnswerSchema = z
+  .object({ choice: z.number().int().gte(0).lte(3), answeredOn: z.string().date() })
+  .strict();

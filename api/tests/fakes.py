@@ -3,10 +3,11 @@ from collections.abc import Sequence
 from darb_api.ai.types import AiRequest, FailureKind, ProviderError
 from darb_api.auth import AuthenticatedUser, InvalidTokenError
 from darb_api.domain.usage import check_allowance
-from darb_api.repository import DayActivity, NewSkill, StoredAssessment
+from darb_api.repository import DayActivity, NewSkill, StoredAssessment, StoredQuiz
 from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
+from darb_api.schemas.quiz import QuizResult, ReviewItem
 
 
 class FakeTokenVerifier:
@@ -31,6 +32,9 @@ class InMemoryUserRepository:
         self.plans: dict[tuple[str, str], Plan] = {}
         self.lessons: dict[tuple[str, str, str], LessonContent] = {}
         self.activity: dict[tuple[str, str], DayActivity] = {}
+        self.quizzes: dict[tuple[str, str, int], StoredQuiz] = {}
+        self.quiz_results: dict[tuple[str, str, int], QuizResult] = {}
+        self.reviews: dict[tuple[str, str], ReviewItem] = {}
 
     async def ensure_profile(
         self,
@@ -58,6 +62,8 @@ class InMemoryUserRepository:
         self.skills.setdefault(uid, []).append(stored)
         if skill.plan:
             self.plans[(uid, stored.id)] = skill.plan.model_copy(update={"skill_id": stored.id})
+        for item in skill.reviews:
+            self.reviews[(uid, item.id)] = item.model_copy(update={"skill_id": stored.id})
         return stored
 
     async def get_skill(self, uid: str, skill_id: str) -> Skill | None:
@@ -101,10 +107,36 @@ class InMemoryUserRepository:
 
     async def record_activity(self, uid: str, day: str, minutes: int) -> None:
         old = self.activity.get((uid, day), DayActivity(day, 0, 0))
-        self.activity[(uid, day)] = DayActivity(day, old.lessons + 1, old.minutes + minutes)
+        self.activity[(uid, day)] = DayActivity(
+            day, old.lessons + 1, old.minutes + minutes, old.reviews
+        )
 
     async def list_activity(self, uid: str) -> list[DayActivity]:
         return [activity for (owner, _), activity in self.activity.items() if owner == uid]
+
+    async def get_quiz(self, uid: str, skill_id: str, module_index: int) -> StoredQuiz | None:
+        return self.quizzes.get((uid, skill_id, module_index))
+
+    async def save_quiz(self, uid: str, quiz: StoredQuiz) -> None:
+        self.quizzes[(uid, quiz.skill_id, quiz.module_index)] = quiz
+
+    async def finish_quiz(
+        self, uid: str, result: QuizResult, reviews: Sequence[ReviewItem]
+    ) -> None:
+        self.quiz_results[(uid, result.skill_id, result.module_index)] = result
+        for item in reviews:
+            self.reviews[(uid, item.id)] = item
+        self.quizzes.pop((uid, result.skill_id, result.module_index), None)
+
+    async def get_review(self, uid: str, review_id: str) -> ReviewItem | None:
+        return self.reviews.get((uid, review_id))
+
+    async def save_review(self, uid: str, item: ReviewItem) -> None:
+        self.reviews[(uid, item.id)] = item
+
+    async def record_review(self, uid: str, day: str) -> None:
+        old = self.activity.get((uid, day), DayActivity(day, 0, 0))
+        self.activity[(uid, day)] = DayActivity(day, old.lessons, old.minutes, old.reviews + 1)
 
 
 class ScriptedProvider:

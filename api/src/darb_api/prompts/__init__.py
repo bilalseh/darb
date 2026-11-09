@@ -13,6 +13,7 @@ CURRENT_VERSIONS = {
     "plan_week": "v1",
     "lesson_content": "v1",
     "tutor": "v1",
+    "module_quiz": "v1",
 }
 
 

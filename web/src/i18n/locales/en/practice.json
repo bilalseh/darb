@@ -1,0 +1,31 @@
+{
+  "review": {
+    "title": "Review",
+    "intro": "Questions you missed come back here, spaced out so they stick.",
+    "loading": "Loading your review cards…",
+    "loadError": "We could not load your review cards.",
+    "nothingDue": "Nothing to review today. Missed quiz questions will show up here.",
+    "allDone_one": "You reviewed {{count}} card. See you next time!",
+    "allDone_other": "You reviewed all {{count}} cards. See you next time!",
+    "progress": "Card {{current}} of {{total}}",
+    "check": "Check",
+    "right": "Correct!",
+    "wrong": "Not quite.",
+    "correctAnswer": "Correct answer",
+    "next": "Next card",
+    "saveFailed": "We could not save that answer. Please try again."
+  },
+  "quiz": {
+    "title": "Module quiz: {{module}}",
+    "backToPlan": "Back to the plan",
+    "preparing": "Preparing your quiz…",
+    "submit": "Submit answers",
+    "score": "You scored {{score}}%",
+    "addedToReview_one": "{{count}} missed question was added to your review queue.",
+    "addedToReview_other": "{{count}} missed questions were added to your review queue.",
+    "yourAnswer": "Your answer: {{answer}}",
+    "correctWas": "Correct answer: {{answer}}",
+    "goToReview": "Go to Review",
+    "take": "Take the module quiz"
+  }
+}
