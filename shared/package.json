@@ -1,0 +1,17 @@
+{
+  "name": "@darb/shared",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/generated/index.ts"
+  },
+  "scripts": {
+    "gen": "node scripts/generate-types.mjs",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^16.0.0",
+    "typescript": "~6.0.3"
+  }
+}

@@ -1,0 +1,28 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Environment files (only the examples are committed)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Firebase
+.firebase/
+*-debug.log
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

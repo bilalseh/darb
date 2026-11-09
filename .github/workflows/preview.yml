@@ -1,0 +1,50 @@
+name: Preview
+
+# Each pull request gets its own Firebase Hosting preview URL (expires after 7 days).
+# Preview channels share the production API, so this only previews frontend changes.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  hosting:
+    name: Hosting preview channel
+    # Forks get no OIDC token for this project, so they skip the preview, as does any run
+    # before the cloud setup's repository variables exist.
+    if: >-
+      vars.GCP_WIF_PROVIDER != '' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOYER_SA }}
+      - id: deploy
+        run: |
+          url=$(pnpm exec firebase hosting:channel:deploy "pr-${{ github.event.number }}" \
+            --project "${{ vars.GCP_PROJECT_ID }}" --expires 7d --json | jq -r '.result[].url' | head -n 1)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Comment the preview URL
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh pr comment "${{ github.event.number }}" --repo "${{ github.repository }}"
+          --edit-last --create-if-none
+          --body "Preview: ${{ steps.deploy.outputs.url }} (expires in 7 days)"

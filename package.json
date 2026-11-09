@@ -1,0 +1,27 @@
+{
+  "name": "darb",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.30.3",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev:web": "pnpm --filter @darb/web dev",
+    "dev:api": "uv run --directory api uvicorn darb_api.main:create_app --factory --reload --port 8000",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-darb",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-darb \"pnpm --filter @darb/firebase test:rules\"",
+    "build": "pnpm --filter @darb/web build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "gen:schemas": "uv run --directory api python scripts/export_schemas.py && pnpm --filter @darb/shared gen"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.35.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-tailwindcss": "^0.8.1"
+  }
+}

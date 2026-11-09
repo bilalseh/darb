@@ -1,0 +1,36 @@
+{
+  "layout": {
+    "skipToContent": "Skip to main content",
+    "footer": "© {{year}} Darb. A portfolio project."
+  },
+  "nav": {
+    "label": "Main",
+    "today": "Today",
+    "plan": "Plan",
+    "progress": "Progress"
+  },
+  "home": {
+    "eyebrow": "Learn any skill",
+    "title": "A study plan that adapts to you, week after week.",
+    "subtitle": "Darb builds a personal plan for any skill, schedules your week, checks what you know, and adjusts when life gets in the way.",
+    "previewNotice": "Early preview: sign-in and the learning flow are being built."
+  },
+  "comingSoon": {
+    "body": "This part of Darb is being built."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for does not exist.",
+    "home": "Back to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "An unexpected error occurred. Try again, or come back later.",
+    "retry": "Try again"
+  },
+  "apiStatus": {
+    "checking": "Checking API…",
+    "online": "API online ({{version}})",
+    "offline": "API unreachable"
+  }
+}
