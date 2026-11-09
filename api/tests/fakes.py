@@ -152,6 +152,22 @@ class InMemoryUserRepository:
     async def list_quiz_results(self, uid: str) -> list[QuizResult]:
         return [result for (owner, _, _), result in self.quiz_results.items() if owner == uid]
 
+    async def ai_requests_on(self, uid: str, day: str) -> int:
+        return self.usage.get((uid, day), 0)
+
+    async def delete_user_data(self, uid: str) -> None:
+        self.profiles.pop(uid, None)
+        self.skills.pop(uid, None)
+        self.checkins.pop(uid, None)
+        self.assessments = {k: v for k, v in self.assessments.items() if k[0] != uid}
+        self.usage = {k: v for k, v in self.usage.items() if k[0] != uid}
+        self.plans = {k: v for k, v in self.plans.items() if k[0] != uid}
+        self.lessons = {k: v for k, v in self.lessons.items() if k[0] != uid}
+        self.activity = {k: v for k, v in self.activity.items() if k[0] != uid}
+        self.quizzes = {k: v for k, v in self.quizzes.items() if k[0] != uid}
+        self.quiz_results = {k: v for k, v in self.quiz_results.items() if k[0] != uid}
+        self.reviews = {k: v for k, v in self.reviews.items() if k[0] != uid}
+
 
 class ScriptedProvider:
     """Replies with the given strings in order; a ProviderError in the list is raised instead."""

@@ -87,3 +87,28 @@ async def test_concurrent_ai_requests_are_all_counted(repository: FirestoreUserR
     client.close()  # type: ignore[no-untyped-call]  # untyped in google-cloud-firestore
     assert (snapshot.to_dict() or {})["aiRequests"] == 5
     assert (global_snapshot.to_dict() or {})["aiRequests"] == 5
+
+
+async def test_deleting_a_user_erases_their_tree_and_answer_keys(
+    repository: FirestoreUserRepository,
+) -> None:
+    from darb_api.demo import new_profile
+    from darb_api.repository import StoredQuiz
+    from tests.conftest import DEMO
+
+    uid, other = f"user-{uuid.uuid4().hex}", f"user-{uuid.uuid4().hex}"
+    profile = new_profile(DEMO, NOW).model_copy(update={"uid": uid})
+    await repository.ensure_profile(profile, demo_skills(NOW))
+    [skill] = await repository.list_skills(uid)
+    quiz = StoredQuiz(
+        skill_id=skill.id, module_index=0, title="Basics", questions=[], created_at=NOW
+    )
+    await repository.save_quiz(uid, quiz)
+    await repository.save_quiz(other, quiz.model_copy(update={"skill_id": "theirs"}))
+
+    await repository.delete_user_data(uid)
+
+    assert await repository.list_skills(uid) == []
+    assert await repository.get_plan(uid, skill.id) is None
+    assert await repository.get_quiz(uid, skill.id, 0) is None
+    assert await repository.get_quiz(other, "theirs", 0) is not None

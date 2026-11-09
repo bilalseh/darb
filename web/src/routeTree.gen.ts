@@ -16,6 +16,7 @@ import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
 import { Route as AppPlanRouteImport } from './routes/_app/plan'
 import { Route as AppProgressRouteImport } from './routes/_app/progress'
 import { Route as AppReviewRouteImport } from './routes/_app/review'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppTodayRouteImport } from './routes/_app/today'
 import { Route as AppProgressSummaryRouteImport } from './routes/_app/progress_.summary'
 import { Route as AppSkillsSkillIdAssessmentRouteImport } from './routes/_app/skills.$skillId.assessment'
@@ -55,6 +56,11 @@ const AppProgressRoute = AppProgressRouteImport.update({
 const AppReviewRoute = AppReviewRouteImport.update({
   id: '/review',
   path: '/review',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTodayRoute = AppTodayRouteImport.update({
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/plan': typeof AppPlanRoute
   '/progress': typeof AppProgressRoute
   '/review': typeof AppReviewRoute
+  '/settings': typeof AppSettingsRoute
   '/today': typeof AppTodayRoute
   '/progress/summary': typeof AppProgressSummaryRoute
   '/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/plan': typeof AppPlanRoute
   '/progress': typeof AppProgressRoute
   '/review': typeof AppReviewRoute
+  '/settings': typeof AppSettingsRoute
   '/today': typeof AppTodayRoute
   '/progress/summary': typeof AppProgressSummaryRoute
   '/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/_app/plan': typeof AppPlanRoute
   '/_app/progress': typeof AppProgressRoute
   '/_app/review': typeof AppReviewRoute
+  '/_app/settings': typeof AppSettingsRoute
   '/_app/today': typeof AppTodayRoute
   '/_app/progress_/summary': typeof AppProgressSummaryRoute
   '/_app/skills/$skillId/assessment': typeof AppSkillsSkillIdAssessmentRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progress'
     | '/review'
+    | '/settings'
     | '/today'
     | '/progress/summary'
     | '/skills/$skillId/assessment'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progress'
     | '/review'
+    | '/settings'
     | '/today'
     | '/progress/summary'
     | '/skills/$skillId/assessment'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/_app/plan'
     | '/_app/progress'
     | '/_app/review'
+    | '/_app/settings'
     | '/_app/today'
     | '/_app/progress_/summary'
     | '/_app/skills/$skillId/assessment'
@@ -238,6 +250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReviewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/today': {
       id: '/_app/today'
       path: '/today'
@@ -288,6 +307,7 @@ interface AppRouteChildren {
   AppPlanRoute: typeof AppPlanRoute
   AppProgressRoute: typeof AppProgressRoute
   AppReviewRoute: typeof AppReviewRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppTodayRoute: typeof AppTodayRoute
   AppProgressSummaryRoute: typeof AppProgressSummaryRoute
   AppSkillsSkillIdAssessmentRoute: typeof AppSkillsSkillIdAssessmentRoute
@@ -301,6 +321,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPlanRoute: AppPlanRoute,
   AppProgressRoute: AppProgressRoute,
   AppReviewRoute: AppReviewRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppTodayRoute: AppTodayRoute,
   AppProgressSummaryRoute: AppProgressSummaryRoute,
   AppSkillsSkillIdAssessmentRoute: AppSkillsSkillIdAssessmentRoute,

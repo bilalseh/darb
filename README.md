@@ -2,7 +2,7 @@
 
 Learn any skill with a personal AI plan that adapts week by week.
 
-> Status: phase 7 of 10 done (dashboard, badges, summary, matching). Live: https://darb-learn.web.app
+> Status: phase 8 of 10 in progress (settings, usage meter and account deletion done; Stripe test mode next). Live: https://darb-learn.web.app
 
 ## Repository layout
 
@@ -56,6 +56,13 @@ AI keys (Gemini, with Groq as fallback) live in Secret Manager: run
 [`infra/set-ai-keys.sh`](infra/set-ai-keys.sh) and set the `AI_SECRETS` repository variable it
 prints. Without keys the app still runs; AI features say the AI is resting. Locally and in tests,
 `AI_PROVIDERS=fake` gives deterministic AI output with no key.
+
+### Still to set up for phase 8
+
+- **Stripe test mode**: needs a Stripe account's test-mode keys (`sk_test_...` and a webhook
+  secret) stored like the AI keys. No real charges are possible in test mode.
+- **Deleting old demo accounts automatically**: needs the API's service account to be allowed to
+  manage sign-in accounts (`roles/firebaseauth.admin`) and a daily Cloud Scheduler job.
 
 ## How AI output is validated
 

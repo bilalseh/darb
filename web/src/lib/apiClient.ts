@@ -19,7 +19,7 @@ interface RequestOptions {
 
 /** Calls the Darb API, served same-origin under `/api`, with the user's ID token if signed in. */
 async function request<T>(
-  method: 'GET' | 'POST' | 'PATCH',
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   path: `/${string}`,
   options: RequestOptions,
 ) {
@@ -38,6 +38,7 @@ async function request<T>(
     const body: unknown = await response.json().catch(() => null);
     throw new ApiError(response.status, `${method} /api${path} failed (${response.status})`, body);
   }
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
@@ -51,4 +52,8 @@ export function apiPost<T>(path: `/${string}`, body?: unknown): Promise<T> {
 
 export function apiPatch<T>(path: `/${string}`, body: unknown): Promise<T> {
   return request<T>('PATCH', path, { body });
+}
+
+export async function apiDelete(path: `/${string}`): Promise<void> {
+  await request<undefined>('DELETE', path, {});
 }

@@ -1344,6 +1344,29 @@
       "title": "TutorRole",
       "type": "string"
     },
+    "Usage": {
+      "additionalProperties": false,
+      "description": "Today's AI requests against the daily allowance.",
+      "properties": {
+        "used": {
+          "type": "integer"
+        },
+        "limit": {
+          "type": "integer"
+        },
+        "resetsAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "used",
+        "limit",
+        "resetsAt"
+      ],
+      "title": "Usage",
+      "type": "object"
+    },
     "WeekAdjustment": {
       "enum": [
         "same",

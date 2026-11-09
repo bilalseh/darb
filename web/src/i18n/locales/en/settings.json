@@ -1,0 +1,19 @@
+{
+  "title": "Settings",
+  "profileTitle": "Profile",
+  "name": "Name",
+  "email": "Email",
+  "demoAccount": "You are using a demo account. It is deleted with all its data when you delete it below.",
+  "usageTitle": "AI requests today",
+  "usageValue": "{{used}} of {{limit}} used",
+  "usageResets": "Resets at {{time}} (midnight UTC).",
+  "languageTitle": "Language",
+  "languageLabel": "App language",
+  "languageSoon": "Arabic (coming soon)",
+  "deleteTitle": "Delete account and data",
+  "deleteBody": "This permanently erases your skills, plans, lessons, quiz results, review cards and activity, then deletes your sign-in. It cannot be undone.",
+  "deleteConfirmLabel": "Type DELETE to confirm",
+  "deleteButton": "Delete my account",
+  "deleting": "Deleting…",
+  "deleteFailed": "Something went wrong. Your account was not fully deleted; please try again."
+}

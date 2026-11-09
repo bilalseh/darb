@@ -96,3 +96,13 @@ anything that changes architecture also has an ADR.
 - **The radar compares against the starting point once there is something to compare**: the
   placement result is the start; per-sub-skill progress tracking arrives with retakes, so until
   then the dashboard shows the starting radar next to module quiz scores over time.
+
+## Phase 8: settings and limits (first part)
+
+- **Deleting an account erases everything the user owns**: their whole `users/{uid}` tree (profile,
+  skills, plans, lessons, activity, reviews, quiz results, check-ins) and their server-only answer
+  keys, then the sign-in account itself. The browser deletes the sign-in account (Firebase may ask
+  Google users to sign in again first), so the API needs no extra admin permissions.
+- **The usage meter** shows today's AI requests against the daily allowance and when it resets.
+- **Stripe test-mode checkout, Pro limits and old demo-account cleanup** are not built yet: they
+  need Stripe test keys and one more permission on the API's service account (see the README).

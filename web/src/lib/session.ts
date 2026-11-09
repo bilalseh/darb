@@ -1,8 +1,10 @@
 // The only module that talks to Firebase Auth. Everything else uses SessionUser, so tests can
 // swap this module for src/test/fakeSession.ts.
 import {
+  deleteUser,
   GoogleAuthProvider,
   onAuthStateChanged,
+  reauthenticateWithPopup,
   signOut as firebaseSignOut,
   signInAnonymously,
   signInWithPopup,
@@ -63,4 +65,18 @@ export async function startDemo(): Promise<SessionUser> {
 
 export async function signOut(): Promise<void> {
   await firebaseSignOut(auth);
+}
+
+/** Deletes the sign-in account. Firebase may ask Google users to confirm by signing in again. */
+export async function deleteAccount(): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    await deleteUser(user);
+  } catch (error) {
+    const code = (error as { code?: unknown } | null)?.code;
+    if (code !== 'auth/requires-recent-login' || user.isAnonymous) throw error;
+    await reauthenticateWithPopup(user, new GoogleAuthProvider());
+    await deleteUser(user);
+  }
 }

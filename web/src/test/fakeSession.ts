@@ -57,4 +57,8 @@ export const fakeSessionModule = {
     setUser(null);
     return Promise.resolve();
   }),
+  deleteAccount: vi.fn(() => {
+    setUser(null);
+    return Promise.resolve();
+  }),
 };

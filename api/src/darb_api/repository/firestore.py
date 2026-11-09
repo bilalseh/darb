@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from typing import Any
 
 from google.api_core.exceptions import Aborted, AlreadyExists
-from google.cloud.firestore import AsyncClient, AsyncDocumentReference, Increment
+from google.cloud.firestore import AsyncClient, AsyncDocumentReference, FieldFilter, Increment
 
 from darb_api.domain.usage import check_allowance
 from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment, StoredQuiz
@@ -258,3 +258,17 @@ class FirestoreUserRepository:
             QuizResult.model_validate(snapshot.to_dict() or {})
             async for snapshot in self._user(uid).collection("quizResults").stream()
         ]
+
+    async def ai_requests_on(self, uid: str, day: str) -> int:
+        return _used(await self._user(uid).collection("usage").document(day).get())
+
+    async def delete_user_data(self, uid: str) -> None:
+        await self._db.recursive_delete(self._user(uid))
+        for collection in ("assessmentKeys", "quizKeys"):
+            # Key documents are named "{uid}__...", so a name range finds exactly this user's.
+            keys = self._db.collection(collection)
+            query = keys.where(
+                filter=FieldFilter("__name__", ">=", keys.document(f"{uid}__"))
+            ).where(filter=FieldFilter("__name__", "<", keys.document(f"{uid}__")))
+            async for snapshot in query.stream():
+                await snapshot.reference.delete()

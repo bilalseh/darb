@@ -392,6 +392,15 @@ export interface TutorRequest {
 
 export type TutorRole = 'learner' | 'tutor';
 
+/**
+ * Today's AI requests against the daily allowance.
+ */
+export interface Usage {
+  used: number;
+  limit: number;
+  resetsAt: string;
+}
+
 export type WeekAdjustment = 'same' | 'easier' | 'harder';
 
 export type Weekday = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';

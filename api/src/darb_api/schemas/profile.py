@@ -11,3 +11,11 @@ class Profile(ApiModel):
     email: str | None
     is_demo: bool
     created_at: datetime
+
+
+class Usage(ApiModel):
+    """Today's AI requests against the daily allowance."""
+
+    used: int
+    limit: int
+    resets_at: datetime
