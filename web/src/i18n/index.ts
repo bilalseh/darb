@@ -8,6 +8,7 @@ import enLesson from './locales/en/lesson.json';
 import enOnboarding from './locales/en/onboarding.json';
 import enPlan from './locales/en/plan.json';
 import enPractice from './locales/en/practice.json';
+import enProgress from './locales/en/progress.json';
 
 // One file per feature keeps each small; they merge into a single namespace.
 const en = {
@@ -18,6 +19,7 @@ const en = {
   lesson: enLesson,
   ...enPractice,
   checkin: enCheckin,
+  progress: enProgress,
 };
 
 export const defaultNS = 'translation';

@@ -26,6 +26,7 @@ from darb_api.schemas.onboarding import (
 )
 from darb_api.schemas.plan import MoveLessonRequest, Plan, RegenerateWeekRequest
 from darb_api.schemas.profile import Profile
+from darb_api.schemas.progress import CommunityMatch, Progress
 from darb_api.schemas.quiz import (
     ModuleQuiz,
     QuizResult,
@@ -63,6 +64,8 @@ RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     ReviewOutcome,
     Checkin,
     SyncResult,
+    Progress,
+    CommunityMatch,
 )
 
 __all__ = [

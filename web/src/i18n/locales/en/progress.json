@@ -1,0 +1,32 @@
+{
+  "loading": "Loading your progress…",
+  "loadError": "We could not load your progress.",
+  "currentStreak": "day streak now",
+  "longestStreak": "longest streak (days)",
+  "timeStudied": "time studied",
+  "duration": "{{hours}}h {{minutes}}m",
+  "lessonsDone": "lessons finished",
+  "badgesTitle": "Milestones",
+  "earned": "Earned",
+  "locked": "Not yet",
+  "badges": {
+    "first_lesson": { "title": "First lesson", "hint": "Finish your first lesson." },
+    "first_week": { "title": "First full week", "hint": "Finish every lesson in a week." },
+    "first_quiz": { "title": "First module quiz", "hint": "Take a module quiz." },
+    "streak_7": { "title": "7-day streak", "hint": "Study seven days in a row." },
+    "streak_30": { "title": "30-day streak", "hint": "Study thirty days in a row." }
+  },
+  "quizzesTitle": "Quiz scores over time",
+  "noQuizzes": "Module quiz scores will show up here.",
+  "score": "Score",
+  "lessonsOf": "{{done}} of {{total}} lessons done",
+  "startingPoint": "Starting point (placement test)",
+  "exportSummary": "Progress summary (PDF)",
+  "backToProgress": "Back to Progress",
+  "print": "Print or save as PDF",
+  "summaryTitle": "Progress summary",
+  "summaryFor": "This summarises the learning of",
+  "summaryStats": "{{time}} studied · longest streak {{streak}} days · {{badges}} milestones",
+  "issuedOn": "Issued on {{date}}",
+  "selfIssued": "Self-issued progress summary from Darb. This is not an official certificate."
+}

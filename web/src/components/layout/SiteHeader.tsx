@@ -16,7 +16,7 @@ export function SiteHeader() {
   const user = useAuthUser();
 
   return (
-    <header className="border-b border-stone-200 bg-white">
+    <header className="border-b border-stone-200 bg-white print:hidden">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3">
         <Link
           to="/"

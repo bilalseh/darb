@@ -31,6 +31,8 @@ export interface AssessmentQuestion {
   options: string[];
 }
 
+export type Badge = 'first_lesson' | 'first_week' | 'first_quiz' | 'streak_7' | 'streak_30';
+
 /**
  * A completed check-in and the change it made, at users/{uid}/checkins/{id}.
  */
@@ -62,6 +64,16 @@ export interface CheckinRequest {
   hard: string;
   feeling: CheckinFeeling;
   today: string;
+}
+
+/**
+ * A free community or practice format suggested for a skill, with why it fits.
+ */
+export interface CommunityMatch {
+  name: string;
+  url: string;
+  kind: MatchKind;
+  reason: string;
 }
 
 /**
@@ -97,6 +109,8 @@ export interface LessonContent {
 export type LessonKind = 'learn' | 'practice' | 'review' | 'project';
 
 export type LessonStatus = 'todo' | 'done';
+
+export type MatchKind = 'community' | 'forum' | 'chat' | 'practice';
 
 /**
  * A module quiz as the learner sees it: no answers until it is submitted.
@@ -194,6 +208,16 @@ export interface Profile {
   createdAt: string;
 }
 
+/**
+ * Everything the dashboard shows, computed from the learner's own data.
+ */
+export interface Progress {
+  stats: Stats;
+  badges: Badge[];
+  quizzes: QuizScorePoint[];
+  skills: SkillProgress[];
+}
+
 export type QuestionKind = 'multiple_choice' | 'short_answer' | 'confidence';
 
 export interface QuestionResult {
@@ -222,6 +246,14 @@ export interface QuizResult {
   score: number;
   results: QuestionResult[];
   addedToReview: number;
+  completedAt: string;
+}
+
+export interface QuizScorePoint {
+  skillId: string;
+  skill: string;
+  title: string;
+  score: number;
   completedAt: string;
 }
 
@@ -305,6 +337,15 @@ export interface Skill {
   status: SkillStatus;
   createdAt: string;
   placement?: PlacementResult | null;
+}
+
+export interface SkillProgress {
+  skillId: string;
+  skill: string;
+  level: PlacementLevel | null;
+  startingSubskills: SubskillScore[];
+  lessonsDone: number;
+  lessonsTotal: number;
 }
 
 export type SkillReason = 'career' | 'hobby' | 'travel' | 'exam' | 'school' | 'personal';

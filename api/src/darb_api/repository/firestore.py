@@ -65,6 +65,14 @@ class FirestoreUserRepository:
                     batch.create(
                         self._plan(profile.uid, skill_ref.id), plan.model_dump(mode="json")
                     )
+                for result in skill.quiz_results:
+                    scored = result.model_copy(update={"skill_id": skill_ref.id})
+                    batch.create(
+                        user_ref.collection("quizResults").document(
+                            f"{skill_ref.id}__{scored.module_index}"
+                        ),
+                        scored.model_dump(mode="json"),
+                    )
                 for item in skill.reviews:
                     card = item.model_copy(update={"skill_id": skill_ref.id})
                     batch.create(
@@ -244,3 +252,9 @@ class FirestoreUserRepository:
     async def add_checkin(self, uid: str, checkin: Checkin) -> None:
         reference = self._user(uid).collection("checkins").document(checkin.id)
         await reference.set(checkin.model_dump(mode="json"))
+
+    async def list_quiz_results(self, uid: str) -> list[QuizResult]:
+        return [
+            QuizResult.model_validate(snapshot.to_dict() or {})
+            async for snapshot in self._user(uid).collection("quizResults").stream()
+        ]

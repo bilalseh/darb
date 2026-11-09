@@ -17,6 +17,7 @@ from darb_api.routes import (
     checkin,
     health,
     lessons,
+    matches,
     me,
     plan,
     quiz,
@@ -82,6 +83,7 @@ def create_app(
         stats.router,
         quiz.router,
         checkin.router,
+        matches.router,
     )
     for router in routers:
         app.include_router(router, prefix=API_PREFIX)

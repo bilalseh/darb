@@ -64,6 +64,9 @@ class InMemoryUserRepository:
         self.skills.setdefault(uid, []).append(stored)
         if skill.plan:
             self.plans[(uid, stored.id)] = skill.plan.model_copy(update={"skill_id": stored.id})
+        for result in skill.quiz_results:
+            scored = result.model_copy(update={"skill_id": stored.id})
+            self.quiz_results[(uid, stored.id, scored.module_index)] = scored
         for item in skill.reviews:
             self.reviews[(uid, item.id)] = item.model_copy(update={"skill_id": stored.id})
         return stored
@@ -145,6 +148,9 @@ class InMemoryUserRepository:
 
     async def add_checkin(self, uid: str, checkin: Checkin) -> None:
         self.checkins.setdefault(uid, []).append(checkin)
+
+    async def list_quiz_results(self, uid: str) -> list[QuizResult]:
+        return [result for (owner, _, _), result in self.quiz_results.items() if owner == uid]
 
 
 class ScriptedProvider:

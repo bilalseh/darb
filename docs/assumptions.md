@@ -84,3 +84,15 @@ anything that changes architecture also has an ADR.
   rewrites the following week and explains the change in a few sentences; "too easy" and "too
   hard" shift the plan's difficulty by one step. A check-in is offered for the current week from
   its fourth day, or for last week if it was skipped; each week is checked in once.
+
+## Phase 7: progress
+
+- **Badges are computed, not stored**, by pure domain rules from the learner's activity and plans:
+  first lesson, first full week, first module quiz, 7-day streak and 30-day streak. They can never
+  drift out of sync with what actually happened.
+- **The PDF summary uses the browser's own "Save as PDF"** on a print-ready certificate view,
+  instead of a PDF library: no extra bundle weight, and it works in every modern browser. It is
+  labeled "Self-issued progress summary, not an official certificate" on the page and in print.
+- **The radar compares against the starting point once there is something to compare**: the
+  placement result is the start; per-sub-skill progress tracking arrives with retakes, so until
+  then the dashboard shows the starting radar next to module quiz scores over time.

@@ -13,6 +13,9 @@ test('the demo plan is in progress and a lesson can be moved', async ({ page }) 
   await expect(page.getByRole('heading', { name: 'Roadmap' })).toBeVisible();
   await expect(page.getByText('Survival Spanish')).toBeVisible();
   await expect(page.getByText('3 of 3 done').first()).toBeVisible();
+  const people = page.getByRole('region', { name: 'Find your people' });
+  await expect(people.getByRole('link').first()).toHaveText('Language exchange with Tandem');
+  await expect(people.getByText('fits your travel goal', { exact: false })).toBeVisible();
 
   const move = page.getByRole('combobox', { name: /^Move .* to$/ }).first();
   const label = await move.getAttribute('id');

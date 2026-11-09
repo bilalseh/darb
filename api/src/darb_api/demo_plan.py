@@ -14,7 +14,7 @@ from darb_api.schemas.plan import (
     PlanWeek,
     WeekDraft,
 )
-from darb_api.schemas.quiz import ReviewItem
+from darb_api.schemas.quiz import QuestionResult, QuizResult, ReviewItem
 
 L, P, R, J = LessonKind.LEARN, LessonKind.PRACTICE, LessonKind.REVIEW, LessonKind.PROJECT
 
@@ -234,3 +234,51 @@ def demo_reviews(now: datetime) -> tuple[ReviewItem, ...]:
         )
         for n, (prompt, options, correct, explanation) in enumerate(_REVIEW_CARDS, start=1)
     )
+
+
+def demo_quiz_results(now: datetime) -> tuple[QuizResult, ...]:
+    """The Survival Spanish quiz, taken after week two; its misses became the review cards."""
+    results = [
+        QuestionResult(
+            id=f"q{n}",
+            prompt=prompt,
+            options=options,
+            chosen=correct if n > len(_REVIEW_CARDS) else (correct + 1) % len(options),
+            correct_option=correct,
+            correct=n > len(_REVIEW_CARDS),
+            explanation=explanation,
+        )
+        for n, (prompt, options, correct, explanation) in enumerate(
+            [*_REVIEW_CARDS, *_EXTRA_QUIZ_QUESTIONS], start=1
+        )
+    ]
+    return (
+        QuizResult(
+            skill_id="",  # filled in when the demo skill is written
+            module_index=0,
+            title="Survival Spanish",
+            score=round(100 * sum(r.correct for r in results) / len(results)),
+            results=results,
+            added_to_review=len(_REVIEW_CARDS),
+            completed_at=now - timedelta(days=8),
+        ),
+    )
+
+
+_EXTRA_QUIZ_QUESTIONS = [
+    ("How do you say 'goodbye'?", ["Hola", "Adiós", "Gracias"], 1, "Adiós means goodbye."),
+    (
+        "Which greeting fits the evening?",
+        ["Buenos días", "Buenas noches"],
+        1,
+        "Buenas noches is used at night.",
+    ),
+    ("What does 'gracias' mean?", ["Please", "Thank you", "Sorry"], 1, "Gracias means thank you."),
+    ("Which is 'twenty'?", ["Doce", "Veinte", "Treinta"], 1, "Veinte is twenty."),
+    (
+        "How do you ask the time?",
+        ["¿Qué hora es?", "¿Cómo estás?"],
+        0,
+        "¿Qué hora es? asks for the time.",
+    ),
+]

@@ -32,5 +32,13 @@
     "practice": "Practice",
     "review": "Review",
     "project": "Project"
+  },
+  "matchesTitle": "Find your people",
+  "matchesHint": "Free communities and practice formats that fit your skill, level and goal.",
+  "matchKinds": {
+    "community": "community",
+    "forum": "forum",
+    "chat": "chat server",
+    "practice": "practice"
   }
 }

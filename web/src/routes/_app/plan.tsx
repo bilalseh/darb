@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { aiProblem } from '../../features/assessment/assessmentApi';
+import { CommunityMatches } from '../../features/plan/CommunityMatches';
 import { PlanCalendar } from '../../features/plan/PlanCalendar';
 import {
   createPlan,
@@ -180,6 +181,7 @@ function SkillPlan({ uid, skillId, name }: { uid: string; skillId: string; name:
             {t(`assessment.problems.${aiProblem(regenerate.error)}`)}
           </p>
         )}
+        <CommunityMatches skillId={skillId} />
       </div>
     </div>
   );

@@ -120,6 +120,17 @@
       "title": "AssessmentQuestion",
       "type": "object"
     },
+    "Badge": {
+      "enum": [
+        "first_lesson",
+        "first_week",
+        "first_quiz",
+        "streak_7",
+        "streak_30"
+      ],
+      "title": "Badge",
+      "type": "string"
+    },
     "Checkin": {
       "additionalProperties": false,
       "description": "A completed check-in and the change it made, at users/{uid}/checkins/{id}.",
@@ -224,6 +235,32 @@
         "today"
       ],
       "title": "CheckinRequest",
+      "type": "object"
+    },
+    "CommunityMatch": {
+      "additionalProperties": false,
+      "description": "A free community or practice format suggested for a skill, with why it fits.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/MatchKind"
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "url",
+        "kind",
+        "reason"
+      ],
+      "title": "CommunityMatch",
       "type": "object"
     },
     "CompleteLessonRequest": {
@@ -331,6 +368,16 @@
         "done"
       ],
       "title": "LessonStatus",
+      "type": "string"
+    },
+    "MatchKind": {
+      "enum": [
+        "community",
+        "forum",
+        "chat",
+        "practice"
+      ],
+      "title": "MatchKind",
       "type": "string"
     },
     "ModuleQuiz": {
@@ -661,6 +708,41 @@
       "title": "Profile",
       "type": "object"
     },
+    "Progress": {
+      "additionalProperties": false,
+      "description": "Everything the dashboard shows, computed from the learner's own data.",
+      "properties": {
+        "stats": {
+          "$ref": "#/$defs/Stats"
+        },
+        "badges": {
+          "items": {
+            "$ref": "#/$defs/Badge"
+          },
+          "type": "array"
+        },
+        "quizzes": {
+          "items": {
+            "$ref": "#/$defs/QuizScorePoint"
+          },
+          "type": "array"
+        },
+        "skills": {
+          "items": {
+            "$ref": "#/$defs/SkillProgress"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "stats",
+        "badges",
+        "quizzes",
+        "skills"
+      ],
+      "title": "Progress",
+      "type": "object"
+    },
     "QuestionKind": {
       "enum": [
         "multiple_choice",
@@ -776,6 +858,36 @@
         "completedAt"
       ],
       "title": "QuizResult",
+      "type": "object"
+    },
+    "QuizScorePoint": {
+      "additionalProperties": false,
+      "properties": {
+        "skillId": {
+          "type": "string"
+        },
+        "skill": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "score": {
+          "type": "integer"
+        },
+        "completedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "skillId",
+        "skill",
+        "title",
+        "score",
+        "completedAt"
+      ],
+      "title": "QuizScorePoint",
       "type": "object"
     },
     "QuizSubmission": {
@@ -1038,6 +1150,49 @@
         "createdAt"
       ],
       "title": "Skill",
+      "type": "object"
+    },
+    "SkillProgress": {
+      "additionalProperties": false,
+      "properties": {
+        "skillId": {
+          "type": "string"
+        },
+        "skill": {
+          "type": "string"
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlacementLevel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "startingSubskills": {
+          "items": {
+            "$ref": "#/$defs/SubskillScore"
+          },
+          "type": "array"
+        },
+        "lessonsDone": {
+          "type": "integer"
+        },
+        "lessonsTotal": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "skillId",
+        "skill",
+        "level",
+        "startingSubskills",
+        "lessonsDone",
+        "lessonsTotal"
+      ],
+      "title": "SkillProgress",
       "type": "object"
     },
     "SkillReason": {

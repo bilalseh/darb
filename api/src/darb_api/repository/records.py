@@ -8,7 +8,7 @@ from darb_api.schemas import OnboardingAnswers, PlacementResult, SkillStatus
 from darb_api.schemas.assessment import PlacementQuiz
 from darb_api.schemas.base import ApiModel
 from darb_api.schemas.plan import Plan
-from darb_api.schemas.quiz import QuizQuestionDraft, ReviewItem
+from darb_api.schemas.quiz import QuizQuestionDraft, QuizResult, ReviewItem
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,6 +19,7 @@ class NewSkill:
     placement: PlacementResult | None = None
     plan: Plan | None = None  # its skill_id is filled in when the skill is written
     reviews: tuple[ReviewItem, ...] = ()  # likewise
+    quiz_results: tuple[QuizResult, ...] = ()  # likewise
 
 
 class RecordedAnswer(ApiModel):
