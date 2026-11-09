@@ -40,7 +40,7 @@ store_secret() {
   echo "  stored $label"
 }
 
-store_secret gemini-api-key "Gemini API key" "AI"
+store_secret gemini-api-key "Gemini API key" ""  # Google issues both AIza... and AQ. keys
 store_secret groq-api-key "Groq API key" "gsk_"
 store_secret stripe-secret-key "Stripe test secret key" "sk_test_"
 store_secret stripe-webhook-secret "Stripe webhook signing secret" "whsec_"
