@@ -1,0 +1,207 @@
+{
+  "$defs": {
+    "HealthResponse": {
+      "additionalProperties": false,
+      "description": "Liveness payload returned by GET /api/health.",
+      "properties": {
+        "status": {
+          "const": "ok",
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "version"
+      ],
+      "title": "HealthResponse",
+      "type": "object"
+    },
+    "LearningStyle": {
+      "enum": [
+        "reading",
+        "video",
+        "practice",
+        "mixed"
+      ],
+      "title": "LearningStyle",
+      "type": "string"
+    },
+    "OnboardingAnswers": {
+      "additionalProperties": false,
+      "description": "What the onboarding wizard collects about a new skill.\n\nOnly rules JSON Schema can express live here, so the generated frontend form enforces\nthe same ones. Rules that need the clock live in darb_api.domain.onboarding.",
+      "properties": {
+        "skill": {
+          "maxLength": 80,
+          "minLength": 2,
+          "type": "string"
+        },
+        "reason": {
+          "$ref": "#/$defs/SkillReason"
+        },
+        "level": {
+          "$ref": "#/$defs/SelfRatedLevel"
+        },
+        "hoursPerWeek": {
+          "maximum": 40,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "preferredDays": {
+          "items": {
+            "$ref": "#/$defs/Weekday"
+          },
+          "maxItems": 7,
+          "minItems": 1,
+          "type": "array"
+        },
+        "learningStyle": {
+          "$ref": "#/$defs/LearningStyle"
+        },
+        "targetDate": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "skill",
+        "reason",
+        "level",
+        "hoursPerWeek",
+        "preferredDays",
+        "learningStyle"
+      ],
+      "title": "OnboardingAnswers",
+      "type": "object"
+    },
+    "Profile": {
+      "additionalProperties": false,
+      "description": "The signed-in user's profile, stored at users/{uid}.",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "displayName": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isDemo": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uid",
+        "displayName",
+        "email",
+        "isDemo",
+        "createdAt"
+      ],
+      "title": "Profile",
+      "type": "object"
+    },
+    "SelfRatedLevel": {
+      "enum": [
+        "none",
+        "beginner",
+        "elementary",
+        "intermediate",
+        "advanced"
+      ],
+      "title": "SelfRatedLevel",
+      "type": "string"
+    },
+    "Skill": {
+      "additionalProperties": false,
+      "description": "One skill the user is learning, stored at users/{uid}/skills/{id}.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "answers": {
+          "$ref": "#/$defs/OnboardingAnswers"
+        },
+        "status": {
+          "$ref": "#/$defs/SkillStatus"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "answers",
+        "status",
+        "createdAt"
+      ],
+      "title": "Skill",
+      "type": "object"
+    },
+    "SkillReason": {
+      "enum": [
+        "career",
+        "hobby",
+        "travel",
+        "exam",
+        "school",
+        "personal"
+      ],
+      "title": "SkillReason",
+      "type": "string"
+    },
+    "SkillStatus": {
+      "enum": [
+        "onboarded"
+      ],
+      "title": "SkillStatus",
+      "type": "string"
+    },
+    "Weekday": {
+      "enum": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ],
+      "title": "Weekday",
+      "type": "string"
+    }
+  },
+  "title": "DarbApi",
+  "x-request-models": [
+    "OnboardingAnswers"
+  ]
+}

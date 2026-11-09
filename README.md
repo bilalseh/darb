@@ -2,41 +2,49 @@
 
 Learn any skill with a personal AI plan that adapts week by week.
 
-> Status: phase 1 of 10 (foundation). Live: https://darb-learn.web.app
+> Status: phase 2 of 10 (sign-in, demo, onboarding). Live: https://darb-learn.web.app
 
 ## Repository layout
 
-| Path        | What it holds                                                              |
-| ----------- | -------------------------------------------------------------------------- |
-| `web/`      | React 19 + TypeScript + Vite frontend                                      |
-| `api/`      | FastAPI backend (Python 3.12), deployed to Cloud Run                       |
-| `shared/`   | JSON Schemas and TypeScript types generated from the API's Pydantic models |
-| `firebase/` | Firestore security rules, indexes and rules tests                          |
-| `infra/`    | One-time Google Cloud setup script                                         |
-| `docs/adr/` | Architecture decision records                                              |
+| Path        | What it holds                                                                          |
+| ----------- | -------------------------------------------------------------------------------------- |
+| `web/`      | React 19 + TypeScript + Vite frontend                                                  |
+| `api/`      | FastAPI backend (Python 3.12), deployed to Cloud Run                                   |
+| `shared/`   | JSON Schema, TypeScript types and Zod schemas generated from the API's Pydantic models |
+| `firebase/` | Firestore security rules, indexes and rules tests                                      |
+| `e2e/`      | Playwright end-to-end tests                                                            |
+| `infra/`    | One-time Google Cloud setup script                                                     |
+| `docs/adr/` | Architecture decision records                                                          |
 
 ## Prerequisites
 
-Node 22.12+, pnpm 10, [uv](https://docs.astral.sh/uv/), Docker, and Java 21+ (for the Firestore
-emulator).
+Node 22.12+, pnpm 10, [uv](https://docs.astral.sh/uv/), Docker, and Java 21+ (for the Firebase
+emulators).
 
 ## Local development
+
+Everything runs offline against the Firebase emulators (project `demo-darb`); no cloud account is
+needed.
 
 ```sh
 pnpm install
 cp api/.env.example api/.env
-pnpm dev:api   # http://127.0.0.1:8000/api/health
-pnpm dev:web   # http://localhost:5173, proxies /api to the API
+pnpm emulators   # Auth on :9099, Firestore on :8180, emulator UI on :4000
+pnpm dev:api     # http://127.0.0.1:8000/api/health
+pnpm dev:web     # http://localhost:5173, proxies /api to the API
 ```
 
 ## Checks
 
 ```sh
 pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build
-pnpm test:rules     # Firestore rules against the emulator
-pnpm gen:schemas    # regenerate shared types after changing an API model
+pnpm test:emulator  # Firestore rules and the API's Firestore layer, against the emulator
+pnpm test:e2e       # Playwright: demo sign-in and onboarding, desktop and phone
+pnpm gen:schemas    # regenerate shared types and Zod schemas after changing an API model
 cd api && uv run ruff check . && uv run mypy && uv run pytest
 ```
+
+Before the first E2E run: `pnpm --filter @darb/e2e exec playwright install chromium`.
 
 ## Deployment
 

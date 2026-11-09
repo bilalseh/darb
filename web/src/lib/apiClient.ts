@@ -1,25 +1,46 @@
+import { getIdToken } from './session';
+
 export class ApiError extends Error {
   readonly status: number;
+  readonly body: unknown;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, body: unknown = null) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
+    this.body = body;
   }
 }
 
 interface RequestOptions {
-  signal?: AbortSignal;
+  body?: unknown;
+  signal?: AbortSignal | undefined;
 }
 
-/** GET a JSON resource from the Darb API, which is served same-origin under `/api`. */
-export async function apiGet<T>(path: `/${string}`, { signal }: RequestOptions = {}): Promise<T> {
+/** Calls the Darb API, served same-origin under `/api`, with the user's ID token if signed in. */
+async function request<T>(method: 'GET' | 'POST', path: `/${string}`, options: RequestOptions) {
+  const headers: Record<string, string> = { Accept: 'application/json' };
+  const token = await getIdToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+
   const response = await fetch(`/api${path}`, {
-    headers: { Accept: 'application/json' },
-    signal: signal ?? null,
+    method,
+    headers,
+    body: options.body === undefined ? null : JSON.stringify(options.body),
+    signal: options.signal ?? null,
   });
   if (!response.ok) {
-    throw new ApiError(response.status, `GET /api${path} failed with status ${response.status}`);
+    const body: unknown = await response.json().catch(() => null);
+    throw new ApiError(response.status, `${method} /api${path} failed (${response.status})`, body);
   }
   return (await response.json()) as T;
+}
+
+export function apiGet<T>(path: `/${string}`, options: RequestOptions = {}): Promise<T> {
+  return request<T>('GET', path, options);
+}
+
+export function apiPost<T>(path: `/${string}`, body?: unknown): Promise<T> {
+  return request<T>('POST', path, { body });
 }

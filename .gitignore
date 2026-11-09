@@ -4,10 +4,15 @@ dist/
 coverage/
 *.tsbuildinfo
 
-# Environment files (only the examples are committed)
+# Environment files (only the examples and the emulator-only dev defaults are committed)
 .env
 .env.*
 !.env.example
+!web/.env.development
+
+# Playwright output
+e2e/test-results/
+e2e/playwright-report/
 
 # Python
 __pycache__/

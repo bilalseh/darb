@@ -1,13 +1,22 @@
-"""Export PUBLIC_MODELS as JSON Schema into shared/schemas (run via `pnpm gen:schemas`)."""
+"""Export the public API models as one JSON Schema (run via `pnpm gen:schemas`).
+
+All models share one `$defs` table, so a type used by several models (an enum, or the
+onboarding answers nested in a skill) is generated once on the TypeScript side.
+"""
 
 import json
 from pathlib import Path
+from typing import Literal
 
-from pydantic.json_schema import GenerateJsonSchema
+from pydantic import BaseModel
+from pydantic.json_schema import GenerateJsonSchema, models_json_schema
 
-from darb_api.schemas import PUBLIC_MODELS
+from darb_api.schemas import REQUEST_MODELS, RESPONSE_MODELS
 
 SCHEMA_DIR = Path(__file__).resolve().parents[2] / "shared" / "schemas"
+SCHEMA_FILE = SCHEMA_DIR / "api.json"
+
+Mode = Literal["validation", "serialization"]
 
 
 class WithoutFieldTitles(GenerateJsonSchema):
@@ -19,23 +28,24 @@ class WithoutFieldTitles(GenerateJsonSchema):
 
 
 def main() -> None:
+    models: list[tuple[type[BaseModel], Mode]] = [
+        *((model, "validation") for model in REQUEST_MODELS),
+        *((model, "serialization") for model in RESPONSE_MODELS),
+    ]
+    _, schema = models_json_schema(models, title="DarbApi", schema_generator=WithoutFieldTitles)
+    # Request models also get Zod schemas for client-side form validation.
+    schema["x-request-models"] = [model.__name__ for model in REQUEST_MODELS]
+
     SCHEMA_DIR.mkdir(parents=True, exist_ok=True)
-    written: set[str] = set()
-    for model in PUBLIC_MODELS:
-        path = SCHEMA_DIR / f"{model.__name__}.json"
-        schema = model.model_json_schema(mode="serialization", schema_generator=WithoutFieldTitles)
-        path.write_text(
-            json.dumps(schema, indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8",
-            newline="\n",
-        )
-        written.add(path.name)
-
     for stale in SCHEMA_DIR.glob("*.json"):
-        if stale.name not in written:
+        if stale != SCHEMA_FILE:
             stale.unlink()
-
-    print(f"Exported {len(written)} schema(s) to {SCHEMA_DIR}")
+    SCHEMA_FILE.write_text(
+        json.dumps(schema, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    print(f"Exported {len(models)} model(s) to {SCHEMA_FILE}")
 
 
 if __name__ == "__main__":

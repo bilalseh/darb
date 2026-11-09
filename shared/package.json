@@ -4,14 +4,18 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": "./src/generated/index.ts"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "gen": "node scripts/generate-types.mjs",
     "typecheck": "tsc -p tsconfig.json"
   },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
   "devDependencies": {
     "json-schema-to-typescript": "^16.0.0",
+    "json-schema-to-zod": "^2.8.1",
     "typescript": "~6.0.3"
   }
 }

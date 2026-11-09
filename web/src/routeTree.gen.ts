@@ -10,63 +10,94 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PlanRouteImport } from './routes/plan'
-import { Route as ProgressRouteImport } from './routes/progress'
-import { Route as TodayRouteImport } from './routes/today'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
+import { Route as AppPlanRouteImport } from './routes/_app/plan'
+import { Route as AppProgressRouteImport } from './routes/_app/progress'
+import { Route as AppTodayRouteImport } from './routes/_app/today'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlanRoute = PlanRouteImport.update({
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppOnboardingRoute = AppOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPlanRoute = AppPlanRouteImport.update({
   id: '/plan',
   path: '/plan',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const ProgressRoute = ProgressRouteImport.update({
+const AppProgressRoute = AppProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const TodayRoute = TodayRouteImport.update({
+const AppTodayRoute = AppTodayRouteImport.update({
   id: '/today',
   path: '/today',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/plan': typeof PlanRoute
-  '/progress': typeof ProgressRoute
-  '/today': typeof TodayRoute
+  '/sign-in': typeof SignInRoute
+  '/onboarding': typeof AppOnboardingRoute
+  '/plan': typeof AppPlanRoute
+  '/progress': typeof AppProgressRoute
+  '/today': typeof AppTodayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/plan': typeof PlanRoute
-  '/progress': typeof ProgressRoute
-  '/today': typeof TodayRoute
+  '/sign-in': typeof SignInRoute
+  '/onboarding': typeof AppOnboardingRoute
+  '/plan': typeof AppPlanRoute
+  '/progress': typeof AppProgressRoute
+  '/today': typeof AppTodayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/plan': typeof PlanRoute
-  '/progress': typeof ProgressRoute
-  '/today': typeof TodayRoute
+  '/_app': typeof AppRouteWithChildren
+  '/sign-in': typeof SignInRoute
+  '/_app/onboarding': typeof AppOnboardingRoute
+  '/_app/plan': typeof AppPlanRoute
+  '/_app/progress': typeof AppProgressRoute
+  '/_app/today': typeof AppTodayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/plan' | '/progress' | '/today'
+  fullPaths: '/' | '/sign-in' | '/onboarding' | '/plan' | '/progress' | '/today'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/plan' | '/progress' | '/today'
-  id: '__root__' | '/' | '/plan' | '/progress' | '/today'
+  to: '/' | '/sign-in' | '/onboarding' | '/plan' | '/progress' | '/today'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/sign-in'
+    | '/_app/onboarding'
+    | '/_app/plan'
+    | '/_app/progress'
+    | '/_app/today'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PlanRoute: typeof PlanRoute
-  ProgressRoute: typeof ProgressRoute
-  TodayRoute: typeof TodayRoute
+  AppRoute: typeof AppRouteWithChildren
+  SignInRoute: typeof SignInRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,35 +109,71 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/plan': {
-      id: '/plan'
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/onboarding': {
+      id: '/_app/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AppOnboardingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/plan': {
+      id: '/_app/plan'
       path: '/plan'
       fullPath: '/plan'
-      preLoaderRoute: typeof PlanRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppPlanRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/progress': {
-      id: '/progress'
+    '/_app/progress': {
+      id: '/_app/progress'
       path: '/progress'
       fullPath: '/progress'
-      preLoaderRoute: typeof ProgressRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppProgressRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/today': {
-      id: '/today'
+    '/_app/today': {
+      id: '/_app/today'
       path: '/today'
       fullPath: '/today'
-      preLoaderRoute: typeof TodayRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppTodayRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
+interface AppRouteChildren {
+  AppOnboardingRoute: typeof AppOnboardingRoute
+  AppPlanRoute: typeof AppPlanRoute
+  AppProgressRoute: typeof AppProgressRoute
+  AppTodayRoute: typeof AppTodayRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppOnboardingRoute: AppOnboardingRoute,
+  AppPlanRoute: AppPlanRoute,
+  AppProgressRoute: AppProgressRoute,
+  AppTodayRoute: AppTodayRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PlanRoute: PlanRoute,
-  ProgressRoute: ProgressRoute,
-  TodayRoute: TodayRoute,
+  AppRoute: AppRouteWithChildren,
+  SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

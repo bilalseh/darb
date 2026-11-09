@@ -15,6 +15,7 @@ class AuthenticatedUser:
     uid: str
     is_anonymous: bool
     email: str | None
+    name: str | None = None
 
 
 class InvalidTokenError(Exception):
@@ -28,10 +29,12 @@ class TokenVerifier(Protocol):
 def user_from_claims(claims: Mapping[str, Any]) -> AuthenticatedUser:
     firebase_claims = claims.get("firebase") or {}
     email = claims.get("email")
+    name = claims.get("name")
     return AuthenticatedUser(
         uid=str(claims["uid"]),
         is_anonymous=firebase_claims.get("sign_in_provider") == "anonymous",
         email=email if isinstance(email, str) else None,
+        name=name if isinstance(name, str) and name.strip() else None,
     )
 
 

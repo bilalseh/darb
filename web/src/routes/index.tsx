@@ -1,5 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
+
+import { SignInPanel } from '../features/auth/SignInPanel';
+import { useAuthUser } from '../features/auth/useAuthUser';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -7,6 +10,8 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const { t } = useTranslation();
+  const user = useAuthUser();
+  const navigate = useNavigate();
 
   return (
     <section aria-labelledby="home-title" className="max-w-2xl">
@@ -20,7 +25,19 @@ function HomePage() {
         {t('home.title')}
       </h1>
       <p className="mt-4 text-lg text-stone-600">{t('home.subtitle')}</p>
-      <p className="mt-8 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      <div className="mt-8">
+        {user ? (
+          <Link
+            to="/today"
+            className="inline-flex rounded-md bg-brand-700 px-4 py-2.5 font-semibold text-white hover:bg-brand-800"
+          >
+            {t('home.goToToday')}
+          </Link>
+        ) : (
+          <SignInPanel onSignedIn={() => void navigate({ to: '/today' })} />
+        )}
+      </div>
+      <p className="mt-10 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
         {t('home.previewNotice')}
       </p>
     </section>

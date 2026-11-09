@@ -8,12 +8,14 @@ from darb_api import auth
 from darb_api.auth import AuthenticatedUser, CurrentUser, InvalidTokenError, user_from_claims
 from darb_api.config import Settings
 from darb_api.main import create_app
-from tests.conftest import FakeTokenVerifier
+from tests.fakes import FakeTokenVerifier, InMemoryUserRepository
 
 
 @pytest.fixture
-def protected_client(settings: Settings, verifier: FakeTokenVerifier) -> TestClient:
-    app = create_app(settings, verifier)
+def protected_client(
+    settings: Settings, verifier: FakeTokenVerifier, repository: InMemoryUserRepository
+) -> TestClient:
+    app = create_app(settings, verifier, repository)
 
     @app.get("/api/test/me")
     def me(user: CurrentUser) -> dict[str, object]:

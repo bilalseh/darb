@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
-import { ComingSoon } from '../components/ComingSoon';
+import { ComingSoon } from '../../components/ComingSoon';
 
-export const Route = createFileRoute('/progress')({
+export const Route = createFileRoute('/_app/progress')({
   component: ProgressPage,
 });
 

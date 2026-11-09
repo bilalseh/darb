@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from darb_api.config import Settings
 from darb_api.main import create_app
 from darb_api.schemas import HealthResponse
-from tests.conftest import FakeTokenVerifier
+from tests.fakes import FakeTokenVerifier, InMemoryUserRepository
 
 
 def test_health_reports_ok_and_version(client: TestClient) -> None:
@@ -23,8 +23,10 @@ def test_docs_are_served_outside_production(client: TestClient) -> None:
     assert client.get("/api/docs").status_code == 200
 
 
-def test_docs_are_hidden_in_production(verifier: FakeTokenVerifier) -> None:
+def test_docs_are_hidden_in_production(
+    verifier: FakeTokenVerifier, repository: InMemoryUserRepository
+) -> None:
     settings = Settings(environment="production", firebase_project_id="demo-darb")
-    with TestClient(create_app(settings, verifier)) as client:
+    with TestClient(create_app(settings, verifier, repository)) as client:
         assert client.get("/api/docs").status_code == 404
         assert client.get("/api/openapi.json").status_code == 404

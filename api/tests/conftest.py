@@ -1,27 +1,19 @@
 from collections.abc import Iterator
+from datetime import UTC, datetime
 
 import pytest
 from fastapi.testclient import TestClient
 
-from darb_api.auth import AuthenticatedUser, InvalidTokenError
+from darb_api.auth import AuthenticatedUser
 from darb_api.config import Settings
 from darb_api.main import create_app
+from tests.fakes import FakeTokenVerifier, InMemoryUserRepository
 
-ADA = AuthenticatedUser(uid="user-ada", is_anonymous=False, email="ada@example.com")
+NOW = datetime(2026, 11, 9, 12, 0, tzinfo=UTC)
+ADA = AuthenticatedUser(uid="user-ada", is_anonymous=False, email="ada@example.com", name="Ada")
 DEMO = AuthenticatedUser(uid="user-demo", is_anonymous=True, email=None)
-
-
-class FakeTokenVerifier:
-    """Maps known token strings to users; anything else is an invalid token."""
-
-    def __init__(self, users: dict[str, AuthenticatedUser]) -> None:
-        self._users = users
-
-    def verify(self, id_token: str) -> AuthenticatedUser:
-        try:
-            return self._users[id_token]
-        except KeyError as exc:
-            raise InvalidTokenError from exc
+AS_ADA = {"Authorization": "Bearer ada-token"}
+AS_DEMO = {"Authorization": "Bearer demo-token"}
 
 
 @pytest.fixture
@@ -35,6 +27,14 @@ def verifier() -> FakeTokenVerifier:
 
 
 @pytest.fixture
-def client(settings: Settings, verifier: FakeTokenVerifier) -> Iterator[TestClient]:
-    with TestClient(create_app(settings, verifier)) as test_client:
+def repository() -> InMemoryUserRepository:
+    return InMemoryUserRepository()
+
+
+@pytest.fixture
+def client(
+    settings: Settings, verifier: FakeTokenVerifier, repository: InMemoryUserRepository
+) -> Iterator[TestClient]:
+    app = create_app(settings, verifier, repository, clock=lambda: NOW)
+    with TestClient(app) as test_client:
         yield test_client

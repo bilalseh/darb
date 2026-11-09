@@ -1,10 +1,34 @@
-"""Public API models. Everything in PUBLIC_MODELS is exported to shared/ as JSON Schema
-and TypeScript types by `pnpm gen:schemas` (see docs/adr/0005)."""
+"""Public API models, exported to shared/ by `pnpm gen:schemas` (see docs/adr/0005).
+
+Request models also get generated Zod schemas, so frontend forms validate with the same rules.
+"""
 
 from pydantic import BaseModel
 
 from darb_api.schemas.health import HealthResponse
+from darb_api.schemas.onboarding import (
+    LearningStyle,
+    OnboardingAnswers,
+    SelfRatedLevel,
+    SkillReason,
+    Weekday,
+)
+from darb_api.schemas.profile import Profile
+from darb_api.schemas.skills import Skill, SkillStatus
 
-PUBLIC_MODELS: tuple[type[BaseModel], ...] = (HealthResponse,)
+REQUEST_MODELS: tuple[type[BaseModel], ...] = (OnboardingAnswers,)
+RESPONSE_MODELS: tuple[type[BaseModel], ...] = (HealthResponse, Profile, Skill)
 
-__all__ = ["PUBLIC_MODELS", "HealthResponse"]
+__all__ = [
+    "REQUEST_MODELS",
+    "RESPONSE_MODELS",
+    "HealthResponse",
+    "LearningStyle",
+    "OnboardingAnswers",
+    "Profile",
+    "SelfRatedLevel",
+    "Skill",
+    "SkillReason",
+    "SkillStatus",
+    "Weekday",
+]

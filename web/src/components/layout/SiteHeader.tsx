@@ -1,6 +1,9 @@
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
+import { UserMenu } from '../../features/auth/UserMenu';
+import { useAuthUser } from '../../features/auth/useAuthUser';
+
 const NAV_ITEMS = [
   { to: '/today', labelKey: 'nav.today' },
   { to: '/plan', labelKey: 'nav.plan' },
@@ -9,6 +12,7 @@ const NAV_ITEMS = [
 
 export function SiteHeader() {
   const { t } = useTranslation();
+  const user = useAuthUser();
 
   return (
     <header className="border-b border-stone-200 bg-white">
@@ -22,21 +26,24 @@ export function SiteHeader() {
             درب
           </span>
         </Link>
-        <nav aria-label={t('nav.label')}>
-          <ul className="flex gap-1">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900"
-                  activeProps={{ className: 'bg-brand-50 text-brand-800' }}
-                >
-                  {t(item.labelKey)}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {user && (
+          <nav aria-label={t('nav.label')} className="order-last w-full sm:order-none sm:w-auto">
+            <ul className="flex gap-1">
+              {NAV_ITEMS.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className="rounded-md px-3 py-2 text-sm font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900"
+                    activeProps={{ className: 'bg-brand-50 text-brand-800' }}
+                  >
+                    {t(item.labelKey)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+        <UserMenu />
       </div>
     </header>
   );

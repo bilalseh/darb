@@ -1,12 +1,10 @@
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from darb_api.schemas.base import ApiModel
 
 
-class HealthResponse(BaseModel):
+class HealthResponse(ApiModel):
     """Liveness payload returned by GET /api/health."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
 
     status: Literal["ok"]
     version: str
