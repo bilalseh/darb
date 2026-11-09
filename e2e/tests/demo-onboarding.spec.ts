@@ -17,11 +17,11 @@ test('a visitor tries the demo, then starts a new skill', async ({ page }) => {
   await next(page);
   await expect(page.getByText('Enter a skill between 2 and 80 characters.')).toBeVisible();
 
-  await page.getByRole('combobox', { name: 'What do you want to learn?' }).fill('Guitar');
+  await page.getByRole('textbox', { name: 'What do you want to learn?' }).fill('Guitar');
   await next(page);
   await page.getByRole('radio', { name: /Hobby/ }).check();
   await page.getByRole('button', { name: 'Back' }).click();
-  await expect(page.getByRole('combobox', { name: 'What do you want to learn?' })).toHaveValue(
+  await expect(page.getByRole('textbox', { name: 'What do you want to learn?' })).toHaveValue(
     'Guitar',
   );
   await next(page);
@@ -52,13 +52,13 @@ test('the wizard keeps its answers across a page reload', async ({ page }) => {
   await expect(page).toHaveURL(/\/today$/);
   await page.goto('/onboarding');
 
-  await page.getByRole('combobox', { name: 'What do you want to learn?' }).fill('Excel');
+  await page.getByRole('textbox', { name: 'What do you want to learn?' }).fill('Excel');
   await next(page);
   await page.reload();
 
   await expect(page.getByText('Step 2 of 7')).toBeVisible();
   await page.getByRole('button', { name: 'Back' }).click();
-  await expect(page.getByRole('combobox', { name: 'What do you want to learn?' })).toHaveValue(
+  await expect(page.getByRole('textbox', { name: 'What do you want to learn?' })).toHaveValue(
     'Excel',
   );
 });

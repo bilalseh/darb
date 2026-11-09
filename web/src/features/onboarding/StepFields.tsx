@@ -27,7 +27,6 @@ function SkillStep({ titleId }: { titleId: string }) {
     <div>
       <input
         type="text"
-        list="popular-skills"
         autoComplete="off"
         placeholder={t('onboarding.steps.skill.placeholder')}
         aria-labelledby={titleId}
@@ -36,11 +35,6 @@ function SkillStep({ titleId }: { titleId: string }) {
         className={inputClass}
         {...register('skill', { setValueAs: (value: string) => value.trim() })}
       />
-      <datalist id="popular-skills">
-        {suggestions.map((skill) => (
-          <option key={skill} value={skill} />
-        ))}
-      </datalist>
       <FieldError id={errorId} field="skill" show={invalid} />
       <p className="mt-6 text-sm font-medium text-stone-700">
         {t('onboarding.steps.skill.popular')}

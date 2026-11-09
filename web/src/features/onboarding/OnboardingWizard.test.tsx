@@ -9,7 +9,7 @@ const heading = (name: string) => screen.findByRole('heading', { level: 2, name 
 
 async function answerUpToReview() {
   await userEvent.type(
-    screen.getByRole('combobox', { name: 'What do you want to learn?' }),
+    screen.getByRole('textbox', { name: 'What do you want to learn?' }),
     'Guitar',
   );
   await next();
@@ -51,7 +51,7 @@ describe('OnboardingWizard', () => {
 
   it('blocks Next with an inline error until the step is valid', async () => {
     render(<OnboardingWizard onComplete={vi.fn()} />);
-    const input = screen.getByRole('combobox', { name: 'What do you want to learn?' });
+    const input = screen.getByRole('textbox', { name: 'What do you want to learn?' });
 
     await next();
 
@@ -61,12 +61,22 @@ describe('OnboardingWizard', () => {
     expect(screen.getByText('Step 1 of 7')).toBeInTheDocument();
   });
 
+  it('clears an error while the answer is being fixed, before leaving the field', async () => {
+    render(<OnboardingWizard onComplete={vi.fn()} />);
+    await next();
+    expect(await screen.findByText('Enter a skill between 2 and 80 characters.')).toBeVisible();
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'What do you want to learn?' }), 'Go');
+
+    expect(screen.queryByText('Enter a skill between 2 and 80 characters.')).toBeNull();
+  });
+
   it('fills the skill from a popular choice', async () => {
     render(<OnboardingWizard onComplete={vi.fn()} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Public speaking' }));
 
-    expect(screen.getByRole('combobox', { name: 'What do you want to learn?' })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: 'What do you want to learn?' })).toHaveValue(
       'Public speaking',
     );
   });
@@ -74,7 +84,7 @@ describe('OnboardingWizard', () => {
   it('keeps answers when going back and after a reload', async () => {
     const { unmount } = render(<OnboardingWizard onComplete={vi.fn()} />);
     await userEvent.type(
-      screen.getByRole('combobox', { name: 'What do you want to learn?' }),
+      screen.getByRole('textbox', { name: 'What do you want to learn?' }),
       'Excel',
     );
     await next();
@@ -85,7 +95,7 @@ describe('OnboardingWizard', () => {
 
     expect(await heading('Why do you want to learn it?')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Back' }));
-    expect(screen.getByRole('combobox', { name: 'What do you want to learn?' })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: 'What do you want to learn?' })).toHaveValue(
       'Excel',
     );
   });
@@ -93,7 +103,7 @@ describe('OnboardingWizard', () => {
   it('moves focus to each new question', async () => {
     render(<OnboardingWizard onComplete={vi.fn()} />);
     await userEvent.type(
-      screen.getByRole('combobox', { name: 'What do you want to learn?' }),
+      screen.getByRole('textbox', { name: 'What do you want to learn?' }),
       'Piano',
     );
 

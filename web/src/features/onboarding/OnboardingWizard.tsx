@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   onboardingFormSchema,
+  type OnboardingField,
   type OnboardingFormInput,
   type OnboardingFormOutput,
 } from './formSchema';
@@ -18,6 +19,11 @@ interface OnboardingWizardProps {
 }
 
 const LAST_STEP = STEPS.length - 1;
+const FIELDS: readonly string[] = STEPS.flatMap((step) => step.fields);
+
+function isField(name: string | undefined): name is OnboardingField {
+  return name !== undefined && FIELDS.includes(name);
+}
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const { t } = useTranslation();
@@ -35,13 +41,18 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     mode: 'onTouched',
   });
 
-  // Saves the draft on every change without re-rendering the wizard.
+  // Saves the draft on every change without re-rendering the wizard. A field that is showing an
+  // error is re-checked as the user fixes it, so the message clears while typing instead of on
+  // blur (which would shift the layout under the next click).
   useEffect(
     () =>
       form.subscribe({
         formState: { values: true },
-        callback: ({ values }) => {
+        callback: ({ values, name }) => {
           saveValues(values);
+          if (isField(name) && form.getFieldState(name).invalid) {
+            void form.trigger(name);
+          }
         },
       }),
     [form, saveValues],
