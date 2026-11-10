@@ -50,7 +50,9 @@ async def get_lesson_content(
     """Return the lesson's content, writing it with the AI the first time it is opened."""
     stored = await repository.get_lesson_content(user.uid, skill_id, lesson_id)
     if stored is not None:
-        return stored
+        # Lessons written before YouTube links became searches are corrected as they are read.
+        resources = [lesson_rules.searchable(resource) for resource in stored.resources]
+        return stored.model_copy(update={"resources": resources})
     skill = await require_skill(repository, user.uid, skill_id)
     plan, week, lesson = await _lesson_in_plan(repository, user.uid, skill_id, lesson_id)
 

@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from darb_api.ai.client import AiClient
 from darb_api.ai.fake import FakeProvider
 from darb_api.config import Settings
-from darb_api.domain.lessons import is_trusted, safe_resources, streaks
+from darb_api.domain.lessons import is_trusted, safe_resources, searchable, streaks
 from darb_api.main import create_app
 from darb_api.schemas.lesson import ResourceKind, ResourceLink
 from tests.conftest import AS_DEMO, NOW
@@ -41,6 +41,34 @@ def test_untrusted_links_fall_back_to_searches() -> None:
         "https://en.wikipedia.org/w/index.php?search=Spanish+greetings",
         "https://www.youtube.com/results?search_query=Spanish+greetings",
     ]
+
+
+def test_youtube_videos_become_searches_for_their_title() -> None:
+    # A real report: the AI linked a famous music video as a cooking lesson.
+    invented = ResourceLink(
+        title="How to control stove heat - YouTube",
+        url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        kind=ResourceKind.VIDEO,
+    )
+
+    [link] = safe_resources([invented], "Cooking")
+
+    assert link.url == "https://www.youtube.com/results?search_query=How+to+control+stove+heat"
+    assert link.title == invented.title
+
+
+def test_long_arabic_titles_still_fit_the_url_limit() -> None:
+    video = ResourceLink(
+        title="كيفية ضبط حرارة الموقد في الطهي خطوة بخطوة للمبتدئين في المطبخ المنزلي - YouTube",
+        url="https://m.youtube.com/watch?v=abc",
+        kind=ResourceKind.VIDEO,
+    )
+
+    link = searchable(video)
+
+    assert link.url.startswith("https://www.youtube.com/results?search_query=")
+    assert len(link.url) <= 300
+    ResourceLink.model_validate(link.model_dump())  # still a valid stored link
 
 
 @pytest.mark.parametrize(
@@ -140,3 +168,21 @@ def test_stats_show_the_demo_streak(demo_client: TestClient) -> None:
     assert stats["activeToday"] is False
     assert stats["lessonsDone"] == 7
     assert stats["minutesStudied"] == 560  # 240 + 240 + 80
+
+
+def test_lessons_written_earlier_are_corrected_when_read(
+    demo_client: TestClient, repository: InMemoryUserRepository
+) -> None:
+    url = lesson_url(repository, "w4-l1", "content")
+    demo_client.post(url, headers=AS_DEMO)
+    key = next(iter(repository.lessons))
+    video = ResourceLink(
+        title="Stove heat",
+        url="https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        kind=ResourceKind.VIDEO,
+    )
+    repository.lessons[key] = repository.lessons[key].model_copy(update={"resources": [video]})
+
+    [link] = demo_client.post(url, headers=AS_DEMO).json()["resources"]
+
+    assert link["url"] == "https://www.youtube.com/results?search_query=Stove+heat"

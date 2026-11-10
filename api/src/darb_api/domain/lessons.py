@@ -1,5 +1,6 @@
 """Lesson rules: which resource links are safe to show, and how streaks are counted."""
 
+import re
 from collections.abc import Iterable, Sequence
 from datetime import date, timedelta
 from urllib.parse import quote_plus, urlsplit
@@ -24,6 +25,9 @@ TRUSTED_SITES = (
     "duolingo.com",
 )
 TIME_ZONE_ALLOWANCE = timedelta(days=1)
+YOUTUBE_SEARCH = "https://www.youtube.com/results?search_query="
+MAX_URL_LENGTH = 300
+_YOUTUBE_WORD = re.compile(r"\byoutube\b", re.IGNORECASE)
 
 
 def is_trusted(url: str) -> bool:
@@ -53,12 +57,32 @@ def fallback_resources(topic: str) -> list[ResourceLink]:
     ]
 
 
+def _is_youtube(url: str) -> bool:
+    host = (urlsplit(url).hostname or "").lower()
+    return host == "youtube.com" or host.endswith(".youtube.com")
+
+
+def searchable(resource: ResourceLink) -> ResourceLink:
+    """A YouTube video ID cannot be checked by reading it, and models invent them (often a
+    famous music video), so a YouTube link other than a search becomes a search for its title."""
+    if not _is_youtube(resource.url) or urlsplit(resource.url).path == "/results":
+        return resource
+    query = _YOUTUBE_WORD.sub("", resource.title).strip(" -|:")
+    while len(url := YOUTUBE_SEARCH + quote_plus(query)) > MAX_URL_LENGTH:
+        query = query[:-1]
+    return resource.model_copy(update={"url": url})
+
+
 def safe_resources(resources: Sequence[ResourceLink], topic: str) -> list[ResourceLink]:
-    """Keep trusted links (no duplicates); if none survive, offer searches for the topic."""
+    """Keep trusted links (no duplicates), YouTube ones as searches; if none survive, offer
+    searches for the topic."""
     kept: list[ResourceLink] = []
     for resource in resources:
-        if is_trusted(resource.url) and resource.url not in {r.url for r in kept}:
-            kept.append(resource)
+        if not is_trusted(resource.url):
+            continue
+        link = searchable(resource)
+        if link.url not in {r.url for r in kept}:
+            kept.append(link)
     return kept or fallback_resources(topic)
 
 

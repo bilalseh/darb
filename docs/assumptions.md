@@ -56,6 +56,10 @@ anything that changes architecture also has an ADR.
   only if it is `https` on a short list of well-known free learning sites (Wikipedia, Khan Academy,
   MDN, freeCodeCamp, YouTube, BBC, and a few others). If no link survives, the lesson gets a
   Wikipedia search and a YouTube search for its topic instead. No third-party content is copied.
+- **YouTube links are always searches.** A video ID says nothing about the video, and models
+  invent them (a live lesson on stove heat linked a famous music video), so any YouTube link the
+  AI writes becomes a YouTube search for its title. Lessons stored earlier are corrected when
+  opened. Other trusted sites keep their links, whose paths name the page they point to.
 - **Explanations are shown as plain paragraphs**, never as HTML, so AI output cannot inject markup.
 - **The streak** counts consecutive days with at least one finished lesson or review, up to today;
   if today has nothing yet, the streak still counts through yesterday. "Today" is the learner's
