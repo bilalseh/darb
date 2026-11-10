@@ -79,6 +79,7 @@ async def get_lesson_content(
         ),
         tutor=[],
         generated_at=clock(),
+        language=language,
     )
     await repository.save_lesson_content(user.uid, content)
     return content
@@ -150,8 +151,10 @@ async def ask_tutor(
     now = clock()
     messages = [
         *content.tutor,
-        TutorMessage(role=TutorRole.LEARNER, text=request.message.strip(), at=now),
-        TutorMessage(role=TutorRole.TUTOR, text=result.value.reply, at=now),
+        TutorMessage(
+            role=TutorRole.LEARNER, text=request.message.strip(), at=now, language=language
+        ),
+        TutorMessage(role=TutorRole.TUTOR, text=result.value.reply, at=now, language=language),
     ][-TUTOR_HISTORY_KEPT:]
     content = content.model_copy(update={"tutor": messages})
     await repository.save_lesson_content(user.uid, content)

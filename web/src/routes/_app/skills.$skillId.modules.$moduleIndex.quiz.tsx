@@ -4,11 +4,14 @@ import { useState, type SubmitEvent } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { aiProblem } from '../../features/assessment/assessmentApi';
+import { planQueryOptions } from '../../features/plan/planApi';
 import {
   dueReviewsQueryKey,
   startModuleQuiz,
   submitModuleQuiz,
 } from '../../features/review/reviewApi';
+import { usePlanTranslations } from '../../features/translation/translationApi';
+import { useLocalized } from '../../lib/localized';
 
 export const Route = createFileRoute('/_app/skills/$skillId/modules/$moduleIndex/quiz')({
   component: ModuleQuizPage,
@@ -16,6 +19,7 @@ export const Route = createFileRoute('/_app/skills/$skillId/modules/$moduleIndex
 
 function ModuleQuizPage() {
   const { t } = useTranslation();
+  const local = useLocalized();
   const { skillId, moduleIndex } = Route.useParams();
   const { user } = Route.useRouteContext();
   const queryClient = useQueryClient();
@@ -26,6 +30,9 @@ function ModuleQuizPage() {
     staleTime: Infinity,
     retry: false,
   });
+  // The module's name comes from the plan, so it is translated with the plan.
+  const plan = useQuery(planQueryOptions(user.uid, skillId));
+  const { tr } = usePlanTranslations([{ skillId, plan: plan.data }]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const submit = useMutation({
     mutationFn: (chosen: number[]) => submitModuleQuiz(skillId, module, chosen),
@@ -53,7 +60,7 @@ function ModuleQuizPage() {
         <h1 id="quiz-title" className="mt-2 text-3xl font-bold tracking-tight">
           <Trans
             i18nKey="quiz.title"
-            values={{ module: quiz.data?.title ?? '' }}
+            values={{ module: tr(quiz.data?.title ?? '') }}
             components={{ bdi: <bdi /> }}
           />
         </h1>
@@ -77,7 +84,7 @@ function ModuleQuizPage() {
             {submit.data.results.map((result) => (
               <li key={result.id} className="rounded-lg border border-stone-200 bg-white p-4">
                 <p className="font-medium">
-                  <bdi>{result.prompt}</bdi>
+                  <bdi>{local(result.prompt)}</bdi>
                 </p>
                 <p
                   className={`mt-1 text-sm font-semibold ${result.correct ? 'text-emerald-800' : 'text-red-800'}`}
@@ -87,7 +94,7 @@ function ModuleQuizPage() {
                   ) : (
                     <Trans
                       i18nKey="quiz.yourAnswer"
-                      values={{ answer: result.options[result.chosen] ?? '' }}
+                      values={{ answer: local(result.options[result.chosen] ?? '') }}
                       components={{ bdi: <bdi /> }}
                     />
                   )}
@@ -96,13 +103,13 @@ function ModuleQuizPage() {
                   <p className="text-sm">
                     <Trans
                       i18nKey="quiz.correctWas"
-                      values={{ answer: result.options[result.correctOption] ?? '' }}
+                      values={{ answer: local(result.options[result.correctOption] ?? '') }}
                       components={{ bdi: <bdi /> }}
                     />
                   </p>
                 )}
                 <p dir="auto" className="mt-1 text-sm text-stone-600">
-                  {result.explanation}
+                  {local(result.explanation)}
                 </p>
               </li>
             ))}
@@ -123,11 +130,11 @@ function ModuleQuizPage() {
                 className="rounded-lg border border-stone-200 bg-white p-4"
               >
                 <legend className="px-1 font-medium">
-                  {number + 1}. <bdi>{question.prompt}</bdi>
+                  {number + 1}. <bdi>{local(question.prompt)}</bdi>
                 </legend>
                 <div className="mt-2 grid gap-2">
                   {question.options.map((option, index) => (
-                    <label key={option} className="flex items-center gap-3">
+                    <label key={index} className="flex items-center gap-3">
                       <input
                         type="radio"
                         name={question.id}
@@ -137,7 +144,7 @@ function ModuleQuizPage() {
                         }}
                         className="size-4 accent-brand-700"
                       />
-                      <bdi>{option}</bdi>
+                      <bdi>{local(option)}</bdi>
                     </label>
                   ))}
                 </div>

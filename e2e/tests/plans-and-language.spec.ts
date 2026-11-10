@@ -49,3 +49,16 @@ test('the app switches to Arabic, right to left, and remembers it', async ({ pag
   await page.getByRole('button', { name: 'English' }).click();
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
 });
+
+test('in Arabic, tests show their Arabic version and the plan is translated', async ({ page }) => {
+  await page.getByRole('button', { name: 'العربية' }).click();
+
+  // The demo plan was written in English; the fake AI marks what it translated.
+  await expect(page.getByRole('link', { name: /بالعربية:/ }).first()).toBeVisible();
+
+  await page.goto('/review');
+  await expect(page.getByRole('group', { name: /شعورًا قد يتغير/ })).toBeVisible();
+
+  await page.getByRole('button', { name: 'English' }).click();
+  await expect(page.getByRole('group', { name: /a feeling that can change/ })).toBeVisible();
+});

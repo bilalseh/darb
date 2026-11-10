@@ -7,7 +7,8 @@ Later phases add lesson content and quiz history to this seed.
 from datetime import date, datetime, timedelta
 
 from darb_api.auth import AuthenticatedUser
-from darb_api.demo_plan import demo_plan, demo_quiz_results, demo_reviews
+from darb_api.demo_plan import demo_plan
+from darb_api.demo_quiz import demo_quiz_results, demo_reviews
 from darb_api.repository import NewSkill
 from darb_api.schemas import (
     LearningStyle,
@@ -21,10 +22,26 @@ from darb_api.schemas import (
     SubskillScore,
     Weekday,
 )
+from darb_api.schemas.text import LocalizedText
 
 DEMO_HISTORY = timedelta(weeks=3)
 DEMO_TRIP_IN = timedelta(weeks=9)
-DEMO_SUBSKILLS = {"Vocabulary": 58, "Grammar": 44, "Listening": 52, "Speaking": 36}
+DEMO_SUBSKILLS = [
+    (LocalizedText(en="Vocabulary", ar="المفردات"), 58),
+    (LocalizedText(en="Grammar", ar="القواعد"), 44),
+    (LocalizedText(en="Listening", ar="الاستماع"), 52),
+    (LocalizedText(en="Speaking", ar="التحدث"), 36),
+]
+DEMO_SUMMARY = LocalizedText(
+    en=(
+        "You already recognise plenty of everyday words and can follow slow, clear speech. "
+        "Speaking and verb tenses are where practice will pay off fastest."
+    ),
+    ar=(
+        "تتعرّف بالفعل على كثير من الكلمات اليومية وتستطيع متابعة الكلام البطيء الواضح. "
+        "التحدث وأزمنة الأفعال هما المجالان اللذان سيؤتي فيهما التدريب ثماره بسرعة."
+    ),
+)
 
 
 def demo_clock(now: datetime, learner_today: date | None) -> datetime:
@@ -63,11 +80,8 @@ def demo_skills(now: datetime) -> list[NewSkill]:
             created_at=now - DEMO_HISTORY,
             placement=PlacementResult(
                 level=PlacementLevel.ELEMENTARY,
-                summary=(
-                    "You already recognise plenty of everyday words and can follow slow, clear "
-                    "speech. Speaking and verb tenses are where practice will pay off fastest."
-                ),
-                subskills=[SubskillScore(name=n, score=s) for n, s in DEMO_SUBSKILLS.items()],
+                summary=DEMO_SUMMARY,
+                subskills=[SubskillScore(name=n, score=s) for n, s in DEMO_SUBSKILLS],
                 completed_at=now - DEMO_HISTORY + timedelta(hours=1),
             ),
             plan=demo_plan(now),

@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { formatLocalDate, todayLocalIso } from '../../lib/dates';
 import { allLessons, planQueryOptions } from '../plan/planApi';
 import type { FullPreferences } from '../settings/preferences';
+import { usePlanTranslations, type Translate } from '../translation/translationApi';
+import { TranslationStatus } from '../translation/TranslationStatus';
 import { TodayNotices } from './TodayNotices';
 
 interface DueLesson {
@@ -13,7 +15,13 @@ interface DueLesson {
   lesson: PlanLesson;
 }
 
-function LessonRow({ item, showDate }: { item: DueLesson; showDate: boolean }) {
+interface LessonRowProps {
+  item: DueLesson;
+  showDate: boolean;
+  tr: Translate;
+}
+
+function LessonRow({ item, showDate, tr }: LessonRowProps) {
   const { t, i18n } = useTranslation();
   return (
     <li>
@@ -24,7 +32,7 @@ function LessonRow({ item, showDate }: { item: DueLesson; showDate: boolean }) {
       >
         <span>
           <span className="block font-medium">
-            <bdi>{item.lesson.title}</bdi>
+            <bdi>{tr(item.lesson.title)}</bdi>
           </span>
           <span className="block text-sm text-stone-600">
             <bdi>{item.skill.answers.skill}</bdi> · {t(`plan.kinds.${item.lesson.kind}`)}
@@ -58,6 +66,10 @@ export function TodayLessons({ uid, skills, reminders }: TodayLessonsProps) {
   const plans = useQueries({
     queries: withPlans.map((skill) => planQueryOptions(uid, skill.id)),
   });
+  const translation = usePlanTranslations(
+    withPlans.map((skill, index) => ({ skillId: skill.id, plan: plans[index]?.data })),
+  );
+  const { tr } = translation;
 
   if (plans.some((plan) => plan.isPending)) {
     return <p role="status">{t('plan.loading')}</p>;
@@ -81,11 +93,13 @@ export function TodayLessons({ uid, skills, reminders }: TodayLessonsProps) {
 
   return (
     <div className="space-y-6">
+      <TranslationStatus translation={translation} />
       <TodayNotices
         uid={uid}
         plans={withPlanData}
         checkinReminders={reminders.checkinReminders}
         reviewReminders={reminders.reviewReminders}
+        tr={tr}
       />
       <section aria-labelledby="due-title">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -101,7 +115,12 @@ export function TodayLessons({ uid, skills, reminders }: TodayLessonsProps) {
         ) : (
           <ul className="mt-3 space-y-2">
             {due.map((item) => (
-              <LessonRow key={`${item.skill.id}-${item.lesson.id}`} item={item} showDate={false} />
+              <LessonRow
+                key={`${item.skill.id}-${item.lesson.id}`}
+                item={item}
+                showDate={false}
+                tr={tr}
+              />
             ))}
           </ul>
         )}
@@ -114,7 +133,7 @@ export function TodayLessons({ uid, skills, reminders }: TodayLessonsProps) {
           <p className="text-sm text-stone-600">{t('today.catchUpBody')}</p>
           <ul className="mt-3 space-y-2">
             {missed.map((item) => (
-              <LessonRow key={`${item.skill.id}-${item.lesson.id}`} item={item} showDate />
+              <LessonRow key={`${item.skill.id}-${item.lesson.id}`} item={item} showDate tr={tr} />
             ))}
           </ul>
         </section>

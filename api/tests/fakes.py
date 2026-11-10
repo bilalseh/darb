@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 
 from darb_api.ai.types import AiRequest, FailureKind, ProviderError
@@ -11,7 +11,15 @@ from darb_api.repository import (
     StoredAssessment,
     StoredQuiz,
 )
-from darb_api.schemas import PlacementResult, Preferences, Profile, Skill, SkillStatus, Tier
+from darb_api.schemas import (
+    Language,
+    PlacementResult,
+    Preferences,
+    Profile,
+    Skill,
+    SkillStatus,
+    Tier,
+)
 from darb_api.schemas.checkin import Checkin
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
@@ -45,6 +53,7 @@ class InMemoryUserRepository:
         self.reviews: dict[tuple[str, str], ReviewItem] = {}
         self.checkins: dict[str, list[Checkin]] = {}
         self.billing: dict[str, BillingRecord] = {}
+        self.translations: dict[tuple[str, Language, str], str] = {}
 
     async def ensure_profile(
         self,
@@ -189,6 +198,18 @@ class InMemoryUserRepository:
     async def ai_requests_on(self, uid: str, day: str) -> int:
         return self.usage.get((uid, day), 0)
 
+    async def get_translations(
+        self, uid: str, language: Language, texts: Sequence[str]
+    ) -> dict[str, str]:
+        found = {text: self.translations.get((uid, language, text)) for text in texts}
+        return {text: value for text, value in found.items() if value is not None}
+
+    async def save_translations(
+        self, uid: str, language: Language, translations: Mapping[str, str]
+    ) -> None:
+        for source, text in translations.items():
+            self.translations[(uid, language, source)] = text
+
     async def delete_user_data(self, uid: str) -> None:
         self.profiles.pop(uid, None)
         self.skills.pop(uid, None)
@@ -202,6 +223,7 @@ class InMemoryUserRepository:
         self.quizzes = {k: v for k, v in self.quizzes.items() if k[0] != uid}
         self.quiz_results = {k: v for k, v in self.quiz_results.items() if k[0] != uid}
         self.reviews = {k: v for k, v in self.reviews.items() if k[0] != uid}
+        self.translations = {k: v for k, v in self.translations.items() if k[0] != uid}
 
 
 class ScriptedProvider:

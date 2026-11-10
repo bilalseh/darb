@@ -1,17 +1,12 @@
 import type { AnswerSubmission, AssessmentProgress, PlacementResult } from '@darb/shared';
 
-import { ApiError, apiDelete, apiPost } from '../../lib/apiClient';
+import { ApiError, apiPost } from '../../lib/apiClient';
 
 export const assessmentQueryKey = (skillId: string) => ['assessment', skillId] as const;
 
 /** Starts the assessment, or resumes the one in progress (no new AI call). */
 export function startAssessment(skillId: string) {
   return apiPost<AssessmentProgress>(`/skills/${encodeURIComponent(skillId)}/assessment`);
-}
-
-/** Discards the test in progress; the next start writes a new one in the app's language. */
-export function restartAssessment(skillId: string) {
-  return apiDelete(`/skills/${encodeURIComponent(skillId)}/assessment`);
 }
 
 export function submitAnswer(skillId: string, answer: AnswerSubmission) {

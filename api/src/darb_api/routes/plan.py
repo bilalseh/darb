@@ -10,7 +10,7 @@ from darb_api.domain import plan as rules
 from darb_api.prompts import render
 from darb_api.repository import UserRepository
 from darb_api.routes.common import conflict, metered_ai, require_skill
-from darb_api.schemas import Skill
+from darb_api.schemas import Language, Skill
 from darb_api.schemas.plan import (
     LessonStatus,
     MoveLessonRequest,
@@ -33,10 +33,11 @@ async def _plan(repository: UserRepository, uid: str, skill_id: str) -> Plan:
     return plan
 
 
-def _subskills(skill: Skill) -> str:
+def _subskills(skill: Skill, language: Language) -> str:
     if skill.placement is None:
         return "unknown"
-    return ", ".join(f"{s.name} {s.score}/100" for s in skill.placement.subskills)
+    subskills = skill.placement.subskills
+    return ", ".join(f"{s.name.in_language(language)} {s.score}/100" for s in subskills)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -66,7 +67,7 @@ async def create_plan(
             skill=answers.skill,
             reason=answers.reason.value,
             level=skill.placement.level.value,
-            subskills=_subskills(skill),
+            subskills=_subskills(skill, language),
             style=answers.learning_style.value,
             difficulty=rules.DIFFICULTY_WORDS[0],
             weeks=str(weeks),
@@ -79,7 +80,9 @@ async def create_plan(
             prompt.user,
             check=lambda draft: rules.draft_problems(rules.draft_weeks(draft), weeks, minutes),
         )
-    plan = rules.assemble_plan(skill_id, result.value, answers.preferred_days, now.date(), now)
+    plan = rules.assemble_plan(
+        skill_id, result.value, answers.preferred_days, now.date(), now, language=language
+    )
     await repository.save_plan(user.uid, plan)
     return plan
 
@@ -139,6 +142,7 @@ async def regenerate_week(
         skill.answers.preferred_days,
         today,
         kept=done,
+        language=language,
     )
     plan = rules.replace_week(plan, new_week, difficulty)
     await repository.save_plan(user.uid, plan)

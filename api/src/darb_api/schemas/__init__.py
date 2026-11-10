@@ -44,6 +44,8 @@ from darb_api.schemas.quiz import (
     ReviewOutcome,
 )
 from darb_api.schemas.skills import Skill, SkillStatus
+from darb_api.schemas.text import LocalizedText
+from darb_api.schemas.translation import Translation, TranslationRequest
 
 REQUEST_MODELS: tuple[type[BaseModel], ...] = (
     OnboardingAnswers,
@@ -59,6 +61,7 @@ REQUEST_MODELS: tuple[type[BaseModel], ...] = (
     Preferences,
     ConfirmCheckoutRequest,
     EnsureProfileRequest,
+    TranslationRequest,
 )
 RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     HealthResponse,
@@ -80,6 +83,8 @@ RESPONSE_MODELS: tuple[type[BaseModel], ...] = (
     Usage,
     BillingStatus,
     CheckoutSession,
+    Translation,
+    LocalizedText,
 )
 
 __all__ = [
@@ -91,6 +96,7 @@ __all__ = [
     "HealthResponse",
     "Language",
     "LearningStyle",
+    "LocalizedText",
     "OnboardingAnswers",
     "PlacementLevel",
     "PlacementResult",

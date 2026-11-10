@@ -3,17 +3,21 @@ import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { addDaysIso, formatLocalDate } from '../../lib/dates';
+import type { Translate } from '../translation/translationApi';
 
 interface RoadmapProps {
   plan: Plan;
   today: string;
   pendingWeek: number | null;
   onRegenerate: (weekIndex: number, adjust: WeekAdjustment) => void;
+  /** Shows plan texts in the app's language; as written when left out. */
+  tr?: Translate;
 }
 
 const ADJUSTMENTS: readonly WeekAdjustment[] = ['same', 'easier', 'harder'];
+const asWritten: Translate = (text) => text;
 
-export function Roadmap({ plan, today, pendingWeek, onRegenerate }: RoadmapProps) {
+export function Roadmap({ plan, today, pendingWeek, onRegenerate, tr = asWritten }: RoadmapProps) {
   const { t, i18n } = useTranslation();
 
   return (
@@ -24,14 +28,14 @@ export function Roadmap({ plan, today, pendingWeek, onRegenerate }: RoadmapProps
           (week) => week.startDate <= today && today <= addDaysIso(week.startDate, 6),
         );
         return (
-          <li key={module.title} className="rounded-lg border border-stone-200 bg-white">
+          <li key={moduleIndex} className="rounded-lg border border-stone-200 bg-white">
             <details open={current || moduleIndex === 0}>
               <summary className="cursor-pointer px-4 py-3">
                 <span className="font-semibold">
-                  <bdi>{module.title}</bdi>
+                  <bdi>{tr(module.title)}</bdi>
                 </span>
                 <span className="block text-sm text-stone-600">
-                  <bdi>{module.summary}</bdi>
+                  <bdi>{tr(module.summary)}</bdi>
                 </span>
               </summary>
               <ol className="divide-y divide-stone-100 border-t border-stone-100">
@@ -49,7 +53,7 @@ export function Roadmap({ plan, today, pendingWeek, onRegenerate }: RoadmapProps
                         </span>
                       </h3>
                       <p className="mt-1 text-sm text-stone-700">
-                        <bdi>{week.goal}</bdi>
+                        <bdi>{tr(week.goal)}</bdi>
                       </p>
                       <ul className="mt-2 space-y-1 text-sm">
                         {week.lessons.map((lesson) => (
@@ -58,7 +62,7 @@ export function Roadmap({ plan, today, pendingWeek, onRegenerate }: RoadmapProps
                             <span className="sr-only">
                               {lesson.status === 'done' ? t('plan.doneLabel') : t('plan.todoLabel')}
                             </span>
-                            <bdi className="font-medium">{lesson.title}</bdi>
+                            <bdi className="font-medium">{tr(lesson.title)}</bdi>
                             <span className="text-stone-600">
                               {t(`plan.kinds.${lesson.kind}`)} ·{' '}
                               {t('plan.minutes', { count: lesson.minutes })}

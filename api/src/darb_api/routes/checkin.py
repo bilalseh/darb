@@ -119,6 +119,7 @@ async def weekly_checkin(
         skill.answers.preferred_days,
         request.today,
         kept=kept,
+        language=language,
     )
     plan = plan_rules.replace_week(plan, rebuilt, difficulty)
     plan = plan.model_copy(update={"checked_in_weeks": [*plan.checked_in_weeks, week_index]})

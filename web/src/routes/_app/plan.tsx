@@ -17,6 +17,8 @@ import {
 } from '../../features/plan/planApi';
 import { Roadmap } from '../../features/plan/Roadmap';
 import { skillsQueryOptions } from '../../features/skills/skillsQuery';
+import { usePlanTranslations } from '../../features/translation/translationApi';
+import { TranslationStatus } from '../../features/translation/TranslationStatus';
 import { todayLocalIso } from '../../lib/dates';
 
 export const Route = createFileRoute('/_app/plan')({
@@ -92,6 +94,7 @@ function SkillPlan({ uid, skillId, name }: { uid: string; skillId: string; name:
   const queryClient = useQueryClient();
   const key = planQueryKey(uid, skillId);
   const plan = useQuery(planQueryOptions(uid, skillId));
+  const translation = usePlanTranslations([{ skillId, plan: plan.data }]);
   const [pendingWeek, setPendingWeek] = useState<number | null>(null);
   const today = todayLocalIso();
 
@@ -160,6 +163,9 @@ function SkillPlan({ uid, skillId, name }: { uid: string; skillId: string; name:
 
   return (
     <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+      <div className="empty:hidden lg:col-span-2">
+        <TranslationStatus translation={translation} />
+      </div>
       <div>
         <h2 className="mb-3 text-xl font-semibold">{t('plan.calendarTitle')}</h2>
         <p className="mb-4 text-sm text-stone-600">{t('plan.calendarHint')}</p>
@@ -169,6 +175,7 @@ function SkillPlan({ uid, skillId, name }: { uid: string; skillId: string; name:
           onMove={(lessonId, date) => {
             move.mutate({ lessonId, date });
           }}
+          tr={translation.tr}
         />
         {move.isError && (
           <p role="alert" className="mt-3 text-sm text-red-700">
@@ -185,6 +192,7 @@ function SkillPlan({ uid, skillId, name }: { uid: string; skillId: string; name:
           onRegenerate={(week, adjust) => {
             regenerate.mutate({ week, adjust });
           }}
+          tr={translation.tr}
         />
         {regenerate.isError && (
           <p role="alert" className="mt-3 text-sm text-amber-900">

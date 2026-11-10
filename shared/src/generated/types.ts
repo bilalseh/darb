@@ -20,7 +20,6 @@ export interface AssessmentProgress {
   maxQuestions: number;
   question: AssessmentQuestion | null;
   finished: boolean;
-  language: Language;
 }
 
 /**
@@ -29,9 +28,9 @@ export interface AssessmentProgress {
 export interface AssessmentQuestion {
   id: string;
   kind: QuestionKind;
-  prompt: string;
-  subskill: string;
-  options: string[];
+  prompt: LocalizedText;
+  subskill: LocalizedText;
+  options: LocalizedText[];
 }
 
 export type Badge = 'first_lesson' | 'first_week' | 'first_quiz' | 'streak_7' | 'streak_30';
@@ -137,11 +136,20 @@ export interface LessonContent {
   resources: ResourceLink[];
   tutor: TutorMessage[];
   generatedAt: string;
+  language?: Language;
 }
 
 export type LessonKind = 'learn' | 'practice' | 'review' | 'project';
 
 export type LessonStatus = 'todo' | 'done';
+
+/**
+ * The same text in English and in Arabic.
+ */
+export interface LocalizedText {
+  en: string;
+  ar: string;
+}
 
 export type MatchKind = 'community' | 'forum' | 'chat' | 'practice';
 
@@ -189,7 +197,7 @@ export type PlacementLevel = 'beginner' | 'elementary' | 'intermediate' | 'advan
  */
 export interface PlacementResult {
   level: PlacementLevel;
-  summary: string;
+  summary: LocalizedText;
   subskills: SubskillScore[];
   completedAt: string;
 }
@@ -205,6 +213,7 @@ export interface Plan {
   generatedAt: string;
   lastReschedule?: RescheduleNotice | null;
   checkedInWeeks?: number[];
+  language?: Language;
 }
 
 export interface PlanLesson {
@@ -215,6 +224,7 @@ export interface PlanLesson {
   kind: LessonKind;
   scheduledDate: string;
   status: LessonStatus;
+  language?: Language;
 }
 
 export interface PlanModule {
@@ -228,6 +238,7 @@ export interface PlanWeek {
   moduleIndex: number;
   goal: string;
   lessons: PlanLesson[];
+  language?: Language;
 }
 
 /**
@@ -266,18 +277,18 @@ export type QuestionKind = 'multiple_choice' | 'short_answer' | 'confidence';
 
 export interface QuestionResult {
   id: string;
-  prompt: string;
-  options: string[];
+  prompt: LocalizedText;
+  options: LocalizedText[];
   chosen: number;
   correctOption: number;
   correct: boolean;
-  explanation: string;
+  explanation: LocalizedText;
 }
 
 export interface QuizQuestion {
   id: string;
-  prompt: string;
-  options: string[];
+  prompt: LocalizedText;
+  options: LocalizedText[];
 }
 
 /**
@@ -356,10 +367,10 @@ export interface ReviewAnswer {
 export interface ReviewItem {
   id: string;
   skillId: string;
-  prompt: string;
-  options: string[];
+  prompt: LocalizedText;
+  options: LocalizedText[];
   correctOption: number;
-  explanation: string;
+  explanation: LocalizedText;
   box: number;
   dueOn: string;
   lastReviewedOn: string | null;
@@ -408,7 +419,7 @@ export interface Stats {
 }
 
 export interface SubskillScore {
-  name: string;
+  name: LocalizedText;
   score: number;
 }
 
@@ -426,10 +437,26 @@ export interface SyncResult {
 
 export type Tier = 'free' | 'pro';
 
+/**
+ * A plan's or lesson's texts in `language`, keyed by the text as it was written. Texts
+ * already in that language are left out.
+ */
+export interface Translation {
+  language: Language;
+  texts: {
+    [k: string]: string | undefined;
+  };
+}
+
+export interface TranslationRequest {
+  language: Language;
+}
+
 export interface TutorMessage {
   role: TutorRole;
   text: string;
   at: string;
+  language?: Language;
 }
 
 export interface TutorRequest {

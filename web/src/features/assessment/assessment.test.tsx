@@ -1,10 +1,11 @@
-import type { AssessmentProgress, PlacementResult } from '@darb/shared';
+import type { AssessmentProgress, LocalizedText, PlacementResult } from '@darb/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import i18n from '../../i18n';
 import { createAppRouter } from '../../router';
 import { fakeSession, GOOGLE_USER } from '../../test/fakeSession';
 import { profileFor, SPANISH, stubApi } from '../../test/fixtures';
@@ -22,30 +23,36 @@ vi.mock('../skills/skillsQuery', () => ({
 const QUESTION: AssessmentProgress = {
   answered: 0,
   maxQuestions: 7,
-  language: 'en',
   finished: false,
   question: {
     id: 'q1',
     kind: 'multiple_choice',
-    prompt: 'How do you say "hello"?',
-    subskill: 'Vocabulary',
-    options: ['Hola', 'Adiós', 'Gracias'],
+    prompt: { en: 'How do you say "hello"?', ar: 'كيف تقول "مرحبًا"؟' },
+    subskill: { en: 'Vocabulary', ar: 'المفردات' },
+    options: [
+      { en: 'Hola', ar: 'Hola' },
+      { en: 'Adiós', ar: 'Adiós' },
+      { en: 'None of these', ar: 'لا شيء مما سبق' },
+    ],
   },
 };
 const FINISHED: AssessmentProgress = {
   answered: 1,
   maxQuestions: 7,
-  language: 'en',
   finished: true,
   question: null,
 };
 const RESULT: PlacementResult = {
   level: 'elementary',
-  summary: 'Good everyday vocabulary; grammar is the next step.',
+  summary: {
+    en: 'Good everyday vocabulary; grammar is the next step.',
+    ar: 'مفردات يومية جيدة؛ القواعد هي الخطوة التالية.',
+  },
   subskills: [
-    { name: 'Vocabulary', score: 62 },
-    { name: 'Grammar', score: 41 },
-    { name: 'Listening', score: 55 },
+    { name: { en: 'Vocabulary', ar: 'المفردات' }, score: 62 },
+    { name: { en: 'Grammar', ar: 'القواعد' }, score: 41 },
+    // Placements stored before tests were bilingual hold plain names.
+    { name: 'Listening' as unknown as LocalizedText, score: 55 },
   ],
   completedAt: '2026-11-09T12:00:00Z',
 };
@@ -66,6 +73,10 @@ function renderAssessment(routes: Record<string, () => unknown>) {
   return fetchMock;
 }
 
+afterEach(async () => {
+  await act(() => i18n.changeLanguage('en'));
+});
+
 describe('placement assessment', () => {
   it('asks the questions, then shows the level and every sub-skill score', async () => {
     const fetchMock = renderAssessment({
@@ -78,7 +89,8 @@ describe('placement assessment', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(await screen.findByRole('heading', { level: 2, name: 'Elementary' })).toBeVisible();
-    expect(screen.getByText(RESULT.summary)).toBeInTheDocument();
+    expect(screen.getByText(RESULT.summary.en)).toBeInTheDocument();
+    expect(screen.getByText('Listening')).toBeInTheDocument();
     expect(screen.getByText('Grammar')).toBeInTheDocument();
     expect(screen.getByText('41 / 100')).toBeInTheDocument();
     const answerCall = fetchMock.mock.calls.find(
@@ -108,11 +120,15 @@ describe('placement assessment', () => {
     });
   });
 
-  it('offers to start over when the test is in another language', async () => {
-    renderAssessment({ '/api/skills/skill-1/assessment': () => ({ ...QUESTION, language: 'ar' }) });
+  it('switches the question to the new language at once, keeping the chosen answer', async () => {
+    renderAssessment({ '/api/skills/skill-1/assessment': () => QUESTION });
+    await userEvent.click(await screen.findByRole('radio', { name: 'None of these' }));
 
-    expect(await screen.findByRole('note')).toHaveTextContent('This test was written in Arabic.');
-    expect(screen.getByRole('button', { name: 'Start over in English' })).toBeInTheDocument();
+    await act(() => i18n.changeLanguage('ar'));
+
+    expect(screen.getByRole('heading', { level: 2, name: 'كيف تقول "مرحبًا"؟' })).toBeVisible();
+    expect(screen.getByText('المفردات', { exact: false })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'لا شيء مما سبق' })).toBeChecked();
   });
 
   it('asks for an answer before continuing', async () => {

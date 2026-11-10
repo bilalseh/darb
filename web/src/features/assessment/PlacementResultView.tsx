@@ -2,6 +2,7 @@ import type { PlacementResult } from '@darb/shared';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
+import { useLocalized } from '../../lib/localized';
 import { SubskillRadar } from './SubskillRadar';
 
 interface PlacementResultViewProps {
@@ -11,6 +12,7 @@ interface PlacementResultViewProps {
 
 export function PlacementResultView({ result, skillId }: PlacementResultViewProps) {
   const { t } = useTranslation();
+  const local = useLocalized();
 
   return (
     <section aria-labelledby="placement-title" className="max-w-2xl space-y-6">
@@ -22,7 +24,7 @@ export function PlacementResultView({ result, skillId }: PlacementResultViewProp
           {t(`assessment.levels.${result.level}`)}
         </h2>
         <p dir="auto" className="mt-3 text-stone-700">
-          {result.summary}
+          {local(result.summary)}
         </p>
       </div>
       <div className="rounded-lg border border-stone-200 bg-white p-4">

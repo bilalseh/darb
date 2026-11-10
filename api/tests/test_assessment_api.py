@@ -71,7 +71,11 @@ def test_runs_a_whole_assessment(
     result = client.post(f"{BASE}/complete", headers=AS_ADA).json()
 
     assert result["level"] in {"beginner", "elementary", "intermediate", "advanced"}
-    assert {s["name"] for s in result["subskills"]} == {"Foundations", "Technique", "Application"}
+    assert {s["name"]["en"] for s in result["subskills"]} == {
+        "Foundations",
+        "Technique",
+        "Application",
+    }
     [skill] = skill_repository.skills["user-ada"]
     assert skill.status is SkillStatus.ASSESSED
     assert skill.placement is not None
@@ -165,9 +169,17 @@ def test_a_learner_can_say_they_do_not_know_yet(client: TestClient) -> None:
         f"{BASE}/answers", json={"questionId": question_id, "dontKnow": True}, headers=AS_ADA
     )
 
-    assert progress["language"] == "en"
     assert rejected.status_code == 422
     assert accepted.json()["answered"] == 1
+
+
+def test_questions_come_in_both_languages(client: TestClient) -> None:
+    question = client.post(BASE, headers=AS_ADA).json()["question"]
+
+    assert question["prompt"]["en"] == "Which option describes the very first step?"
+    assert question["prompt"]["ar"].startswith("بالعربية")
+    assert question["subskill"] == {"en": "Foundations", "ar": "الأساسيات"}
+    assert question["options"][0] == {"en": "The first option", "ar": "الخيار الأول"}
 
 
 def test_restarting_discards_the_test_in_progress(

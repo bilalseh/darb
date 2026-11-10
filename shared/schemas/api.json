@@ -80,17 +80,13 @@
         },
         "finished": {
           "type": "boolean"
-        },
-        "language": {
-          "$ref": "#/$defs/Language"
         }
       },
       "required": [
         "answered",
         "maxQuestions",
         "question",
-        "finished",
-        "language"
+        "finished"
       ],
       "title": "AssessmentProgress",
       "type": "object"
@@ -106,14 +102,14 @@
           "$ref": "#/$defs/QuestionKind"
         },
         "prompt": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         },
         "subskill": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         },
         "options": {
           "items": {
-            "type": "string"
+            "$ref": "#/$defs/LocalizedText"
           },
           "type": "array"
         }
@@ -426,6 +422,10 @@
         "generatedAt": {
           "format": "date-time",
           "type": "string"
+        },
+        "language": {
+          "$ref": "#/$defs/Language",
+          "default": "en"
         }
       },
       "required": [
@@ -457,6 +457,26 @@
       ],
       "title": "LessonStatus",
       "type": "string"
+    },
+    "LocalizedText": {
+      "additionalProperties": false,
+      "description": "The same text in English and in Arabic.",
+      "properties": {
+        "en": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "ar": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "en",
+        "ar"
+      ],
+      "title": "LocalizedText",
+      "type": "object"
     },
     "MatchKind": {
       "enum": [
@@ -585,7 +605,7 @@
           "$ref": "#/$defs/PlacementLevel"
         },
         "summary": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         },
         "subskills": {
           "items": {
@@ -651,6 +671,10 @@
             "type": "integer"
           },
           "type": "array"
+        },
+        "language": {
+          "$ref": "#/$defs/Language",
+          "default": "en"
         }
       },
       "required": [
@@ -687,6 +711,10 @@
         },
         "status": {
           "$ref": "#/$defs/LessonStatus"
+        },
+        "language": {
+          "$ref": "#/$defs/Language",
+          "default": "en"
         }
       },
       "required": [
@@ -739,6 +767,10 @@
             "$ref": "#/$defs/PlanLesson"
           },
           "type": "array"
+        },
+        "language": {
+          "$ref": "#/$defs/Language",
+          "default": "en"
         }
       },
       "required": [
@@ -874,11 +906,11 @@
           "type": "string"
         },
         "prompt": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         },
         "options": {
           "items": {
-            "type": "string"
+            "$ref": "#/$defs/LocalizedText"
           },
           "type": "array"
         },
@@ -892,7 +924,7 @@
           "type": "boolean"
         },
         "explanation": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         }
       },
       "required": [
@@ -914,11 +946,11 @@
           "type": "string"
         },
         "prompt": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         },
         "options": {
           "items": {
-            "type": "string"
+            "$ref": "#/$defs/LocalizedText"
           },
           "type": "array"
         }
@@ -1152,11 +1184,11 @@
           "type": "string"
         },
         "prompt": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         },
         "options": {
           "items": {
-            "type": "string"
+            "$ref": "#/$defs/LocalizedText"
           },
           "type": "array"
         },
@@ -1164,7 +1196,7 @@
           "type": "integer"
         },
         "explanation": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         },
         "box": {
           "maximum": 4,
@@ -1364,7 +1396,7 @@
       "additionalProperties": false,
       "properties": {
         "name": {
-          "type": "string"
+          "$ref": "#/$defs/LocalizedText"
         },
         "score": {
           "maximum": 100,
@@ -1422,6 +1454,40 @@
       "title": "Tier",
       "type": "string"
     },
+    "Translation": {
+      "additionalProperties": false,
+      "description": "A plan's or lesson's texts in `language`, keyed by the text as it was written. Texts\nalready in that language are left out.",
+      "properties": {
+        "language": {
+          "$ref": "#/$defs/Language"
+        },
+        "texts": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "language",
+        "texts"
+      ],
+      "title": "Translation",
+      "type": "object"
+    },
+    "TranslationRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "$ref": "#/$defs/Language"
+        }
+      },
+      "required": [
+        "language"
+      ],
+      "title": "TranslationRequest",
+      "type": "object"
+    },
     "TutorMessage": {
       "additionalProperties": false,
       "properties": {
@@ -1434,6 +1500,10 @@
         "at": {
           "format": "date-time",
           "type": "string"
+        },
+        "language": {
+          "$ref": "#/$defs/Language",
+          "default": "en"
         }
       },
       "required": [
@@ -1547,6 +1617,7 @@
     "SyncRequest",
     "Preferences",
     "ConfirmCheckoutRequest",
-    "EnsureProfileRequest"
+    "EnsureProfileRequest",
+    "TranslationRequest"
   ]
 }

@@ -1,25 +1,27 @@
 from datetime import date, datetime
-from typing import Self
+from typing import Annotated, Self
 
 from pydantic import Field, model_validator
 
 from darb_api.schemas.base import ApiModel
+from darb_api.schemas.text import LocalizedText, StoredText, lengths
 
 # ---- AI output ----
 
 
 class QuizQuestionDraft(ApiModel):
-    prompt: str = Field(min_length=5, max_length=300)
-    options: list[str] = Field(min_length=3, max_length=4)
+    prompt: Annotated[LocalizedText, lengths(5, 300)]
+    options: list[Annotated[LocalizedText, lengths(1, 200)]] = Field(min_length=3, max_length=4)
     correct_option: int = Field(ge=0, le=3)
-    explanation: str = Field(min_length=10, max_length=300)
+    explanation: Annotated[LocalizedText, lengths(10, 300)]
 
     @model_validator(mode="after")
     def _correct_option_exists(self) -> Self:
         if self.correct_option >= len(self.options):
             raise ValueError("correctOption must index one of the options")
-        if len({option.casefold() for option in self.options}) != len(self.options):
-            raise ValueError("options must be different from each other")
+        for versions in ([o.en for o in self.options], [o.ar for o in self.options]):
+            if len({version.casefold() for version in versions}) != len(versions):
+                raise ValueError("options must be different from each other")
         return self
 
 
@@ -34,8 +36,8 @@ class ModuleQuizDraft(ApiModel):
 
 class QuizQuestion(ApiModel):
     id: str
-    prompt: str
-    options: list[str]
+    prompt: LocalizedText
+    options: list[LocalizedText]
 
 
 class ModuleQuiz(ApiModel):
@@ -55,12 +57,12 @@ class QuizSubmission(ApiModel):
 
 class QuestionResult(ApiModel):
     id: str
-    prompt: str
-    options: list[str]
+    prompt: StoredText
+    options: list[StoredText]
     chosen: int
     correct_option: int
     correct: bool
-    explanation: str
+    explanation: StoredText
 
 
 class QuizResult(ApiModel):
@@ -80,10 +82,10 @@ class ReviewItem(ApiModel):
 
     id: str
     skill_id: str
-    prompt: str
-    options: list[str]
+    prompt: StoredText
+    options: list[StoredText]
     correct_option: int
-    explanation: str
+    explanation: StoredText
     box: int = Field(ge=0, le=4)
     due_on: date
     last_reviewed_on: date | None

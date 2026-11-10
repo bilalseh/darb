@@ -31,18 +31,27 @@ function inlineRefs(node, seen = []) {
   );
 }
 
+// A definition referenced more than once inside one model comes out as `Name1`, `Name2`, ...
+// They are all the same type.
+const sameType = (block) =>
+  block.replace(/\b([A-Z][A-Za-z]*)(\d+)\b/g, (match, base) =>
+    names.includes(base) && !names.includes(match) ? base : match,
+  );
+
 // One declaration per definition; references to other definitions stay as type names.
 const typeBlocks = [];
 for (const name of names) {
   typeBlocks.push(
-    await compile({ ...defs[name], $defs: defs }, name, {
-      bannerComment: '',
-      additionalProperties: false,
-      strictIndexSignatures: true,
-      declareExternallyReferenced: false,
-      maxItems: -1, // `Weekday[]`, not a union of tuples for minItems/maxItems
-      format: false,
-    }),
+    sameType(
+      await compile({ ...defs[name], $defs: defs }, name, {
+        bannerComment: '',
+        additionalProperties: false,
+        strictIndexSignatures: true,
+        declareExternallyReferenced: false,
+        maxItems: -1, // `Weekday[]`, not a union of tuples for minItems/maxItems
+        format: false,
+      }),
+    ),
   );
 }
 

@@ -14,6 +14,7 @@ from darb_api.schemas.plan import (
     PlanWeek,
     WeekDraft,
 )
+from darb_api.schemas.profile import Language
 
 DEFAULT_WEEKS = 8
 MIN_WEEKS, MAX_WEEKS = 2, 8
@@ -91,6 +92,7 @@ def build_week(
     preferred_days: Sequence[Weekday],
     today: date,
     kept: Sequence[PlanLesson] = (),
+    language: Language = Language.EN,
 ) -> PlanWeek:
     start = plan_start + timedelta(weeks=index)
     days = study_days(start, preferred_days, today)
@@ -100,13 +102,14 @@ def build_week(
     for position, (lesson, when) in enumerate(zip(draft.lessons, dates, strict=True), start=1):
         lesson_id = _free_id(f"w{index + 1}-l{position}", taken)
         taken.add(lesson_id)
-        new_lessons.append(_lesson(lesson_id, lesson, when))
+        new_lessons.append(_lesson(lesson_id, lesson, when, language))
     return PlanWeek(
         index=index,
         start_date=start,
         module_index=module_index,
         goal=draft.goal,
         lessons=[*kept, *new_lessons],
+        language=language,
     )
 
 
@@ -119,7 +122,7 @@ def _free_id(candidate: str, taken: set[str]) -> str:
     return lesson_id
 
 
-def _lesson(lesson_id: str, draft: LessonDraft, when: date) -> PlanLesson:
+def _lesson(lesson_id: str, draft: LessonDraft, when: date, language: Language) -> PlanLesson:
     return PlanLesson(
         id=lesson_id,
         title=draft.title,
@@ -128,6 +131,7 @@ def _lesson(lesson_id: str, draft: LessonDraft, when: date) -> PlanLesson:
         kind=draft.kind,
         scheduled_date=when,
         status=LessonStatus.TODO,
+        language=language,
     )
 
 
@@ -179,19 +183,25 @@ def assemble_plan(
     today: date,
     generated_at: datetime,
     difficulty: int = 0,
+    language: Language = Language.EN,
 ) -> Plan:
     """Turn a validated AI draft into a dated plan that starts this week."""
     start = monday_of(today)
     weeks: list[PlanWeek] = []
     for module_index, module in enumerate(draft.modules):
         for week in module.weeks:
-            weeks.append(build_week(len(weeks), module_index, week, start, preferred_days, today))
+            weeks.append(
+                build_week(
+                    len(weeks), module_index, week, start, preferred_days, today, language=language
+                )
+            )
     return Plan(
         skill_id=skill_id,
         modules=[PlanModule(title=m.title, summary=m.summary) for m in draft.modules],
         weeks=weeks,
         difficulty=difficulty,
         generated_at=generated_at,
+        language=language,
     )
 
 

@@ -126,9 +126,9 @@ anything that changes architecture also has an ADR.
 ## Phase 9: Arabic, accessibility and responsiveness
 
 - **Language** is remembered per device and starts from the browser's language. Signed-in learners'
-  profiles follow the app's language, and **the AI writes new content in it** (lessons, quizzes,
-  tutor replies, check-ins). Content written earlier stays in the language it was written in; the
-  demo seed and the curated community list are in English.
+  profiles follow the app's language, and **the AI writes new content in it** (plans, lessons,
+  tutor replies, check-ins). Tests are bilingual and the rest is translated on demand (see "After
+  the first live test"). The demo's tests are seeded in both languages, its plan in English.
 - **Arabic uses Western digits** (as in the translations) and Modern Standard Arabic, addressing the
   learner in the masculine generic form. Charts mirror their time axis in right-to-left layout.
 - **Accessibility is checked automatically**: Playwright runs axe (WCAG 2.2 A and AA) on every main
@@ -145,6 +145,21 @@ anything that changes architecture also has an ADR.
 - **"I don't know yet"** is offered on every placement question. It counts as a miss (no credit,
   and two misses in a row can end the test early), so the level reflects what the learner knows
   rather than lucky guesses. The test stays a test: no hints or explanations until it is finished.
-- **A placement test keeps the language it was written in.** Switching the app's language mid-test
-  changes the labels; the page says the test was written in the other language and offers to start
-  over in the new one (answers so far are discarded; the new test costs one AI request).
+- **Tests are written in English and Arabic at once.** Placement tests, their review summary and
+  sub-skill names, module quizzes and the review cards they create come from one AI call that
+  writes every learner-facing text in both languages, so switching language, even mid-test,
+  changes the question and its options on the spot and keeps the chosen answer. Scoring uses the
+  English sub-skill names; short answers can be written in either language.
+- **Plans and lessons are written in one language and translated on demand.** They are long, so
+  writing both versions up front would roughly double their AI cost and wait. Each module, week
+  and lesson remembers the language it was written in (a week rewritten after switching can
+  differ from the rest of the plan). Viewing it in the other language translates only those texts,
+  in batches of 40 run together, counted as one AI request; each translation is stored per user,
+  so it happens once. Tutor replies are translated too; the learner's own messages never are.
+  If translating fails, the original text is shown with a retry link.
+- **Not translated:** the check-in explanation (shown once, in the language it was asked in), quiz
+  titles on the progress chart, and the curated community list.
+- **Content from before this change:** plain single-language texts already stored (the placement
+  summary, review cards, quiz results) are shown as they are in both languages. Plans and lessons
+  without a language tag count as English. A placement test or module quiz that was in progress
+  in one language starts again as a bilingual one.

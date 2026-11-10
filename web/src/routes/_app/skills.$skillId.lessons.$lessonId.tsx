@@ -10,6 +10,11 @@ import {
 } from '../../features/lesson/lessonApi';
 import { TutorChat } from '../../features/lesson/TutorChat';
 import { allLessons, planQueryKey, planQueryOptions } from '../../features/plan/planApi';
+import {
+  useLessonTranslation,
+  usePlanTranslations,
+} from '../../features/translation/translationApi';
+import { TranslationStatus } from '../../features/translation/TranslationStatus';
 
 export const Route = createFileRoute('/_app/skills/$skillId/lessons/$lessonId')({
   component: LessonPage,
@@ -23,6 +28,18 @@ function LessonPage() {
   const plan = useQuery(planQueryOptions(user.uid, skillId));
   const lesson = plan.data ? allLessons(plan.data).find((l) => l.id === lessonId) : undefined;
   const content = useQuery({ ...lessonContentQueryOptions(skillId, lessonId), enabled: !!lesson });
+  const planText = usePlanTranslations([{ skillId, plan: plan.data }]);
+  const lessonText = useLessonTranslation(skillId, lessonId, content.data);
+  const translation = {
+    tr: lessonText.tr,
+    translating: planText.translating || lessonText.translating,
+    failed: planText.failed || lessonText.failed,
+    retry: () => {
+      planText.retry();
+      lessonText.retry();
+    },
+  };
+  const tr = lessonText.tr;
 
   const complete = useMutation({
     mutationFn: () => completeLesson(skillId, lessonId),
@@ -46,12 +63,13 @@ function LessonPage() {
           {t(`plan.kinds.${lesson.kind}`)} · {t('plan.minutes', { count: lesson.minutes })}
         </p>
         <h1 id="lesson-title" className="text-3xl font-bold tracking-tight">
-          <bdi>{lesson.title}</bdi>
+          <bdi>{planText.tr(lesson.title)}</bdi>
         </h1>
         <p className="mt-2 text-lg text-stone-700">
-          <bdi>{lesson.objective}</bdi>
+          <bdi>{planText.tr(lesson.objective)}</bdi>
         </p>
       </div>
+      <TranslationStatus translation={translation} />
 
       {content.isPending && <p role="status">{t('lesson.writing')}</p>}
       {content.isError && (
@@ -74,11 +92,13 @@ function LessonPage() {
               {t('lesson.explanation')}
             </h2>
             {/* Plain paragraphs only: AI text is never rendered as HTML. */}
-            {content.data.explanation.split(/\n\s*\n/).map((paragraph, index) => (
-              <p key={index} dir="auto" className="leading-relaxed text-stone-800">
-                {paragraph}
-              </p>
-            ))}
+            {tr(content.data.explanation)
+              .split(/\n\s*\n/)
+              .map((paragraph, index) => (
+                <p key={index} dir="auto" className="leading-relaxed text-stone-800">
+                  {paragraph}
+                </p>
+              ))}
           </section>
           <section
             aria-labelledby="exercise-title"
@@ -88,7 +108,7 @@ function LessonPage() {
               {t('lesson.exercise')}
             </h2>
             <p dir="auto" className="mt-1 text-stone-800">
-              {content.data.exercise}
+              {tr(content.data.exercise)}
             </p>
           </section>
           <section aria-labelledby="resources-title">
@@ -104,7 +124,7 @@ function LessonPage() {
                     rel="noopener noreferrer"
                     className="font-medium text-brand-700 underline"
                   >
-                    <bdi>{resource.title}</bdi>
+                    <bdi>{tr(resource.title)}</bdi>
                   </a>{' '}
                   <span className="text-sm text-stone-600">
                     ({t(`lesson.resourceKinds.${resource.kind}`)})
@@ -113,7 +133,7 @@ function LessonPage() {
               ))}
             </ul>
           </section>
-          <TutorChat skillId={skillId} lessonId={lessonId} messages={content.data.tutor} />
+          <TutorChat skillId={skillId} lessonId={lessonId} messages={content.data.tutor} tr={tr} />
         </>
       )}
 

@@ -1,11 +1,11 @@
 from datetime import datetime
 from enum import StrEnum
-from typing import Self
+from typing import Annotated, Self
 
 from pydantic import Field, model_validator
 
 from darb_api.schemas.base import ApiModel
-from darb_api.schemas.profile import Language
+from darb_api.schemas.text import LocalizedText, StoredText, lengths
 
 
 class QuestionKind(StrEnum):
@@ -25,13 +25,14 @@ class PlacementLevel(StrEnum):
 
 
 class QuizQuestionSpec(ApiModel):
-    """One placement question as written by the AI, including its answer key."""
+    """One placement question as written by the AI, including its answer key. `subskill` is the
+    English name of one of the quiz's sub-skills."""
 
     kind: QuestionKind
-    prompt: str = Field(min_length=5, max_length=400)
+    prompt: Annotated[LocalizedText, lengths(5, 400)]
     subskill: str = Field(min_length=2, max_length=40)
     difficulty: int = Field(ge=1, le=5)
-    options: list[str] = Field(max_length=5)
+    options: list[Annotated[LocalizedText, lengths(1, 200)]] = Field(max_length=5)
     correct_option: int | None
     reference_answer: str | None = Field(max_length=400)
 
@@ -52,12 +53,19 @@ class QuizQuestionSpec(ApiModel):
 class PlacementQuiz(ApiModel):
     """The AI's placement quiz: the sub-skills it measures and a bank of questions."""
 
-    subskills: list[str] = Field(min_length=3, max_length=6)
+    subskills: list[Annotated[LocalizedText, lengths(2, 40)]] = Field(min_length=3, max_length=6)
     questions: list[QuizQuestionSpec] = Field(min_length=6, max_length=10)
+
+    @property
+    def subskill_keys(self) -> list[str]:
+        return [name.en for name in self.subskills]
+
+    def subskill_named(self, key: str) -> LocalizedText:
+        return next(n for n in self.subskills if n.en.casefold() == key.casefold())
 
     @model_validator(mode="after")
     def _consistent(self) -> Self:
-        names = {name.casefold() for name in self.subskills}
+        names = {name.casefold() for name in self.subskill_keys}
         if len(names) != len(self.subskills):
             raise ValueError("sub-skill names must be unique")
         used = {question.subskill.casefold() for question in self.questions}
@@ -81,7 +89,7 @@ class AssessmentReview(ApiModel):
     """The AI's grades for short answers plus a short, encouraging summary for the learner."""
 
     grades: list[ShortAnswerGrade] = Field(max_length=10)
-    summary: str = Field(min_length=20, max_length=600)
+    summary: Annotated[LocalizedText, lengths(20, 600)]
 
 
 # ---- API models ----
@@ -92,9 +100,9 @@ class AssessmentQuestion(ApiModel):
 
     id: str
     kind: QuestionKind
-    prompt: str
-    subskill: str
-    options: list[str]
+    prompt: LocalizedText
+    subskill: LocalizedText
+    options: list[LocalizedText]
 
 
 class AnswerSubmission(ApiModel):
@@ -122,11 +130,10 @@ class AssessmentProgress(ApiModel):
     max_questions: int
     question: AssessmentQuestion | None
     finished: bool
-    language: Language
 
 
 class SubskillScore(ApiModel):
-    name: str
+    name: StoredText
     score: int = Field(ge=0, le=100)
 
 
@@ -134,6 +141,6 @@ class PlacementResult(ApiModel):
     """The outcome of the placement assessment, stored on the skill."""
 
     level: PlacementLevel
-    summary: str
+    summary: StoredText
     subskills: list[SubskillScore]
     completed_at: datetime

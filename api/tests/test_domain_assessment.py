@@ -82,13 +82,13 @@ def test_scores_weight_questions_by_difficulty() -> None:
         Answer(6, choice=0),  # Grammar d5 correct
     ]
 
-    scores = subskill_scores(QUIZ.subskills, QUESTIONS, answers, {"q4": 0.5})
+    scores = subskill_scores(QUIZ.subskill_keys, QUESTIONS, answers, {"q4": 0.5})
 
     assert scores == {"Grammar": 70, "Vocabulary": 100, "Listening": 67}
 
 
 def test_questions_skipped_by_an_early_stop_count_as_not_mastered() -> None:
-    scores = subskill_scores(QUIZ.subskills, QUESTIONS, [Answer(1, choice=0)], {})
+    scores = subskill_scores(QUIZ.subskill_keys, QUESTIONS, [Answer(1, choice=0)], {})
 
     assert scores["Vocabulary"] == 20  # 1 of a possible 1 + 4
     assert scores["Listening"] == 0  # confidence unanswered, short answer skipped
@@ -127,7 +127,7 @@ def test_not_knowing_any_kind_of_question_counts_as_a_miss() -> None:
 
 
 def test_not_knowing_earns_no_credit() -> None:
-    known = subskill_scores(QUIZ.subskills, QUESTIONS, [Answer(2, confidence=5)], {})
-    unknown = subskill_scores(QUIZ.subskills, QUESTIONS, [Answer(2, dont_know=True)], {})
+    known = subskill_scores(QUIZ.subskill_keys, QUESTIONS, [Answer(2, confidence=5)], {})
+    unknown = subskill_scores(QUIZ.subskill_keys, QUESTIONS, [Answer(2, dont_know=True)], {})
 
     assert known["Listening"] > unknown["Listening"] == 0

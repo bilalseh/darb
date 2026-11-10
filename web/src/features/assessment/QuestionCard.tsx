@@ -6,6 +6,8 @@ import {
 import { useEffect, useRef, useState, type SubmitEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useLocalized } from '../../lib/localized';
+
 const CONFIDENCE_LEVELS = [1, 2, 3, 4, 5] as const;
 
 interface QuestionCardProps {
@@ -27,6 +29,7 @@ export function QuestionCard({
   onAnswer,
 }: QuestionCardProps) {
   const { t } = useTranslation();
+  const local = useLocalized();
   const [choice, setChoice] = useState<number | null>(null);
   const [text, setText] = useState('');
   const [confidence, setConfidence] = useState<number | null>(null);
@@ -66,7 +69,7 @@ export function QuestionCard({
   return (
     <form onSubmit={handleSubmit} noValidate aria-labelledby={titleId} className="max-w-2xl">
       <p className="text-sm font-medium text-stone-600">
-        {t('assessment.questionNumber', { number })} · <bdi>{question.subskill}</bdi>
+        {t('assessment.questionNumber', { number })} · <bdi>{local(question.subskill)}</bdi>
       </p>
       <h2
         id={titleId}
@@ -74,15 +77,15 @@ export function QuestionCard({
         tabIndex={-1}
         className="mt-2 text-2xl font-bold tracking-tight focus:outline-none"
       >
-        <bdi>{question.prompt}</bdi>
+        <bdi>{local(question.prompt)}</bdi>
       </h2>
 
       <div className="mt-6" aria-describedby={showError ? errorId : undefined}>
         {question.kind === 'multiple_choice' && (
           <fieldset className="grid gap-3">
-            <legend className="sr-only">{question.prompt}</legend>
+            <legend className="sr-only">{local(question.prompt)}</legend>
             {question.options.map((option, index) => (
-              <label key={option} className={optionClass}>
+              <label key={index} className={optionClass}>
                 <input
                   type="radio"
                   name={titleId}
@@ -92,7 +95,7 @@ export function QuestionCard({
                   }}
                   className="size-4 accent-brand-700"
                 />
-                <bdi>{option}</bdi>
+                <bdi>{local(option)}</bdi>
               </label>
             ))}
           </fieldset>

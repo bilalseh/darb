@@ -17,14 +17,15 @@ from darb_api.schemas import (
     SkillStatus,
     SubskillScore,
 )
+from darb_api.schemas.text import LocalizedText
 from tests.conftest import AS_ADA, AS_DEMO, NOW
 from tests.fakes import FakeTokenVerifier, InMemoryUserRepository
 from tests.test_skills import answers
 
 PLACEMENT = PlacementResult(
     level=PlacementLevel.BEGINNER,
-    summary="A good start; build the basics first.",
-    subskills=[SubskillScore(name="Basics", score=30)],
+    summary=LocalizedText(en="A good start; build the basics first.", ar="بداية جيدة."),
+    subskills=[SubskillScore(name=LocalizedText(en="Basics", ar="الأساسيات"), score=30)],
     completed_at=NOW,
 )
 

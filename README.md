@@ -16,19 +16,19 @@ into a Spanish plan, with a streak, quiz history, review cards and a check-in wa
 
 ## Features
 
-| Area              | What you can do                                                                                                                                                      |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Onboarding        | A 7-step wizard (one question per screen, back and next keep answers, inline validation, review step), saved across reloads                                          |
-| Placement         | An adaptive AI quiz served one question at a time, easy to hard, stopping early; level and per-sub-skill radar. Answer keys never reach the browser                  |
-| Plan              | Modules, weekly goals and short lessons sized to your hours, dated on your preferred days; drag lessons (or "Move to" on phones); regenerate a week easier or harder |
-| Today             | Phone-first daily screen: streak, today's lessons with a time estimate, catch-up list, notices for moved lessons, due reviews and check-ins                          |
-| Lessons           | AI-written explanation, an exercise and vetted free resources; a tutor that answers in the lesson's context                                                          |
-| Practice          | Module quizzes; every miss becomes a spaced-repetition card (Leitner boxes, 1 to 30 days)                                                                            |
-| Adapting          | Missed lessons move to your lightest upcoming day automatically, and Today says what moved; the weekly check-in rewrites next week and explains why                  |
-| Progress          | Hours, streaks, quiz scores over time, badges, starting radar, community suggestions, and a printable self-issued summary                                            |
-| Plans and billing | Free (1 skill, 20 AI requests a day) and Pro (unlimited skills, 100 a day) with Stripe test-mode checkout, confirmation and cancellation                             |
-| Settings          | Profile, AI usage meter, language (the AI writes in it too), in-app reminders, delete account and all data                                                           |
-| Everywhere        | English and Arabic with full right-to-left layout; keyboard and screen reader friendly (axe checks in CI); reduced motion; loading, empty and error states           |
+| Area              | What you can do                                                                                                                                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Onboarding        | A 7-step wizard (one question per screen, back and next keep answers, inline validation, review step), saved across reloads                                                                                                          |
+| Placement         | An adaptive AI quiz served one question at a time, easy to hard, stopping early; level and per-sub-skill radar. Answer keys never reach the browser                                                                                  |
+| Plan              | Modules, weekly goals and short lessons sized to your hours, dated on your preferred days; drag lessons (or "Move to" on phones); regenerate a week easier or harder                                                                 |
+| Today             | Phone-first daily screen: streak, today's lessons with a time estimate, catch-up list, notices for moved lessons, due reviews and check-ins                                                                                          |
+| Lessons           | AI-written explanation, an exercise and vetted free resources; a tutor that answers in the lesson's context                                                                                                                          |
+| Practice          | Module quizzes; every miss becomes a spaced-repetition card (Leitner boxes, 1 to 30 days)                                                                                                                                            |
+| Adapting          | Missed lessons move to your lightest upcoming day automatically, and Today says what moved; the weekly check-in rewrites next week and explains why                                                                                  |
+| Progress          | Hours, streaks, quiz scores over time, badges, starting radar, community suggestions, and a printable self-issued summary                                                                                                            |
+| Plans and billing | Free (1 skill, 20 AI requests a day) and Pro (unlimited skills, 100 a day) with Stripe test-mode checkout, confirmation and cancellation                                                                                             |
+| Settings          | Profile, AI usage meter, language (the AI writes in it too), in-app reminders, delete account and all data                                                                                                                           |
+| Everywhere        | English and Arabic: tests come in both at once, plans and lessons are translated when you switch; full right-to-left layout; keyboard and screen reader friendly (axe checks in CI); reduced motion; loading, empty and error states |
 
 |                                             |                                                   |
 | ------------------------------------------- | ------------------------------------------------- |

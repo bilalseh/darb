@@ -39,7 +39,7 @@ def _progress(stored: StoredAssessment) -> AssessmentProgress:
             id=rules.question_id(index),
             kind=spec.kind,
             prompt=spec.prompt,
-            subskill=spec.subskill,
+            subskill=stored.quiz.subskill_named(spec.subskill),
             options=spec.options,
         )
     return AssessmentProgress(
@@ -47,7 +47,6 @@ def _progress(stored: StoredAssessment) -> AssessmentProgress:
         max_questions=len(questions),
         question=question,
         finished=index is None,
-        language=stored.language,
     )
 
 
@@ -83,7 +82,6 @@ async def start_assessment(
             started_at=clock(),
             provider=result.provider,
             prompt_version=prompt.version,
-            language=language,
         )
         await repository.save_assessment(user.uid, skill_id, stored)
     return _progress(stored)
@@ -93,8 +91,7 @@ async def start_assessment(
 async def restart_assessment(
     skill_id: str, user: CurrentUser, repository: RepositoryDep
 ) -> Response:
-    """Discard the test in progress, so the next start writes a new one (for example in the
-    language the learner has switched to)."""
+    """Discard the test in progress, so the next start writes a new one."""
     skill = await require_skill(repository, user.uid, skill_id)
     if skill.placement is not None:
         raise conflict("This skill already has a placement result")
@@ -146,11 +143,11 @@ def _review_prompt_sections(stored: StoredAssessment) -> tuple[str, str]:
             results.append(f"- {question.subskill}, difficulty {question.difficulty}: {outcome}")
         elif question.kind is QuestionKind.CONFIDENCE:
             results.append(
-                f'- {question.subskill}: rated "{question.prompt}" {answer.confidence}/5'
+                f'- {question.subskill}: rated "{question.prompt.en}" {answer.confidence}/5'
             )
         else:
             short_answers.append(
-                f"- id: {qid} (short answer)\n  Question: {question.prompt}\n"
+                f"- id: {qid} (short answer)\n  Question: {question.prompt.en}\n"
                 f"  Reference answer: {question.reference_answer}\n"
                 f'  Learner\'s answer: """{(answer.text or "")[:1000]}"""'
             )
@@ -185,11 +182,14 @@ async def complete_assessment(
         review = await ai.generate(prompt.task, AssessmentReview, prompt.system, prompt.user)
 
     grades = {grade.question_id: grade.score for grade in review.value.grades}
-    scores = rules.subskill_scores(stored.quiz.subskills, questions, answers, grades)
+    scores = rules.subskill_scores(stored.quiz.subskill_keys, questions, answers, grades)
     result = PlacementResult(
         level=rules.placement_level(scores),
         summary=review.value.summary,
-        subskills=[SubskillScore(name=name, score=score) for name, score in scores.items()],
+        subskills=[
+            SubskillScore(name=stored.quiz.subskill_named(key), score=score)
+            for key, score in scores.items()
+        ],
         completed_at=clock(),
     )
     await repository.save_placement(user.uid, skill_id, result)

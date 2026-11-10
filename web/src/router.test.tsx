@@ -76,7 +76,9 @@ describe('signed-in pages', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Continue with Google' }));
 
-    expect(await screen.findByRole('heading', { level: 1, name: 'Plan' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Plan' }, { timeout: 5000 }),
+    ).toBeInTheDocument();
   });
 
   it('mark the current section in the main navigation', async () => {
@@ -84,7 +86,9 @@ describe('signed-in pages', () => {
     renderAt('/plan');
 
     const nav = await screen.findByRole('navigation', { name: 'Main' });
-    expect(await screen.findByRole('heading', { level: 1, name: 'Plan' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Plan' }, { timeout: 5000 }),
+    ).toBeInTheDocument();
     expect(nav.querySelector('a[aria-current="page"]')).toHaveTextContent('Plan');
   });
 

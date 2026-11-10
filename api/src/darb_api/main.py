@@ -26,6 +26,7 @@ from darb_api.routes import (
     quiz,
     skills,
     stats,
+    translation,
 )
 from darb_api.service_auth import (
     AccountDeleter,
@@ -103,6 +104,7 @@ def create_app(
         matches.router,
         billing.router,
         maintenance.router,
+        translation.router,
     )
     for router in routers:
         app.include_router(router, prefix=API_PREFIX)

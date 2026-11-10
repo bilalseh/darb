@@ -1,6 +1,6 @@
 """The storage boundary: routes depend on this protocol, never on Firestore directly."""
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Protocol
 
@@ -11,7 +11,7 @@ from darb_api.repository.records import (
     StoredAssessment,
     StoredQuiz,
 )
-from darb_api.schemas import PlacementResult, Preferences, Profile, Skill, Tier
+from darb_api.schemas import Language, PlacementResult, Preferences, Profile, Skill, Tier
 from darb_api.schemas.checkin import Checkin
 from darb_api.schemas.lesson import LessonContent
 from darb_api.schemas.plan import Plan
@@ -110,6 +110,16 @@ class UserRepository(Protocol):
     async def expired_demo_users(self, created_before: datetime, limit: int) -> list[str]:
         """Demo accounts whose profile was created before the cutoff, oldest first."""
         ...
+
+    async def get_translations(
+        self, uid: str, language: Language, texts: Sequence[str]
+    ) -> dict[str, str]:
+        """Stored translations into `language`, keyed by original text; unknown ones left out."""
+        ...
+
+    async def save_translations(
+        self, uid: str, language: Language, translations: Mapping[str, str]
+    ) -> None: ...
 
     async def delete_user_data(self, uid: str) -> None:
         """Erase everything the user owns, including server-only answer keys."""

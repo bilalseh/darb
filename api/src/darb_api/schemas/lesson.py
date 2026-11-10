@@ -4,6 +4,7 @@ from enum import StrEnum
 from pydantic import Field
 
 from darb_api.schemas.base import ApiModel
+from darb_api.schemas.profile import Language
 
 
 class ResourceKind(StrEnum):
@@ -46,6 +47,7 @@ class TutorMessage(ApiModel):
     role: TutorRole
     text: str
     at: datetime
+    language: Language = Language.EN
 
 
 class LessonContent(ApiModel):
@@ -58,6 +60,7 @@ class LessonContent(ApiModel):
     resources: list[ResourceLink]
     tutor: list[TutorMessage]
     generated_at: datetime
+    language: Language = Language.EN  # of the explanation, exercise and resource titles
 
 
 class CompleteLessonRequest(ApiModel):

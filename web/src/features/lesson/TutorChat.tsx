@@ -4,15 +4,18 @@ import { useState, type SubmitEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { aiProblem } from '../assessment/assessmentApi';
+import type { Translate } from '../translation/translationApi';
 import { askTutor, lessonContentQueryOptions } from './lessonApi';
 
 interface TutorChatProps {
   skillId: string;
   lessonId: string;
   messages: LessonContent['tutor'];
+  /** Translates the tutor's replies; the learner's own messages stay as written. */
+  tr: Translate;
 }
 
-export function TutorChat({ skillId, lessonId, messages }: TutorChatProps) {
+export function TutorChat({ skillId, lessonId, messages, tr }: TutorChatProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState('');
@@ -49,7 +52,7 @@ export function TutorChat({ skillId, lessonId, messages }: TutorChatProps) {
             <span className="sr-only">
               {message.role === 'learner' ? t('lesson.you') : t('lesson.tutor')}:{' '}
             </span>
-            <p dir="auto">{message.text}</p>
+            <p dir="auto">{message.role === 'tutor' ? tr(message.text) : message.text}</p>
           </li>
         ))}
         {ask.isPending && (

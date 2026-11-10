@@ -6,17 +6,25 @@ import { Trans, useTranslation } from 'react-i18next';
 import { formatLocalDate, todayLocalIso } from '../../lib/dates';
 import { syncQueryOptions } from '../checkin/checkinApi';
 import { dueReviewsQueryOptions } from '../review/reviewApi';
+import type { Translate } from '../translation/translationApi';
 
 interface TodayNoticesProps {
   uid: string;
   plans: { skill: Skill; plan: Plan }[];
   checkinReminders: boolean;
   reviewReminders: boolean;
+  tr: Translate;
 }
 
 /** Explains automatic changes (moved lessons) and, if the learner wants reminders, offers due
 weekly check-ins and review cards. */
-export function TodayNotices({ uid, plans, checkinReminders, reviewReminders }: TodayNoticesProps) {
+export function TodayNotices({
+  uid,
+  plans,
+  checkinReminders,
+  reviewReminders,
+  tr,
+}: TodayNoticesProps) {
   const { t, i18n } = useTranslation();
   const today = todayLocalIso();
   const sync = useQuery(syncQueryOptions(uid));
@@ -50,7 +58,7 @@ export function TodayNotices({ uid, plans, checkinReminders, reviewReminders }: 
                     <Trans
                       i18nKey="checkin.moved"
                       values={{
-                        title: move.title,
+                        title: tr(move.title),
                         date: formatLocalDate(move.toDate, i18n.language),
                       }}
                       components={{ bdi: <bdi /> }}

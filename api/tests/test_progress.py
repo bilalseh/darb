@@ -56,7 +56,7 @@ def test_progress_summarises_the_demo(client: TestClient) -> None:
     assert skill["level"] == "elementary"
     assert skill["lessonsDone"] == 7
     assert skill["lessonsTotal"] == 24
-    assert [s["name"] for s in skill["startingSubskills"]] == [
+    assert [s["name"]["en"] for s in skill["startingSubskills"]] == [
         "Vocabulary",
         "Grammar",
         "Listening",

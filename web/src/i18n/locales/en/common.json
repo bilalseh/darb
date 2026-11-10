@@ -87,5 +87,10 @@
   "language": {
     "toggle": "العربية",
     "toggleLabel": "Switch to Arabic"
+  },
+  "translation": {
+    "pending": "Translating into English…",
+    "failed": "This could not be translated right now, so it is shown as it was written.",
+    "retry": "Try again"
   }
 }

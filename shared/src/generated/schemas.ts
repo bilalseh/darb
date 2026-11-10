@@ -71,3 +71,5 @@ export const ConfirmCheckoutRequestSchema = z
 export const EnsureProfileRequestSchema = z
   .object({ today: z.union([z.string().date(), z.null()]).default(null) })
   .strict();
+
+export const TranslationRequestSchema = z.object({ language: z.enum(['en', 'ar']) }).strict();

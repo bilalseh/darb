@@ -14,7 +14,6 @@ from darb_api.schemas.plan import (
     PlanWeek,
     WeekDraft,
 )
-from darb_api.schemas.quiz import QuestionResult, QuizResult, ReviewItem
 
 L, P, R, J = LessonKind.LEARN, LessonKind.PRACTICE, LessonKind.REVIEW, LessonKind.PROJECT
 
@@ -193,92 +192,3 @@ def demo_activity(now: datetime, plan: Plan) -> list[DayActivity]:
         old = totals.get(key, DayActivity(key, 0, 0))
         totals[key] = DayActivity(key, old.lessons + 1, old.minutes + lesson.minutes)
     return list(totals.values())
-
-
-_REVIEW_CARDS = [
-    (
-        "Which verb describes a feeling that can change: 'Estoy cansado' or 'Soy cansado'?",
-        ["Estoy cansado", "Soy cansado"],
-        0,
-        "Estar is used for states that change, like being tired.",
-    ),
-    (
-        "How do you politely order a coffee?",
-        ["Dame un café", "Quisiera un café, por favor", "Café ahora"],
-        1,
-        "Quisiera (I would like) is polite and very common when ordering.",
-    ),
-    (
-        "What is 'cuarenta y cinco'?",
-        ["35", "45", "54"],
-        1,
-        "Cuarenta is forty and cinco is five: 45.",
-    ),
-]
-
-
-def demo_reviews(now: datetime) -> tuple[ReviewItem, ...]:
-    """Three cards from the demo learner's first-week check, due today."""
-    today = now.date()
-    return tuple(
-        ReviewItem(
-            id=f"demo-review-{n}",
-            skill_id="",  # filled in when the demo skill is written
-            prompt=prompt,
-            options=options,
-            correct_option=correct,
-            explanation=explanation,
-            box=0,
-            due_on=today,
-            last_reviewed_on=today - timedelta(days=1),
-        )
-        for n, (prompt, options, correct, explanation) in enumerate(_REVIEW_CARDS, start=1)
-    )
-
-
-def demo_quiz_results(now: datetime) -> tuple[QuizResult, ...]:
-    """The Survival Spanish quiz, taken after week two; its misses became the review cards."""
-    results = [
-        QuestionResult(
-            id=f"q{n}",
-            prompt=prompt,
-            options=options,
-            chosen=correct if n > len(_REVIEW_CARDS) else (correct + 1) % len(options),
-            correct_option=correct,
-            correct=n > len(_REVIEW_CARDS),
-            explanation=explanation,
-        )
-        for n, (prompt, options, correct, explanation) in enumerate(
-            [*_REVIEW_CARDS, *_EXTRA_QUIZ_QUESTIONS], start=1
-        )
-    ]
-    return (
-        QuizResult(
-            skill_id="",  # filled in when the demo skill is written
-            module_index=0,
-            title="Survival Spanish",
-            score=round(100 * sum(r.correct for r in results) / len(results)),
-            results=results,
-            added_to_review=len(_REVIEW_CARDS),
-            completed_at=now - timedelta(days=8),
-        ),
-    )
-
-
-_EXTRA_QUIZ_QUESTIONS = [
-    ("How do you say 'goodbye'?", ["Hola", "Adiós", "Gracias"], 1, "Adiós means goodbye."),
-    (
-        "Which greeting fits the evening?",
-        ["Buenos días", "Buenas noches"],
-        1,
-        "Buenas noches is used at night.",
-    ),
-    ("What does 'gracias' mean?", ["Please", "Thank you", "Sorry"], 1, "Gracias means thank you."),
-    ("Which is 'twenty'?", ["Doce", "Veinte", "Treinta"], 1, "Veinte is twenty."),
-    (
-        "How do you ask the time?",
-        ["¿Qué hora es?", "¿Cómo estás?"],
-        0,
-        "¿Qué hora es? asks for the time.",
-    ),
-]

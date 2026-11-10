@@ -8,24 +8,30 @@ import {
   formatShortDate,
   mondayOfIso,
 } from '../../lib/dates';
+import type { Translate } from '../translation/translationApi';
 import { allLessons } from './planApi';
 
 const WEEKS_SHOWN = 4;
+const asWritten: Translate = (text) => text;
 
 interface PlanCalendarProps {
   plan: Plan;
   today: string;
   onMove: (lessonId: string, scheduledDate: string) => void;
+  /** Shows lesson names in the app's language; as written when left out. */
+  tr?: Translate;
 }
 
 function LessonChip({
   lesson,
   moveDays,
   onMove,
+  tr,
 }: {
   lesson: PlanLesson;
   moveDays: string[];
   onMove: PlanCalendarProps['onMove'];
+  tr: Translate;
 }) {
   const { t, i18n } = useTranslation();
   const done = lesson.status === 'done';
@@ -47,13 +53,13 @@ function LessonChip({
       <p className="font-medium">
         {done && <span className="sr-only">{t('plan.doneLabel')} </span>}
         {done && <span aria-hidden="true">✓ </span>}
-        <bdi>{lesson.title}</bdi>
+        <bdi>{tr(lesson.title)}</bdi>
       </p>
       <p className="text-xs text-stone-600">{t('plan.minutes', { count: lesson.minutes })}</p>
       {!done && (
         <div className="mt-1">
           <label htmlFor={selectId} className="sr-only">
-            {t('plan.moveLabel', { title: lesson.title })}
+            {t('plan.moveLabel', { title: tr(lesson.title) })}
           </label>
           <select
             id={selectId}
@@ -78,7 +84,7 @@ function LessonChip({
 }
 
 /** The next four weeks. Drag a lesson to another day, or use its "Move to" list (keyboard, touch). */
-export function PlanCalendar({ plan, today, onMove }: PlanCalendarProps) {
+export function PlanCalendar({ plan, today, onMove, tr = asWritten }: PlanCalendarProps) {
   const { t, i18n } = useTranslation();
   const lastPlanDay = addDaysIso(plan.weeks.at(-1)?.startDate ?? today, 6);
   const firstShown = mondayOfIso(today);
@@ -140,6 +146,7 @@ export function PlanCalendar({ plan, today, onMove }: PlanCalendarProps) {
                           lesson={lesson}
                           moveDays={moveDays}
                           onMove={onMove}
+                          tr={tr}
                         />
                       ))}
                     </ul>

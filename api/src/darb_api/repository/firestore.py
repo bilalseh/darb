@@ -5,8 +5,10 @@ from typing import Any
 
 from google.api_core.exceptions import Aborted, AlreadyExists
 from google.cloud.firestore import AsyncClient, AsyncDocumentReference, Increment
+from pydantic import ValidationError
 
 from darb_api.repository.firestore_account import FirestoreAccountStore
+from darb_api.repository.firestore_translations import FirestoreTranslationStore
 from darb_api.repository.records import DayActivity, NewSkill, StoredAssessment, StoredQuiz
 from darb_api.schemas import PlacementResult, Profile, Skill, SkillStatus
 from darb_api.schemas.checkin import Checkin
@@ -30,7 +32,7 @@ def _skill_document(skill: NewSkill) -> dict[str, Any]:
     return document
 
 
-class FirestoreUserRepository(FirestoreAccountStore):
+class FirestoreUserRepository(FirestoreAccountStore, FirestoreTranslationStore):
     def __init__(self, client: AsyncClient) -> None:
         self._db = client
 
@@ -107,7 +109,10 @@ class FirestoreUserRepository(FirestoreAccountStore):
         snapshot = await self._assessment_key(uid, skill_id).get()
         if not snapshot.exists:
             return None
-        return StoredAssessment.model_validate(snapshot.to_dict() or {})
+        try:
+            return StoredAssessment.model_validate(snapshot.to_dict() or {})
+        except ValidationError:
+            return None  # written in one language before tests were bilingual: start a new one
 
     async def save_assessment(self, uid: str, skill_id: str, assessment: StoredAssessment) -> None:
         await self._assessment_key(uid, skill_id).set(assessment.model_dump(mode="json"))
@@ -185,7 +190,12 @@ class FirestoreUserRepository(FirestoreAccountStore):
 
     async def get_quiz(self, uid: str, skill_id: str, module_index: int) -> StoredQuiz | None:
         snapshot = await self._quiz_key(uid, skill_id, module_index).get()
-        return StoredQuiz.model_validate(snapshot.to_dict() or {}) if snapshot.exists else None
+        if not snapshot.exists:
+            return None
+        try:
+            return StoredQuiz.model_validate(snapshot.to_dict() or {})
+        except ValidationError:
+            return None  # written in one language before quizzes were bilingual: start a new one
 
     async def save_quiz(self, uid: str, quiz: StoredQuiz) -> None:
         reference = self._quiz_key(uid, quiz.skill_id, quiz.module_index)

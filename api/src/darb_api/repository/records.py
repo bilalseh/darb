@@ -8,7 +8,6 @@ from darb_api.schemas import OnboardingAnswers, PlacementResult, SkillStatus
 from darb_api.schemas.assessment import PlacementQuiz
 from darb_api.schemas.base import ApiModel
 from darb_api.schemas.plan import Plan
-from darb_api.schemas.profile import Language
 from darb_api.schemas.quiz import QuizQuestionDraft, QuizResult, ReviewItem
 
 
@@ -51,7 +50,6 @@ class StoredAssessment(ApiModel):
     started_at: datetime
     provider: str
     prompt_version: str
-    language: Language = Language.EN
 
     def domain_answers(self) -> list[Answer]:
         return [answer.to_domain() for answer in self.answers]

@@ -8,14 +8,12 @@ import {
   aiProblem,
   assessmentQueryKey,
   completeAssessment,
-  restartAssessment,
   startAssessment,
   submitAnswer,
 } from '../../features/assessment/assessmentApi';
 import { PlacementResultView } from '../../features/assessment/PlacementResultView';
 import { QuestionCard } from '../../features/assessment/QuestionCard';
 import { skillsQueryKey, skillsQueryOptions } from '../../features/skills/skillsQuery';
-import { currentLanguage } from '../../i18n';
 
 export const Route = createFileRoute('/_app/skills/$skillId/assessment')({
   component: AssessmentPage,
@@ -54,13 +52,6 @@ function AssessmentPage() {
     mutationFn: (body: Parameters<typeof submitAnswer>[1]) => submitAnswer(skillId, body),
     onSuccess: (next: AssessmentProgress) => {
       queryClient.setQueryData(assessmentQueryKey(skillId), next);
-    },
-  });
-
-  const restart = useMutation({
-    mutationFn: async () => {
-      await restartAssessment(skillId);
-      await queryClient.resetQueries({ queryKey: assessmentQueryKey(skillId) });
     },
   });
 
@@ -107,35 +98,6 @@ function AssessmentPage() {
 
       {!result && progress.data && !finished && progress.data.question && (
         <>
-          {progress.data.language !== currentLanguage() && (
-            <div role="note" className="max-w-2xl rounded-md bg-sky-50 px-4 py-3 text-sky-950">
-              <p>
-                {t('assessment.languageNotice', {
-                  language: t(`assessment.languages.${progress.data.language}`),
-                })}
-              </p>
-              <button
-                type="button"
-                disabled={restart.isPending}
-                onClick={() => {
-                  restart.mutate();
-                }}
-                className="mt-2 font-semibold underline disabled:opacity-60"
-              >
-                {restart.isPending
-                  ? t('assessment.restarting')
-                  : t('assessment.restartIn', {
-                      language: t(`assessment.languages.${currentLanguage()}`),
-                    })}
-              </button>
-              <p className="mt-1 text-sm">{t('assessment.restartHint')}</p>
-              {restart.isError && (
-                <p role="alert" className="mt-1 text-sm text-red-800">
-                  {t('assessment.restartFailed')}
-                </p>
-              )}
-            </div>
-          )}
           <p className="text-sm text-stone-600">
             {t('assessment.progress', {
               answered: progress.data.answered,

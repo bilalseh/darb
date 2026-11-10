@@ -12,6 +12,7 @@ from darb_api.demo import demo_skills
 from darb_api.domain.usage import UsageLimitError, UsageScope
 from darb_api.repository import FirestoreUserRepository, RecordedAnswer, StoredAssessment
 from darb_api.schemas import PlacementLevel, PlacementResult, SkillStatus, SubskillScore
+from darb_api.schemas.text import LocalizedText
 from tests.conftest import NOW
 from tests.quiz_factory import sample_quiz
 
@@ -52,8 +53,8 @@ async def test_assessment_round_trip_and_placement(repository: FirestoreUserRepo
 
     result = PlacementResult(
         level=PlacementLevel.INTERMEDIATE,
-        summary="Solid foundations, keep practising the harder material.",
-        subskills=[SubskillScore(name="Grammar", score=61)],
+        summary=LocalizedText(en="Solid foundations, keep practising.", ar="أساس متين."),
+        subskills=[SubskillScore(name=LocalizedText(en="Grammar", ar="القواعد"), score=61)],
         completed_at=NOW,
     )
     await repository.save_placement(uid, skill.id, result)

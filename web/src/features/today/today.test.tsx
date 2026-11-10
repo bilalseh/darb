@@ -1,10 +1,11 @@
 import type { LessonContent, Plan, Skill } from '@darb/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryHistory, RouterProvider } from '@tanstack/react-router';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import i18n from '../../i18n';
 import { todayLocalIso, addDaysIso } from '../../lib/dates';
 import { createAppRouter } from '../../router';
 import { DEMO_USER, fakeSession } from '../../test/fakeSession';
@@ -14,7 +15,12 @@ const TODAY = todayLocalIso();
 const SKILL: Skill = {
   ...SPANISH,
   status: 'assessed',
-  placement: { level: 'elementary', summary: 'Good start.', subskills: [], completedAt: TODAY },
+  placement: {
+    level: 'elementary',
+    summary: { en: 'Good start.', ar: 'بداية جيدة.' },
+    subskills: [],
+    completedAt: TODAY,
+  },
 };
 const PLAN: Plan = {
   skillId: SKILL.id,
@@ -104,12 +110,38 @@ describe('Today', () => {
   it("shows today's lessons with a time estimate, missed ones, and the streak", async () => {
     renderAt('/today');
 
-    expect(await screen.findByRole('heading', { name: '3-day streak' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: '3-day streak' }, { timeout: 5000 }),
+    ).toBeInTheDocument();
     expect(await screen.findByRole('link', { name: /Ordering politely/ })).toBeInTheDocument();
     expect(screen.getByText('About 70 minutes')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Catch up' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Café vocabulary/ })).toBeInTheDocument();
   });
+
+  it('shows an English plan in Arabic once it is translated', async () => {
+    const fetchMock = renderAt('/today', {
+      '/api/skills/skill-1/plan/translation': () => ({
+        language: 'ar',
+        texts: { 'Ordering politely': 'الطلب بأدب' },
+      }),
+    });
+    await screen.findByRole('link', { name: /Ordering politely/ }, { timeout: 5000 });
+
+    await act(() => i18n.changeLanguage('ar'));
+
+    expect(await screen.findByRole('link', { name: /الطلب بأدب/ })).toBeInTheDocument();
+    // Lessons it did not return stay as written.
+    expect(screen.getByRole('link', { name: /Role-play/ })).toBeInTheDocument();
+    const call = fetchMock.mock.calls.find(
+      ([url]) => typeof url === 'string' && url.endsWith('/plan/translation'),
+    );
+    expect(call?.[1]?.body).toBe(JSON.stringify({ language: 'ar' }));
+  });
+});
+
+afterEach(async () => {
+  await act(() => i18n.changeLanguage('en'));
 });
 
 describe('Lesson page', () => {

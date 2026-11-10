@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { statsQueryKey } from '../../features/lesson/lessonApi';
 import { answerReview, dueReviewsQueryOptions } from '../../features/review/reviewApi';
+import { useLocalized } from '../../lib/localized';
 
 export const Route = createFileRoute('/_app/review')({
   component: ReviewPage,
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/_app/review')({
 
 function ReviewPage() {
   const { t } = useTranslation();
+  const local = useLocalized();
   const { user } = Route.useRouteContext();
   const queryClient = useQueryClient();
   const due = useQuery(dueReviewsQueryOptions(user.uid));
@@ -60,7 +62,7 @@ function ReviewPage() {
           </p>
           <fieldset className="mt-2">
             <legend className="text-xl font-semibold">
-              <bdi>{card.prompt}</bdi>
+              <bdi>{local(card.prompt)}</bdi>
             </legend>
             <div className="mt-4 grid gap-2">
               {card.options.map((option, index) => {
@@ -68,7 +70,7 @@ function ReviewPage() {
                 const isRight = index === card.correctOption;
                 return (
                   <label
-                    key={option}
+                    key={index}
                     className={`flex items-center gap-3 rounded-lg border p-3 ${
                       reveal && isRight
                         ? 'border-emerald-600 bg-emerald-50'
@@ -87,7 +89,7 @@ function ReviewPage() {
                       }}
                       className="size-4 accent-brand-700"
                     />
-                    <bdi>{option}</bdi>
+                    <bdi>{local(option)}</bdi>
                     {reveal && isRight && (
                       <span className="ms-auto text-sm font-semibold">
                         {t('review.correctAnswer')}
@@ -104,7 +106,7 @@ function ReviewPage() {
                 {outcome.correct ? t('review.right') : t('review.wrong')}
               </p>
               <p dir="auto" className="mt-1 text-stone-700">
-                {card.explanation}
+                {local(card.explanation)}
               </p>
               <button
                 type="button"

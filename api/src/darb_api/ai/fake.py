@@ -9,6 +9,29 @@ _SHORT_ANSWER_ID = re.compile(r"^\s*-\s*id:\s*(q\d+)\s*\(short answer\)", re.MUL
 _WEEKS = re.compile(r"^- Weeks: (\d+)$", re.MULTILINE)
 _REMAINING = re.compile(r"add up to\s+roughly (\d+)")
 _MINUTES = re.compile(r"(?:^- Minutes per week: |roughly\s+)(\d+)", re.MULTILINE)
+_NUMBERED = re.compile(r"^\d+\. (\".*\")$", re.MULTILINE)
+
+# Arabic versions of the fake's English texts, for the bilingual tasks.
+_ARABIC = {
+    "Foundations": "الأساسيات",
+    "Technique": "الأسلوب",
+    "Application": "التطبيق",
+    "The first option": "الخيار الأول",
+    "The second option": "الخيار الثاني",
+    "The third option": "الخيار الثالث",
+    "The right one": "الإجابة الصحيحة",
+    "A wrong one": "إجابة خاطئة",
+    "Another wrong one": "إجابة خاطئة أخرى",
+}
+
+
+def _both(english: str) -> dict[str, str]:
+    return {"en": english, "ar": _ARABIC.get(english, f"بالعربية: {english}")}
+
+
+def _translate(request: AiRequest) -> dict[str, list[str]]:
+    prefix = "بالعربية: " if "Modern Standard Arabic" in request.system else "In English: "
+    return {"texts": [prefix + json.loads(text) for text in _NUMBERED.findall(request.prompt)]}
 
 
 def _number(pattern: re.Pattern[str], text: str, default: int) -> int:
@@ -53,10 +76,12 @@ def _plan(weeks: int, minutes: int) -> dict[str, object]:
 def _mc(prompt: str, subskill: str, difficulty: int) -> dict[str, object]:
     return {
         "kind": "multiple_choice",
-        "prompt": prompt,
+        "prompt": _both(prompt),
         "subskill": subskill,
         "difficulty": difficulty,
-        "options": ["The first option", "The second option", "The third option"],
+        "options": [
+            _both(o) for o in ("The first option", "The second option", "The third option")
+        ],
         "correctOption": 0,
         "referenceAnswer": None,
     }
@@ -64,12 +89,12 @@ def _mc(prompt: str, subskill: str, difficulty: int) -> dict[str, object]:
 
 def _quiz() -> dict[str, object]:
     return {
-        "subskills": ["Foundations", "Technique", "Application"],
+        "subskills": [_both(name) for name in ("Foundations", "Technique", "Application")],
         "questions": [
             _mc("Which option describes the very first step?", "Foundations", 1),
             {
                 "kind": "confidence",
-                "prompt": "I can explain the basic terms to a friend.",
+                "prompt": _both("I can explain the basic terms to a friend."),
                 "subskill": "Foundations",
                 "difficulty": 1,
                 "options": [],
@@ -79,7 +104,7 @@ def _quiz() -> dict[str, object]:
             _mc("Which option is the common beginner mistake?", "Technique", 2),
             {
                 "kind": "short_answer",
-                "prompt": "In one or two sentences, how would you practise this week?",
+                "prompt": _both("In one or two sentences, how would you practise this week?"),
                 "subskill": "Application",
                 "difficulty": 2,
                 "options": [],
@@ -108,7 +133,7 @@ class FakeProvider:
                 "You have a solid grip on the basics. The next step is regular, focused "
                 "practice on the harder techniques."
             )
-            return json.dumps({"grades": grades, "summary": summary})
+            return json.dumps({"grades": grades, "summary": _both(summary)})
         if request.task == "plan_outline":
             weeks = _number(_WEEKS, request.prompt, 4)
             return json.dumps(_plan(weeks, _number(_MINUTES, request.prompt, 180)))
@@ -147,15 +172,16 @@ class FakeProvider:
             )
         if request.task == "module_quiz":
             question = {
-                "prompt": "Which option is correct?",
-                "options": ["The right one", "A wrong one", "Another wrong one"],
+                "options": [
+                    _both(o) for o in ("The right one", "A wrong one", "Another wrong one")
+                ],
                 "correctOption": 0,
-                "explanation": "The first option matches what the lessons taught.",
+                "explanation": _both("The first option matches what the lessons taught."),
             }
             return json.dumps(
                 {
                     "questions": [
-                        {**question, "prompt": f"Question {n}: which is correct?"}
+                        {**question, "prompt": _both(f"Question {n}: which is correct?")}
                         for n in range(1, 6)
                     ]
                 }
@@ -164,6 +190,8 @@ class FakeProvider:
             return json.dumps(
                 {"reply": "Good question! Try breaking it into one small step and practise that."}
             )
+        if request.task == "translate":
+            return json.dumps(_translate(request), ensure_ascii=False)
         if request.task == "plan_week":
             return json.dumps(_week(0, _number(_REMAINING, request.prompt, 180)))
         raise ProviderError(self.name, FailureKind.REJECTED, f"unknown task {request.task}")

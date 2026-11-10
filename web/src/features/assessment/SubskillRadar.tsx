@@ -10,6 +10,8 @@ import {
   Tooltip,
 } from 'recharts';
 
+import { useLocalized } from '../../lib/localized';
+
 // brand-600: passes the palette checks (lightness, chroma, 3:1 contrast) on the light surface.
 const SERIES_COLOR = '#0d9488';
 const GRID_COLOR = '#e7e5e4'; // stone-200: recessive
@@ -24,6 +26,9 @@ function prefersReducedMotion(): boolean {
 /** One series, so no legend: the heading names it, and the list below gives every value. */
 export function SubskillRadar({ scores }: { scores: readonly SubskillScore[] }) {
   const { t } = useTranslation();
+  const local = useLocalized();
+  // Older placements stored each name as one plain string.
+  const named = scores.map((item) => ({ name: local(item.name), score: item.score }));
 
   return (
     <figure>
@@ -31,7 +36,7 @@ export function SubskillRadar({ scores }: { scores: readonly SubskillScore[] }) 
         <ResponsiveContainer>
           {/* The chart is hidden from assistive tech (the list below carries the data), so it
               must not take keyboard focus either. */}
-          <RadarChart data={[...scores]} outerRadius="72%" accessibilityLayer={false}>
+          <RadarChart data={named} outerRadius="72%" accessibilityLayer={false}>
             <PolarGrid stroke={GRID_COLOR} />
             <PolarAngleAxis dataKey="name" tick={{ fill: LABEL_COLOR, fontSize: 13 }} />
             <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
@@ -53,7 +58,7 @@ export function SubskillRadar({ scores }: { scores: readonly SubskillScore[] }) 
       </div>
       <figcaption>
         <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
-          {scores.map((item) => (
+          {named.map((item) => (
             <div
               key={item.name}
               className="flex justify-between gap-4 border-b border-stone-100 py-1"

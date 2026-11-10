@@ -4,6 +4,7 @@ from enum import StrEnum
 from pydantic import Field
 
 from darb_api.schemas.base import ApiModel
+from darb_api.schemas.profile import Language
 
 
 class LessonKind(StrEnum):
@@ -62,6 +63,7 @@ class PlanLesson(ApiModel):
     kind: LessonKind
     scheduled_date: date
     status: LessonStatus
+    language: Language = Language.EN  # the language its title and objective are written in
 
 
 class PlanWeek(ApiModel):
@@ -70,6 +72,7 @@ class PlanWeek(ApiModel):
     module_index: int
     goal: str
     lessons: list[PlanLesson]
+    language: Language = Language.EN  # of the goal; a rewritten week can differ from the plan
 
 
 class PlanModule(ApiModel):
@@ -101,6 +104,7 @@ class Plan(ApiModel):
     generated_at: datetime
     last_reschedule: RescheduleNotice | None = None
     checked_in_weeks: list[int] = Field(default_factory=list)
+    language: Language = Language.EN  # of the module titles and summaries
 
 
 # ---- Requests ----
